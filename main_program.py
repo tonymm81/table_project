@@ -3,8 +3,7 @@ from tkinter import *
 from broadlink import *
 from save_to_file import *
 from shutdown_weatherstation import *
-import broadlink # wlan plugs
-#from grove.gpio import GPIO
+import broadlink # wlan plus
 #from grovepi import *
 import RPi.GPIO as GP
 import sys
@@ -13,13 +12,17 @@ import os
 import smbus
 
 trigger = 4
-echo = 15
-relay_down_limit = 23
+echo = 14
+relay_down_limit = 3
 relay_switch_direction = 2
-relay_up_limit = 3
-relay_up = 14
-relay_down = 17
+relay_up_limit = 23
+relay_up = 15
+relay_down = 27
+up_rule = 0
+down_rule = 0
+temp_value = 0
 
+GP.setwarnings(False)
 GP.setmode(GP.BCM)
 GP.setup(trigger, GP.IN)
 GP.setup(echo, GP.IN)
@@ -32,8 +35,8 @@ GP.output(relay_switch_direction, GP.LOW)
 GP.output(relay_up, GP.LOW)
 GP.output(relay_down, GP.LOW)
 GP.setup(trigger, GP.IN, pull_up_down=GP.PUD_DOWN)
-GP.setup(relay_down_limit, GP.IN, pull_up_down=GP.PUD_DOWN)
-GP.setup(relay_up_limit, GP.IN, pull_up_down=GP.PUD_DOWN)
+#GP.setup(relay_down_limit, GP.IN, pull_up_down=GP.PUD_DOWN)
+#GP.setup(relay_up_limit, GP.IN, pull_up_down=GP.PUD_DOWN)
 
 root = Tk()
 root.geometry("880x500")
@@ -53,13 +56,74 @@ label_1.pack()
 #ultrasonic_ranger = trigger
 
 
+def motor_up(up_rule):
+    print("in motorfunction")
+    if up_rule == 1:
+        print("ei mennä ylös")
+        GP.output(relay_up, GP.LOW)
+        up_rule = 2
+        
+    
+    if up_rule == 0:
+        print("mennään ylös")
+        GP.output(relay_up, GP.HIGH)
+        #up_rule = 1
+            
+        
+    return up_rule
+
+
+def motor_down(down_rule):
+    print("in motorfunction")
+    if down_rule == 1:
+        print("ei mennä alas")
+        GP.output(relay_down, GP.LOW)
+        down_rule = 2
+        
+    
+    if down_rule == 0:
+        print("mennään alas")
+        GP.output(relay_down, GP.HIGH)
+        #down_rule = 1
+            
+        
+    return down_rule
  
 def going_up():
-     return
+    GP.add_event_detect(relay_up_limit, GP.RISING)
+    up_rule = 0
+    while True:
+        print("are we really in loop")
+        if GP.event_detected(relay_up_limit):
+            up_rule = 1
+
+        time.sleep(1)
+        #up_rule = GP.input(relay_up_limit)
+        #print(up_rule)
+        up_rule = motor_up(up_rule)
+#         temp_value = up_rule   
+        if up_rule == 2:
+            GP.remove_event_detect(relay_up_limit)
+            break
+    return
  
  
 def going_down():
-     return
+    down_rule = 0
+    GP.add_event_detect(relay_up_limit, GP.RISING)
+    while True:
+        if GP.event_detected(relay_up_limit):
+            down_rule = 1
+
+        print("are we really in loop")
+        time.sleep(1)
+        #temp_value = GP.input(relay_down_limit)
+        print(temp_value)
+        down_rule = motor_down(down_rule)
+        #temp_value = down_rule   
+        if down_rule == 2: 
+            break
+    return
  
  
 def load_setup():
