@@ -3,8 +3,8 @@ from tkinter import *
 from broadlink import *
 from save_to_file import *
 from shutdown_weatherstation import *
-import broadlink # wlan plus
-#from grovepi import *
+import broadlink # wlan plus bulps
+
 import RPi.GPIO as GP
 import sys
 import time
@@ -59,10 +59,14 @@ label_1.pack()
 GP.add_event_detect(relay_up_limit, GP.RISING)
 GP.add_event_detect(relay_down_limit, GP.RISING)
 
+def update_setpoint(level):
+    global level1
+    level1 = level
+    print(level1)
+    return
 
 def ask_user(level, what_device):
     level = DoubleVar()
-    
     top1 = Toplevel()
     top1.title('table measurement')
     top1.geometry("400x300")
@@ -71,7 +75,7 @@ def ask_user(level, what_device):
     l2 = Label(top1)
     s2 = Scale( top1, variable = level,from_ = 50, to = 1,orient = VERTICAL)
     s2.pack(anchor = CENTER)
-    print(level)
+    
     sel = "Vertical Scale Value = " + str(level.get())
     l2.config(text = sel, font =("Courier", 14)) 
      
@@ -79,15 +83,19 @@ def ask_user(level, what_device):
     l4 = Label(top1, text = "set measurement")
   
     b2 = Button(top1, text ="choose measurement",
-            command = motor_up(1),
+            command = lambda:level.get(),
             bg = "purple", 
             fg = "white")
   
     btn = Button(top1, text="stop", fg="white",bg="black", font=("helvetica", 15), command=lambda: [motor_up(1), top1.destroy()]).pack()
-    
+    b3 = Button(top1, text ="update measurement",
+            command = lambda: [update_setpoint(level.get()), motor_up(0)],
+            bg = "purple", 
+            fg = "white")
      
     l4.pack()
     b2.pack()
+    b3.pack()
     l2.pack()
     root.update()
     level1 = level
@@ -97,7 +105,7 @@ def ask_user(level, what_device):
 
 
 def motor_up(up_rule):
-    
+    global level1
     print("in motorfunction")
     if up_rule == 1:
         print("ei mennä ylös")
@@ -108,9 +116,17 @@ def motor_up(up_rule):
     
     if up_rule == 0:
         print("mennään ylös")
-        GP.output(relay_switch_direction, GP.HIGH)
-        GP.output(relay_up, GP.HIGH)
-        
+        level_temp = round(level1)
+        level_temp = int(level_temp)
+        print(level1)
+        for i in range(0, level_temp):
+            
+            GP.output(relay_switch_direction, GP.HIGH)
+            GP.output(relay_up, GP.HIGH)
+            time.sleep(1)
+            i = i+1
+    GP.output(relay_up, GP.LOW)
+    GP.output(relay_switch_direction, GP.LOW)  
     return up_rule
 
 
@@ -219,9 +235,9 @@ def exit_only():
  
  
 def main_waiting_loop():
-    label_1.configure(text = "in main loop")
-    label_1.pack()
-    measure_distance()
+    #label_1.configure(text = "in main loop")
+    #label_1.pack()
+    #measure_distance()
     return
 
 
