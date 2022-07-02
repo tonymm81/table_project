@@ -28,3 +28,4 @@ perhaps i build up totally different motorcontrol function. This how we can do l
 
 ver 103:
 deleted motor_up and motor_down function. also changed going up and going down functions. testing and figureout the bugs. now changes are made and lots of code deleted.
+bug: motorcontrol function doesnt work so perhaps probles is there that i have to control code flow where program goes after user choose the measurement.

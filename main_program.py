@@ -42,8 +42,8 @@ root.geometry("880x500")
 root.configure(background="black")
 scrollbar = Scrollbar(root)
 scrollbar.pack( side = RIGHT, fill = Y )
-btn = Button(root, text="Adjust table up",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_up(level1)).pack() 
-btn1 = Button(root, text="Adjust table down",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_down(level1)).pack() 
+btn = Button(root, text="Adjust table up",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_up()).pack() 
+btn1 = Button(root, text="Adjust table down",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_down()).pack() 
 btn2 = Button(root, text="Control the lights and wlan plugs",fg="white", bg="black",font=("helvetica", 15), command=lambda: control_wlan_devices()).pack() 
 btn3 = Button(root, text="Save this setup",fg="white", bg="black",font=("helvetica", 15), command=lambda: save_setup()).pack() 
 btn3 = Button(root, text="Load setup",fg="white", bg="black",font=("helvetica", 15), command=lambda: load_setup()).pack() 
@@ -62,7 +62,7 @@ def update_setpoint(level):
     print(level1)
     return
 
-def ask_user(level):
+def ask_user(level, direction, limit_switch):
     level = DoubleVar()
     top1 = Toplevel()
     top1.title('table measurement')
@@ -86,7 +86,7 @@ def ask_user(level):
   
     btn = Button(top1, text="stop", fg="white",bg="black", font=("helvetica", 15), command=lambda: [motor_up(1), top1.destroy()]).pack()
     b3 = Button(top1, text ="update measurement",
-            command = lambda: [update_setpoint(level.get()), top1.destroy()],
+            command = lambda: [update_setpoint(level.get()),motor_control(level1, direction, limit_switch), top1.destroy()],
             bg = "purple", 
             fg = "white")
      
@@ -104,8 +104,9 @@ def ask_user(level):
 # lets build up the for loop what drives motor until limit switch says no or measurement goes to right distance. i dont have sensors so i have to use time rule now.
 #delete the rules. lets make this to forloop anf there whe end loop when limit switch activated. no needed up or down rules anymore.perhaps we dont need to use interrupt pins
 def motor_control(level1, direction, limit_switch):# not tested!!!!!!!!!
-    print("mennään ylös")
-    level_temp = round(level1)
+    print("in motor function")
+    level_temp = level1
+    level_temp = round(level_temp)
     level_temp = int(level_temp)
     print(level1)
     for i in range(0, level_temp): # insert here limit switch
@@ -113,9 +114,12 @@ def motor_control(level1, direction, limit_switch):# not tested!!!!!!!!!
         i = i+1
         if direction == "relay_up":
             GP.output(relay_switch_direction, GP.HIGH) #replace values            GP.output(relay_up, GP.HIGH)
-                
+            print("direction up")
+            
+        print("going down")
         if GP.event_detected(limit_switch):# replace value
              if GP.event_detected(limit_switch):
+                print("limit!!!")
                 break
             
     
@@ -129,18 +133,22 @@ def motor_control(level1, direction, limit_switch):# not tested!!!!!!!!!
 
 
  
-def going_up(level1): #motor controlling up direction
-    
+def going_up(): #motor controlling up direction
+    global level1
+    direction = "relay_up"
+    limit_switch = "relay_up_limit"
     root.update()
-    level1 = ask_user(level1)
-    motor_control(level1, "relay_up", "relay_up_limit") # here we update values what motor controlling need
+    level1 = ask_user(level1, direction, limit_switch)
+    #motor_control(level1, direction, limit_switch) 
     return
  
  
-def going_down(level1): # make a function call to control motor
+def going_down(): # make a function call to control motor
     root.update()
-    level1 = ask_user(level1)
-    motor_control(level1, "relay_down", "relay_down_limit")
+    direction = "relay_down"
+    limit_switch = "relay_down_limit"
+    level1 = ask_user(level1, direction, limit_switch)
+    #motor_control(level1, "relay_down", "relay_down_limit")
     return
  
  
