@@ -27,4 +27,4 @@ perhaps i build up totally different motorcontrol function. This how we can do l
 
 
 ver 103:
-deleted motor_up and motor_down function. also changed going up and going down functions. testing and figureout the bugs.
+deleted motor_up and motor_down function. also changed going up and going down functions. testing and figureout the bugs. now changes are made and lots of code deleted.
