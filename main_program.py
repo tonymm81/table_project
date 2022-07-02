@@ -84,7 +84,7 @@ def ask_user(level, direction, limit_switch):
             bg = "purple", 
             fg = "white")
   
-    btn = Button(top1, text="stop", fg="white",bg="black", font=("helvetica", 15), command=lambda: [motor_up(1), top1.destroy()]).pack()
+    #btn = Button(top1, text="stop", fg="white",bg="black", font=("helvetica", 15), command=lambda: [motor_up(1), top1.destroy()]).pack()
     b3 = Button(top1, text ="update measurement",
             command = lambda: [update_setpoint(level.get()),motor_control(level1, direction, limit_switch), top1.destroy()],
             bg = "purple", 
@@ -109,7 +109,8 @@ def motor_control(level1, direction, limit_switch):# not tested!!!!!!!!!
     level_temp = round(level_temp)
     level_temp = int(level_temp)
     print(level1)
-    interrupt = 0
+    interrupt = time.time()
+    interrupt_clk = time.time()
     for i in range(0, level_temp): # insert here limit switch
         GP.output(direction, GP.HIGH)
         time.sleep(1)
@@ -120,11 +121,14 @@ def motor_control(level1, direction, limit_switch):# not tested!!!!!!!!!
             
         print("going down")
         if GP.event_detected(limit_switch):# replace value
-            interrupt = interrupt +1
+            interrupt_clk = time.time()
             print("limit!!!")
-            if interrupt == 2:
+            time.sleep(1)
+            print(interrupt_clk - interrupt)
+            
+        if interrupt_clk - interrupt > 5  : # fix this
                 
-                break
+            break
             
     
     if direction == 15:
