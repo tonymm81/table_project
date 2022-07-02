@@ -105,25 +105,29 @@ def ask_user(level, direction, limit_switch):
 #delete the rules. lets make this to forloop anf there whe end loop when limit switch activated. no needed up or down rules anymore.perhaps we dont need to use interrupt pins
 def motor_control(level1, direction, limit_switch):# not tested!!!!!!!!!
     print("in motor function")
-    level_temp = level1
+    level_temp = level1.get()
     level_temp = round(level_temp)
     level_temp = int(level_temp)
     print(level1)
+    interrupt = 0
     for i in range(0, level_temp): # insert here limit switch
+        GP.output(direction, GP.HIGH)
         time.sleep(1)
         i = i+1
-        if direction == "relay_up":
+        if direction == 15:
             GP.output(relay_switch_direction, GP.HIGH) #replace values            GP.output(relay_up, GP.HIGH)
             print("direction up")
             
         print("going down")
         if GP.event_detected(limit_switch):# replace value
-             if GP.event_detected(limit_switch):
-                print("limit!!!")
+            interrupt = interrupt +1
+            print("limit!!!")
+            if interrupt == 2:
+                
                 break
             
     
-    if direction == "relay_up":
+    if direction == 15:
         GP.output(relay_switch_direction, GP.LOW) #replace values        
         
     GP.output(direction, GP.LOW)
@@ -135,8 +139,8 @@ def motor_control(level1, direction, limit_switch):# not tested!!!!!!!!!
  
 def going_up(): #motor controlling up direction
     global level1
-    direction = "relay_up"
-    limit_switch = "relay_up_limit"
+    direction = 15
+    limit_switch = 23
     root.update()
     level1 = ask_user(level1, direction, limit_switch)
     #motor_control(level1, direction, limit_switch) 
@@ -144,9 +148,10 @@ def going_up(): #motor controlling up direction
  
  
 def going_down(): # make a function call to control motor
+    global level1
     root.update()
-    direction = "relay_down"
-    limit_switch = "relay_down_limit"
+    direction = 12
+    limit_switch = 8
     level1 = ask_user(level1, direction, limit_switch)
     #motor_control(level1, "relay_down", "relay_down_limit")
     return
