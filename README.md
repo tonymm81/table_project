@@ -23,4 +23,8 @@ can stop the motor. I also want to build up the radio button where user can choo
 
 ver102
 added the slider where user can choose what is table distance from floor. limits are now working but i have to plan out how to control motor based on measurement.
-perhaps i build up totally different motorcontrol function. This how we can do lesslines 
+perhaps i build up totally different motorcontrol function. This how we can do less lines of code.
+
+
+ver 103:
+deleted motor_up and motor_down function. also changed going up and going down functions. testing and figureout the bugs.

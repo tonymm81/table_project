@@ -18,11 +18,8 @@ relay_switch_direction = 25
 relay_up_limit = 23
 relay_up = 15
 relay_down = 12
-up_rule = 0
-down_rule = 0
 temp_value = 0
 level1 = 0
-what_device = ""
 
 GP.setwarnings(False)
 GP.setmode(GP.BCM)
@@ -65,7 +62,7 @@ def update_setpoint(level):
     print(level1)
     return
 
-def ask_user(level, what_device):
+def ask_user(level):
     level = DoubleVar()
     top1 = Toplevel()
     top1.title('table measurement')
@@ -89,7 +86,7 @@ def ask_user(level, what_device):
   
     btn = Button(top1, text="stop", fg="white",bg="black", font=("helvetica", 15), command=lambda: [motor_up(1), top1.destroy()]).pack()
     b3 = Button(top1, text ="update measurement",
-            command = lambda: [update_setpoint(level.get()), motor_up(0)],
+            command = lambda: [update_setpoint(level.get()), top1.destroy()],
             bg = "purple", 
             fg = "white")
      
@@ -103,103 +100,47 @@ def ask_user(level, what_device):
     #top1.destroy()
     return level1
 
-
-def motor_up(up_rule):
-    global level1
-    print("in motorfunction")
-    if up_rule == 1:
-        print("ei mennä ylös")
-        GP.output(relay_up, GP.LOW)
-        GP.output(relay_switch_direction, GP.LOW)
-        up_rule = 2
-        
-    
-    if up_rule == 0:
-        print("mennään ylös")
-        level_temp = round(level1)
-        level_temp = int(level_temp)
-        print(level1)
-        for i in range(0, level_temp):
+# here we make only one function where we bring three parameters. What direction, up/down limit/ measuring value. This how we can save lots lines of code
+# lets build up the for loop what drives motor until limit switch says no or measurement goes to right distance. i dont have sensors so i have to use time rule now.
+#delete the rules. lets make this to forloop anf there whe end loop when limit switch activated. no needed up or down rules anymore.perhaps we dont need to use interrupt pins
+def motor_control(level1, direction, limit_switch):# not tested!!!!!!!!!
+    print("mennään ylös")
+    level_temp = round(level1)
+    level_temp = int(level_temp)
+    print(level1)
+    for i in range(0, level_temp): # insert here limit switch
+        time.sleep(1)
+        i = i+1
+        if direction == "relay_up":
+            GP.output(relay_switch_direction, GP.HIGH) #replace values            GP.output(relay_up, GP.HIGH)
+                
+        if GP.event_detected(limit_switch):# replace value
+             if GP.event_detected(limit_switch):
+                break
             
-            GP.output(relay_switch_direction, GP.HIGH)
-            GP.output(relay_up, GP.HIGH)
-            time.sleep(1)
-            i = i+1
-    GP.output(relay_up, GP.LOW)
-    GP.output(relay_switch_direction, GP.LOW)  
-    return up_rule
+    
+    if direction == "relay_up":
+        GP.output(relay_switch_direction, GP.LOW) #replace values        
+        
+    GP.output(direction, GP.LOW)
+       
+    return
 
 
-def motor_down(down_rule): # motor controlling down direction
-    print("in motorfunction")
-    if down_rule == 1:
-        print("ei mennä alas")
-        GP.output(relay_down, GP.LOW)
-        down_rule = 2
 
-    if down_rule == 0:
-        print("mennään alas")
-        GP.output(relay_down, GP.HIGH)
-        #down_rule = 1   
-         
-    return down_rule
  
 def going_up(level1): #motor controlling up direction
-    what_device = "going_up(level)"
-    root.update()
-    level1 = ask_user(level1, what_device)
-    interrupt_counter = 0
-    print(level1)
-    up_rule = 0
     
-    while True:
-        print("are we really in loop")
-        #top.update()
-        if GP.event_detected(relay_up_limit):
-                #up_rule = 1
-                #print("INERRUPT TO UP")
-            interrupt_counter = interrupt_counter +1
-            if interrupt_counter == 2:
-                up_rule = 1
-
-        time.sleep(1)
-        #up_rule = GP.input(relay_up_limit)
-        #print(up_rule)
-        up_rule = motor_up(up_rule)
-#         temp_value = up_rule   
-        if up_rule == 2:
-            #GP.remove_event_detect(relay_up_limit)
-            break
+    root.update()
+    level1 = ask_user(level1)
+    motor_control(level1, "relay_up", "relay_up_limit") # here we update values what motor controlling need
     return
  
  
-def going_down(level1):
-    what_device = "going_down(level)"
-    top = Toplevel()
-    top.title('interrupt controlling')
-    top.configure(background="black")
-    lbl = Label(top, text="push button to stop",fg="white",bg="black", font=("helvetica", 20)).pack()
-    btn = Button(top, text="stop", fg="white",bg="black", font=("helvetica", 15), command=lambda: [motor_down(1), top.destroy()]).pack()
+def going_down(level1): # make a function call to control motor
     root.update()
-    level1 = ask_user(level1, what_device)
-    down_rule = 0
-    interrupt_counter = 0
-    while True:
-        top.update()
-        if GP.event_detected(relay_down_limit):# this doesnt need check twice option unlike going up needs
-
-            down_rule = 1
-            print("interrupt")
-            ##inerrupt_counter = interrupt_counter + 1
-            #if interrupt_counter >= 2:
-                #down_rule = 1
-        print("are we really in loop")
-        time.sleep(1)
-        down_rule = motor_down(down_rule)
-           
-        if down_rule == 2:
-            
-            break
+    level1 = ask_user(level1)
+    motor_control(level1, "relay_down", "relay_down_limit")
     return
  
  
