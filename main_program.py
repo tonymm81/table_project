@@ -183,6 +183,7 @@ def save_setup():
  
  
 def control_wlan_devices(): # plan this next. graphical view and how to show listed devices.
+    devices = []
     root.update()
     devices = search_all_devices_wlan(devices)
     print(devices)
