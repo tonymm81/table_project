@@ -11,6 +11,7 @@ import time
 import os
 #import smbus
 
+#pin numbering
 trigger = 7
 echo = 14
 relay_down_limit = 8
@@ -21,6 +22,7 @@ relay_down = 12
 temp_value = 0
 level1 = 0
 
+#gpio setups
 GP.setwarnings(False)
 GP.setmode(GP.BCM)
 GP.setup(trigger, GP.IN)
@@ -34,9 +36,10 @@ GP.output(relay_switch_direction, GP.LOW)
 GP.output(relay_up, GP.LOW)
 GP.output(relay_down, GP.LOW)
 GP.setup(trigger, GP.IN, pull_up_down=GP.PUD_DOWN)
-#GP.setup(relay_down_limit, GP.IN, pull_up_down=GP.PUD_DOWN)
-#GP.setup(relay_up_limit, GP.IN, pull_up_down=GP.PUD_DOWN)
+GP.add_event_detect(relay_up_limit, GP.RISING)
+GP.add_event_detect(relay_down_limit, GP.RISING)
 
+#graphical view and buttons
 root = Tk()
 root.geometry("880x500")
 root.configure(background="black")
@@ -53,16 +56,15 @@ btn6 = Button(root, text="Check the updates",fg="white", bg="black",font=("helve
 label_1 = Label(root, text= "sais", font=("helvetica", 25), fg="white", bg="black")
 label_1.pack()
 #ultrasonic_ranger = trigger
-GP.add_event_detect(relay_up_limit, GP.RISING)
-GP.add_event_detect(relay_down_limit, GP.RISING)
 
-def update_setpoint(level):
+
+def update_setpoint(level):#needed to update the level value
     global level1
     level1 = level
     print(level1)
     return
 
-def ask_user(level, direction, limit_switch):
+def ask_user(level, direction, limit_switch): # here user can select how far table is from floor
     level = DoubleVar()
     top1 = Toplevel()
     top1.title('table measurement')
@@ -103,7 +105,7 @@ def ask_user(level, direction, limit_switch):
 # here we make only one function where we bring three parameters. What direction, up/down limit/ measuring value. This how we can save lots lines of code
 # lets build up the for loop what drives motor until limit switch says no or measurement goes to right distance. i dont have sensors so i have to use time rule now.
 #delete the rules. lets make this to forloop anf there whe end loop when limit switch activated. no needed up or down rules anymore.perhaps we dont need to use interrupt pins
-def motor_control(level1, direction, limit_switch):# not tested!!!!!!!!!
+def motor_control(level1, direction, limit_switch):
     print("in motor function")
     level_temp = level1.get()
     level_temp = round(level_temp)
@@ -120,13 +122,13 @@ def motor_control(level1, direction, limit_switch):# not tested!!!!!!!!!
             print("direction up")
             
         print("going down")
-        if GP.event_detected(limit_switch):# replace value
+        if GP.event_detected(limit_switch):# 
             interrupt_clk = time.time()
             print("limit!!!")
             time.sleep(1)
             print(interrupt_clk - interrupt)
             
-        if interrupt_clk - interrupt > 5  : # fix this
+        if interrupt_clk - interrupt > 5  : # fix this not working
                 
             break
             
@@ -139,7 +141,7 @@ def motor_control(level1, direction, limit_switch):# not tested!!!!!!!!!
     return
 
 
-
+ 
  
 def going_up(): #motor controlling up direction
     global level1
@@ -159,6 +161,17 @@ def going_down(): # make a function call to control motor
     level1 = ask_user(level1, direction, limit_switch)
     #motor_control(level1, "relay_down", "relay_down_limit")
     return
+
+
+def search_all_devices_wlan(devices): # here we check again the devices list
+    top = Toplevel()
+    top.title('Wlan devices')
+    top.geometry("850x500")
+    top.configure(background="black")
+    top.update()
+    root.update()
+    devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')
+    return devices
  
  
 def load_setup():
@@ -169,9 +182,9 @@ def save_setup():
      return
  
  
-def control_wlan_devices():
+def control_wlan_devices(): # plan this next. graphical view and how to show listed devices.
     root.update()
-    devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')
+    devices = search_all_devices_wlan(devices)
     print(devices)
     return
  
@@ -206,6 +219,9 @@ def measure_distance():
 def check_updates():
     return
 
+
+
+devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')
 while True:
 
     measure_distance()

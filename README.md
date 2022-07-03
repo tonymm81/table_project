@@ -31,4 +31,8 @@ deleted motor_up and motor_down function. also changed going up and going down f
 bug: motorcontrol function doesnt work so perhaps probles is there that i have to control code flow where program goes after user choose the measurement.
 
 ver 104:
-table control works no and limit switches working also. i update the function ask user to control motor, and this how everything works now
+table control works no and limit switches working also. i update the function ask user to control motor, and this how everything works now.
+plan: i dont know what should i do next. saveto file with obect orieted programming style or should i do next lamp controlling?
+
+ver 105:
+update graphics to wlan devices and also make a search function to wlan devices so its easy to update if wanted
