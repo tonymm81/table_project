@@ -4,7 +4,7 @@ from broadlink import *
 from save_to_file import *
 from shutdown_weatherstation import *
 import broadlink # wlan plus bulps
-
+from tkinter import ttk # scrollbar ver106
 import RPi.GPIO as GP
 import sys
 import time
@@ -141,6 +141,7 @@ def motor_control(level1, direction, limit_switch):
                 print("target")
                 target_distance = 0
                 i = 0
+                level_temp = 0
                 break
         
     if direction == 12:#down
@@ -167,6 +168,7 @@ def motor_control(level1, direction, limit_switch):
                 print("target")
                 target_distance = 0
                 i = 0
+                level_temp = 0
                 break
     
     if direction == 15:
@@ -185,7 +187,8 @@ def going_up(): #motor controlling up direction
     limit_switch = 23
     root.update()
     level1 = ask_user(level1, direction, limit_switch)
-    #motor_control(level1, direction, limit_switch) 
+    #motor_control(level1, direction, limit_switch)
+    main_waiting_loop()
     return
  
  
@@ -196,6 +199,7 @@ def going_down(): # make a function call to control motor
     limit_switch = 8
     level1 = ask_user(level1, direction, limit_switch)
     #motor_control(level1, "relay_down", "relay_down_limit")
+    main_waiting_loop()
     return
 
 
@@ -204,9 +208,45 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     top.title('Wlan devices')
     top.geometry("850x500")
     top.configure(background="black")
-    top.update()
+    # scrollbar main frame setup
+    main_frame = Frame(top)
+    main_frame.pack(fill=BOTH, expand=1)
+    #scrollbar canvas
+    my_canvas = Canvas(main_frame)
+    my_canvas.pack(side=LEFT, fill=BOTH, expand=1)
+    #scrollbar settings
+    scrollbar = ttk.Scrollbar(main_frame, orient=VERTICAL, command=my_canvas.yview)
+    scrollbar.pack(side=RIGHT, fill=Y)
+    #configure the canvas
+    my_canvas.configure(yscrollcommand=scrollbar.set)
+    my_canvas.bind('<Configure>', lambda e: my_canvas.configure(scrollregion = my_canvas.bbox("all")))
+    #add second framee scrollbar
+    second_frame = Frame(my_canvas)
+    #add that new frame to window in the canvas
+    my_canvas.create_window((0,0), window=second_frame, anchor="nw")
+    #top.update()
     root.update()
     devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')
+    print(len(devices))
+    device_names = []
+    for o in range (len(devices)):
+        device_names.append(devices[o].name)
+        print(device_names[o])
+        o = o +1
+    
+    infolabel = Label(second_frame, text="test")
+    infolabel.pack()
+    for i in range (len(devices)):
+        # make here buttons what change number of devices
+        
+        btn = device_names[i] 
+        btn = Button(second_frame, text = btn, command = lambda: top.destroy(), bg = "black", fg = "white")
+        i = i +1
+        btn.pack()
+        #top.update()
+        #break
+        
+    top.mainloop()
     return devices
  
  
@@ -239,7 +279,7 @@ def measure_distance():
     while GP.input(echo) == 1:
         StopTime = time.time()
     
-    time.sleep(1)
+    time.sleep(0.4)
     TimeElapsed = StopTime - StartTime
     # multiply with the sonic speed (34300 cm/s)
     # and divide by 2, because there and back
@@ -258,9 +298,14 @@ def exit_only():
  
  
 def main_waiting_loop():
-    #label_1.configure(text = "in main loop")
-    #label_1.pack()
-    #distance = measure_distance()
+    
+    distance = measure_distance()
+    distance = round(distance)
+    distance = int(distance)
+    label_1.configure(text = "waiting user to choose and distance is: " + str(distance))
+    label_1.pack()
+    time.sleep(1)
+    
     
     #print(distance)
     return
@@ -271,11 +316,10 @@ def check_updates():
     return
 
 
-
 devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')
 while True:
-
-    #measure_distance()
+    root.update()
+#
     main_waiting_loop()
     root.update()
     time.sleep(1)

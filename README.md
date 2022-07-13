@@ -39,3 +39,9 @@ update graphics to wlan devices and also make a search function to wlan devices 
 
 ver 106:
 table adjusment is now working with ultrasonic sensor. limit Interrupt has not working yet. I have to figure out what is the best way to do this. 
+
+ver 107:
+added scrollbar on search wlan devices. there is also buttons what is created by number of wlan devices.
+
+bug:
+scrollbar wont work on down side. upside yes
