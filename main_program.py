@@ -25,7 +25,7 @@ level1 = 0
 #gpio setups
 GP.setwarnings(False)
 GP.setmode(GP.BCM)
-GP.setup(trigger, GP.IN)
+GP.setup(trigger, GP.OUT)
 GP.setup(echo, GP.IN)
 GP.setup(relay_down_limit, GP.IN)
 GP.setup(relay_switch_direction, GP.OUT)
@@ -35,7 +35,7 @@ GP.setup(relay_down, GP.OUT)
 GP.output(relay_switch_direction, GP.LOW)
 GP.output(relay_up, GP.LOW)
 GP.output(relay_down, GP.LOW)
-GP.setup(trigger, GP.IN, pull_up_down=GP.PUD_DOWN)
+#GP.setup(echo, GP.IN, pull_up_down=GP.PUD_DOWN)
 GP.add_event_detect(relay_up_limit, GP.RISING)
 GP.add_event_detect(relay_down_limit, GP.RISING)
 
@@ -106,38 +106,74 @@ def ask_user(level, direction, limit_switch): # here user can select how far tab
 # lets build up the for loop what drives motor until limit switch says no or measurement goes to right distance. i dont have sensors so i have to use time rule now.
 #delete the rules. lets make this to forloop anf there whe end loop when limit switch activated. no needed up or down rules anymore.perhaps we dont need to use interrupt pins
 def motor_control(level1, direction, limit_switch):
+    i = measure_distance() #measured distance
+    i = round(i)
+    i = int(i)
     print("in motor function")
     level_temp = level1.get()
     level_temp = round(level_temp)
     level_temp = int(level_temp)
-    print(level1)
     interrupt = time.time()
     interrupt_clk = time.time()
-    for i in range(0, level_temp): # insert here limit switch
-        GP.output(direction, GP.HIGH)
-        time.sleep(1)
-        i = i+1
-        if direction == 15:
+    if direction == 15: #up
+        
+        target_distance = level_temp + i
+        print("target distance", target_distance)
+        print(i)
+        while True:
+            GP.output(direction, GP.HIGH)
+            i = measure_distance()
+            i = round(i)
+            i = int(i)
             GP.output(relay_switch_direction, GP.HIGH) #replace values            GP.output(relay_up, GP.HIGH)
-            print("direction up")
+            print("direction up and distance now:", i)
+            if GP.event_detected(limit_switch):# 
+                interrupt_clk = time.time()
+                print("limit!!!")
+                time.sleep(1)
+                print(interrupt_clk - interrupt)
             
-        print("going down")
-        if GP.event_detected(limit_switch):# 
-            interrupt_clk = time.time()
-            print("limit!!!")
-            time.sleep(1)
-            print(interrupt_clk - interrupt)
+            #if interrupt_clk - interrupt >= 5  : # fix this not working
+                #break
+                #rint("je")
             
-        if interrupt_clk - interrupt > 5  : # fix this not working
-                
-            break
+            if target_distance == i or target_distance < i:
+                print("target")
+                target_distance = 0
+                i = 0
+                break
+        
+    if direction == 12:#down
+        target_distance = i - level_temp 
+        print("target", target_distance)
+        print(i)
+        while True:
+            GP.output(direction, GP.HIGH)
+            i = measure_distance()
+            i = round(i)
+            i = int(i)
+            print("distance now",i)
+            if GP.event_detected(limit_switch):# 
+                interrupt_clk = time.time()
+                print("limit!!!")
+                time.sleep(1)
+                print(interrupt_clk - interrupt)
             
+            #if interrupt_clk - interrupt >= 5  : # fix this not working
+                #print("je")
+                #break
+            
+            if target_distance == i or target_distance > i :
+                print("target")
+                target_distance = 0
+                i = 0
+                break
     
     if direction == 15:
-        GP.output(relay_switch_direction, GP.LOW) #replace values        
+        GP.output(relay_switch_direction, GP.LOW) #replace values
         
     GP.output(direction, GP.LOW)
-       
+              
     return
 
 
@@ -191,9 +227,24 @@ def control_wlan_devices(): # plan this next. graphical view and how to show lis
  
  
 def measure_distance():
+    GP.output(trigger, True)
+    time.sleep(0.00001)
+    GP.output(trigger, False)
+    StartTime = time.time()
+    StopTime = time.time()
+    while GP.input(echo) == 0:
+        StartTime = time.time()
+        
+        
+    while GP.input(echo) == 1:
+        StopTime = time.time()
     
-    print("shit sensor")
-    return
+    time.sleep(1)
+    TimeElapsed = StopTime - StartTime
+    # multiply with the sonic speed (34300 cm/s)
+    # and divide by 2, because there and back
+    distance = (TimeElapsed * 34300) / 2
+    return distance
  
  
 def exit_and_shutdown():
@@ -209,12 +260,11 @@ def exit_only():
 def main_waiting_loop():
     #label_1.configure(text = "in main loop")
     #label_1.pack()
-    #measure_distance()
+    #distance = measure_distance()
+    
+    #print(distance)
     return
 
-
-def measure_distance():
-    return
 
 
 def check_updates():
@@ -225,7 +275,7 @@ def check_updates():
 devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')
 while True:
 
-    measure_distance()
+    #measure_distance()
     main_waiting_loop()
     root.update()
     time.sleep(1)

@@ -35,4 +35,7 @@ table control works no and limit switches working also. i update the function as
 plan: i dont know what should i do next. saveto file with obect orieted programming style or should i do next lamp controlling?
 
 ver 105:
-update graphics to wlan devices and also make a search function to wlan devices so its easy to update if wanted
+update graphics to wlan devices and also make a search function to wlan devices so its easy to update if wanted.
+
+ver 106:
+table adjusment is now working with ultrasonic sensor. limit Interrupt has not working yet. I have to figure out what is the best way to do this. 
