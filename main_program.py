@@ -41,10 +41,10 @@ GP.add_event_detect(relay_down_limit, GP.RISING)
 
 #graphical view and buttons
 root = Tk()
-root.geometry("880x500")
+root.geometry("880x450")
 root.configure(background="black")
-scrollbar = Scrollbar(root)
-scrollbar.pack( side = RIGHT, fill = Y )
+#scrollbar = Scrollbar(root)
+#scrollbar.pack( side = RIGHT, fill = Y )
 btn = Button(root, text="Adjust table up",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_up()).pack() 
 btn1 = Button(root, text="Adjust table down",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_down()).pack() 
 btn2 = Button(root, text="Control the lights and wlan plugs",fg="white", bg="black",font=("helvetica", 15), command=lambda: control_wlan_devices()).pack() 
@@ -208,6 +208,8 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     top.title('Wlan devices')
     top.geometry("850x500")
     top.configure(background="black")
+    #scrollbar = Scrollbar(top)
+    #scrollbar.pack( side = RIGHT, fill = Y )
     # scrollbar main frame setup
     main_frame = Frame(top)
     main_frame.pack(fill=BOTH, expand=1)
@@ -215,17 +217,17 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     my_canvas = Canvas(main_frame)
     my_canvas.pack(side=LEFT, fill=BOTH, expand=1)
     #scrollbar settings
-    scrollbar = ttk.Scrollbar(main_frame, orient=VERTICAL, command=my_canvas.yview)
-    scrollbar.pack(side=RIGHT, fill=Y)
+    scrollbar1 = ttk.Scrollbar(main_frame, orient=VERTICAL, command=my_canvas.yview)
+    scrollbar1.pack(side=RIGHT, fill=Y)
     #configure the canvas
-    my_canvas.configure(yscrollcommand=scrollbar.set)
+    my_canvas.configure(yscrollcommand=scrollbar1.set)
     my_canvas.bind('<Configure>', lambda e: my_canvas.configure(scrollregion = my_canvas.bbox("all")))
     #add second framee scrollbar
     second_frame = Frame(my_canvas)
     #add that new frame to window in the canvas
     my_canvas.create_window((0,0), window=second_frame, anchor="nw")
-    #top.update()
-    root.update()
+    top.update()
+    #root.update()
     devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')
     print(len(devices))
     device_names = []
@@ -234,19 +236,28 @@ def search_all_devices_wlan(devices): # here we check again the devices list
         print(device_names[o])
         o = o +1
     
+    #test labels
     infolabel = Label(second_frame, text="test")
     infolabel.pack()
+    rounds = 0
     for i in range (len(devices)):
         # make here buttons what change number of devices
         
         btn = device_names[i] 
         btn = Button(second_frame, text = btn, command = lambda: top.destroy(), bg = "black", fg = "white")
+        print("lap", i, "name" ,btn, "devicename", device_names[i])
+        if (rounds % 2) == 1:
+            btn.pack( pady=0, padx=8)
+        else:
+            btn.pack(pady=0, padx=0)
+        
+        top.update()
         i = i +1
-        btn.pack()
-        #top.update()
+        rounds = rounds +1
         #break
         
-    top.mainloop()
+    #top.mainloop()
+    #second_frame.mainloop()
     return devices
  
  
@@ -318,8 +329,10 @@ def check_updates():
 
 devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')
 while True:
-    root.update()
+#    root.update()
 #
     main_waiting_loop()
     root.update()
-    time.sleep(1)
+##    time.sleep(1)
+#main_waiting_loop() # not helping scroll problem
+#root.mainloop()

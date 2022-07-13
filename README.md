@@ -45,3 +45,10 @@ added scrollbar on search wlan devices. there is also buttons what is created by
 
 bug:
 scrollbar wont work on down side. upside yes
+-tested mainloop function
+-tested changing packing options.
+-tested to connect window to root
+-tested. buttons has correct pieces. button name is not what i want but i have to fix this. in graphics button shows right name
+-testet to loop canvas
+
+plan: if i dont find problem i have to change different code.
