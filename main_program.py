@@ -204,14 +204,14 @@ def going_down(): # make a function call to control motor
 
 
 def search_all_devices_wlan(devices): # here we check again the devices list
-    top = Toplevel()
-    top.title('Wlan devices')
-    top.geometry("850x500")
-    top.configure(background="black")
+    #top = Toplevel()
+    #top.title('Wlan devices')
+    #top.geometry("850x500")
+    #top.configure(background="black")
     #scrollbar = Scrollbar(top)
     #scrollbar.pack( side = RIGHT, fill = Y )
     # scrollbar main frame setup
-    main_frame = Frame(top)
+    main_frame = Frame(root)
     main_frame.pack(fill=BOTH, expand=1)
     #scrollbar canvas
     my_canvas = Canvas(main_frame)
@@ -226,7 +226,7 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     second_frame = Frame(my_canvas)
     #add that new frame to window in the canvas
     my_canvas.create_window((0,0), window=second_frame, anchor="nw")
-    top.update()
+    #top.update()
     #root.update()
     devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')
     print(len(devices))
@@ -237,27 +237,27 @@ def search_all_devices_wlan(devices): # here we check again the devices list
         o = o +1
     
     #test labels
-    infolabel = Label(second_frame, text="test")
-    infolabel.pack()
+    
     rounds = 0
     for i in range (len(devices)):
         # make here buttons what change number of devices
-        
+        infolabel = Label(second_frame, text=device_names[rounds])
+        infolabel.pack(pady=0, padx=0)
         btn = device_names[i] 
-        btn = Button(second_frame, text = btn, command = lambda: top.destroy(), bg = "black", fg = "white")
+        btn = Button(second_frame, text = btn, command = lambda: [second_frame.destroy(), main_frame.destroy()], bg = "black", fg = "white")
         print("lap", i, "name" ,btn, "devicename", device_names[i])
         if (rounds % 2) == 1:
             btn.pack( pady=0, padx=8)
         else:
             btn.pack(pady=0, padx=0)
-        
-        top.update()
+        #btn.place(x=100, y=100)
+        #top.update()
         i = i +1
         rounds = rounds +1
         #break
         
     #top.mainloop()
-    #second_frame.mainloop()
+    second_frame.mainloop()
     return devices
  
  

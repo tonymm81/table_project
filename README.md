@@ -48,7 +48,12 @@ scrollbar wont work on down side. upside yes
 -tested mainloop function
 -tested changing packing options.
 -tested to connect window to root
--tested. buttons has correct pieces. button name is not what i want but i have to fix this. in graphics button shows right name
+-tested buttons has correct pieces. button name is not what i want but i have to fix this. in graphics button shows right name
 -testet to loop canvas
+-testin to change window side
+-tested different scrollbar
+- tested to left top level and put scroll canvas to root. works fine
+-tested to use grid command on buttons. error comes. no grid command on slavve label
+-tested also place function. not helping, buttons gone somewhere
 
 plan: if i dont find problem i have to change different code.
