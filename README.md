@@ -56,4 +56,9 @@ scrollbar wont work on down side. upside yes
 -tested to use grid command on buttons. error comes. no grid command on slavve label
 -tested also place function. not helping, buttons gone somewhere
 
-plan: if i dont find problem i have to change different code.
+plan: if i dont find problem i have to change different code. Or instead pack() use grid() command to all buttons and labels.
+
+plan: how to check wlan devices status. first you havew to figureout wich device. then use value.get_state() (pulbs) and check_power() whith wlan plugs.
+biggest problem is to check witch devices status you want to check. 
+
+plan: how to check device, use devtype and index number. this how you can check what device to control. this how you can find correct ip to control devices
