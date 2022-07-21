@@ -240,7 +240,7 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     device_names = [] # remove if not needed
     for o in range (len(devices)):
         device_names.append(devices[o].name)
-        print(device_names[o])
+        #print(device_names[o])
         o = o +1
     
     #test labels
@@ -254,8 +254,6 @@ def search_all_devices_wlan(devices): # here we check again the devices list
         #infolabel.place(x=550,y=button_rounds)
         btn = device_names[i] 
         btn = Button(second_frame, text = btn, command = lambda: [second_frame.destroy(), main_frame.destroy()], bg = "black", fg = "white")
-        print("lap", i, "name" ,btn, "devicename", device_names[i])
-        
         btn.pack(pady=2, padx=2)
         #btn.place(x=380, y=button_rounds)
         #top.update()
@@ -338,13 +336,10 @@ def check_updates():
 def check_wlan_device_status(devices):
     global devices_library
     temp_json = json.loads(devices_library)
-    #for device in broadlink.xdiscover(): # this is from broadlinklibrary
-    #    print(device)  # Example action. Do whatever you want here.
     for i in range (len(devices)):
         print("before if clause", devices[i].devtype)
         devtype = devices[i].devtype
         if devtype == 24686:
-            print("bulb")
             bulbname = devices[i].name
             temp_str_bulb = devices[i]
             temp_str_bulb = str(temp_str_bulb)
@@ -355,15 +350,14 @@ def check_wlan_device_status(devices):
             result_bulb.clear()
             print(bulb_ip, bulbname)
             devices_temp1 = broadlink.discover(timeout=5, discover_ip_address=bulb_ip)
-            #print(devices_temp1[0])
             devices_temp1[0].auth()
-            
+            dev_name_status = bulbname + " status"
             device_state1 = devices_temp1[0].get_state()
-            bulb_library = {bulbname : bulb_ip, "state is": device_state1}#temp value to json
+            bulb_library = {bulbname : bulb_ip, dev_name_status: device_state1}#temp value to json
             temp_json.update(bulb_library)
+            dev_name_status = ""
             
         if devtype == 30073:
-            print("wlanplug1 sp4")
             sp4_name = devices[i].name
             temp_str_sp4 = devices[i]
             temp_str_sp4 = str(temp_str_sp4)
@@ -371,24 +365,21 @@ def check_wlan_device_status(devices):
             sp4_ip = result_sp4[5]#this works on sp3-eu plugs and [4] works with sp4-eu
             if len(sp4_ip) < 9:
                 sp4_ip = result_sp4[4]
-            print(result_sp4)
             result_sp4.clear()
             print(sp4_ip)
             devices_temp2 = broadlink.discover(timeout=5, discover_ip_address=sp4_ip)
             devices_temp2[0].auth()
-            print(devices_temp2[0])
             device_state2 = devices_temp2[0].check_power()
-            #device_state = sp4_ip.check_power()
-            sp4_library = {sp4_name : sp4_ip, "state is": device_state2}#temp value to json
+            dev_name_status = sp4_name + " status"
+            sp4_library = {sp4_name : sp4_ip, dev_name_status: device_state2}#temp value to json
             temp_json.update(sp4_library)
+            dev_name_status = ""
             
         if devtype == 32000:
-            print("wlan plug  sp3")
             sp3_name = devices[i].name
             temp_str_sp3 = devices[i]#here was problem
             temp_str_sp3 = str(temp_str_sp3)
             result_sp3 = re.findall(r'[\d\.]+', temp_str_sp3)
-            #print(result_sp3)
             sp3_ip = result_sp3[5]#this works on sp3-eu plugs and [4] works with sp4-eu
             if len(sp3_ip) < 9:
                 sp3_ip = result_sp3[4]
@@ -396,13 +387,11 @@ def check_wlan_device_status(devices):
             result_sp3.clear()
             devices_temp3 = broadlink.discover(timeout=5, discover_ip_address=sp3_ip)
             devices_temp3[0].auth()
-            #print("sp3 function", devices_temp3[0])
             device_state3 = devices_temp3[0].check_power()
-            #device_state="jooooo"
-            #device_state = sp3_ip.check_power() 
-            sp3_library = {sp3_name : sp3_ip, "state is" : device_state3} #temp value to json
+            dev_name_status = sp3_name + " status"
+            sp3_library = {sp3_name : sp3_ip, dev_name_status : device_state3} #temp value to json
             temp_json.update(sp3_library)
-            
+            dev_name_status = ""
             
         devtype = 0
      

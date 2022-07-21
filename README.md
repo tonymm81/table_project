@@ -69,3 +69,4 @@ bug: some how older device ip address still stays same even the device is differ
 bug: when finding the ip address from string this re findall was not good choice
 fixed this two bugs
 bug: now the devices name and ip address is saving to json value but somehow the state of device wont work.
+fixed earlier bug, now device state is saved on json string. 
