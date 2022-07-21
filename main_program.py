@@ -1,4 +1,5 @@
 from logging import root
+from sre_parse import State
 from tkinter import *
 from broadlink import *
 from save_to_file import *
@@ -9,6 +10,8 @@ import RPi.GPIO as GP
 import sys
 import time
 import os
+import re
+import json
 #import smbus
 
 #pin numbering
@@ -21,7 +24,8 @@ relay_up = 15
 relay_down = 12
 temp_value = 0
 level1 = 0
-
+devices_library = '{"testing": 123 }' # here we save the devices name, ipaddress, lightbulb color setup, and devices state
+json.dumps(devices_library, indent=4)
 #gpio setups
 GP.setwarnings(False)
 GP.setmode(GP.BCM)
@@ -228,9 +232,12 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     my_canvas.create_window((0,0), window=second_frame, anchor="nw")
     #top.update()
     #root.update()
-    devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')
+    devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118') # this cannot convert to json.
     print(len(devices))
-    device_names = []
+    devices = check_wlan_device_status(devices)
+    #print (devices[2])
+    #print(devices[2].devtype) # this how you can check what devices ip address to command
+    device_names = [] # remove if not needed
     for o in range (len(devices)):
         device_names.append(devices[o].name)
         print(device_names[o])
@@ -239,21 +246,22 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     #test labels
     
     rounds = 0
+    button_rounds = 0
     for i in range (len(devices)):
         # make here buttons what change number of devices
         infolabel = Label(second_frame, text=device_names[rounds])
-        infolabel.pack(pady=0, padx=0)
+        infolabel.pack(pady=2, padx=2)
+        #infolabel.place(x=550,y=button_rounds)
         btn = device_names[i] 
         btn = Button(second_frame, text = btn, command = lambda: [second_frame.destroy(), main_frame.destroy()], bg = "black", fg = "white")
         print("lap", i, "name" ,btn, "devicename", device_names[i])
-        if (rounds % 2) == 1:
-            btn.pack( pady=0, padx=8)
-        else:
-            btn.pack(pady=0, padx=0)
-        #btn.place(x=100, y=100)
+        
+        btn.pack(pady=2, padx=2)
+        #btn.place(x=380, y=button_rounds)
         #top.update()
         i = i +1
         rounds = rounds +1
+        button_rounds = button_rounds+100
         #break
         
     #top.mainloop()
@@ -325,6 +333,83 @@ def main_waiting_loop():
 
 def check_updates():
     return
+
+
+def check_wlan_device_status(devices):
+    global devices_library
+    temp_json = json.loads(devices_library)
+    #for device in broadlink.xdiscover(): # this is from broadlinklibrary
+    #    print(device)  # Example action. Do whatever you want here.
+    for i in range (len(devices)):
+        print("before if clause", devices[i].devtype)
+        devtype = devices[i].devtype
+        if devtype == 24686:
+            print("bulb")
+            bulbname = devices[i].name
+            temp_str_bulb = devices[i]
+            temp_str_bulb = str(temp_str_bulb)
+            result_bulb = re.findall(r'[\d\.]+', temp_str_bulb)
+            bulb_ip = result_bulb[5]#this works on sp3-eu plugs and [4] works with sp4-eu light bulb test it
+            if len(bulb_ip) < 9:
+                bulb_ip = result_bulb[4]
+            result_bulb.clear()
+            print(bulb_ip, bulbname)
+            devices_temp1 = broadlink.discover(timeout=5, discover_ip_address=bulb_ip)
+            #print(devices_temp1[0])
+            devices_temp1[0].auth()
+            
+            device_state1 = devices_temp1[0].get_state()
+            bulb_library = {bulbname : bulb_ip, "state is": device_state1}#temp value to json
+            temp_json.update(bulb_library)
+            
+        if devtype == 30073:
+            print("wlanplug1 sp4")
+            sp4_name = devices[i].name
+            temp_str_sp4 = devices[i]
+            temp_str_sp4 = str(temp_str_sp4)
+            result_sp4 = re.findall(r'[\d\.]+', temp_str_sp4)
+            sp4_ip = result_sp4[5]#this works on sp3-eu plugs and [4] works with sp4-eu
+            if len(sp4_ip) < 9:
+                sp4_ip = result_sp4[4]
+            print(result_sp4)
+            result_sp4.clear()
+            print(sp4_ip)
+            devices_temp2 = broadlink.discover(timeout=5, discover_ip_address=sp4_ip)
+            devices_temp2[0].auth()
+            print(devices_temp2[0])
+            device_state2 = devices_temp2[0].check_power()
+            #device_state = sp4_ip.check_power()
+            sp4_library = {sp4_name : sp4_ip, "state is": device_state2}#temp value to json
+            temp_json.update(sp4_library)
+            
+        if devtype == 32000:
+            print("wlan plug  sp3")
+            sp3_name = devices[i].name
+            temp_str_sp3 = devices[i]#here was problem
+            temp_str_sp3 = str(temp_str_sp3)
+            result_sp3 = re.findall(r'[\d\.]+', temp_str_sp3)
+            #print(result_sp3)
+            sp3_ip = result_sp3[5]#this works on sp3-eu plugs and [4] works with sp4-eu
+            if len(sp3_ip) < 9:
+                sp3_ip = result_sp3[4]
+            print(sp3_ip)
+            result_sp3.clear()
+            devices_temp3 = broadlink.discover(timeout=5, discover_ip_address=sp3_ip)
+            devices_temp3[0].auth()
+            #print("sp3 function", devices_temp3[0])
+            device_state3 = devices_temp3[0].check_power()
+            #device_state="jooooo"
+            #device_state = sp3_ip.check_power() 
+            sp3_library = {sp3_name : sp3_ip, "state is" : device_state3} #temp value to json
+            temp_json.update(sp3_library)
+            
+            
+        devtype = 0
+     
+    
+    devices_library = json.dumps(temp_json)
+    print(devices_library)
+    return devices
 
 
 devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')
