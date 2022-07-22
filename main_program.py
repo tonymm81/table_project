@@ -324,7 +324,7 @@ def check_wlan_device_status(devices):
     global devices_library
     temp_json = json.loads(devices_library)
     for i in range (len(devices)):
-        print("before if clause", devices[i].devtype)
+        #print("before if clause", devices[i].devtype)
         devtype = devices[i].devtype
         
         
@@ -357,7 +357,7 @@ def check_wlan_device_status(devices):
                 sp4_ip = result_sp4[4]
                 
             result_sp4.clear()
-            print(sp4_ip)
+            print(sp4_ip, sp4_name)
             devices_temp2 = broadlink.discover(timeout=5, discover_ip_address=sp4_ip)
             devices_temp2[0].auth()
             device_state2 = devices_temp2[0].check_power()
@@ -375,7 +375,7 @@ def check_wlan_device_status(devices):
             sp3_ip = result_sp3[5]#this works on sp3-eu plugs and [4] works with sp4-eu
             if len(sp3_ip) < 9:
                 sp3_ip = result_sp3[4]
-            print(sp3_ip)
+            print(sp3_ip, sp3_name)
             result_sp3.clear()
             devices_temp3 = broadlink.discover(timeout=5, discover_ip_address=sp3_ip)
             devices_temp3[0].auth()
@@ -391,7 +391,7 @@ def check_wlan_device_status(devices):
     
     devices_library = json.dumps(temp_json)
     print(devices_library)
-    pprint.pprint(devices_library.json()) # easier way to read json value
+    pprint.pprint(devices_library) # easier way to read json value
     return devices
 
 

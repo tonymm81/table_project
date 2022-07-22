@@ -76,3 +76,5 @@ plan:
 - a have to also make a text field what shows wlan devices state.
 - i have to also make new window to bulps. there will be somesliders where you can change bulp state and colormode.
 - if sp4 broadlinkhas some enegry measuring option perhapsi should show it also. (optional)
+
+bug: distance measurement wont work on control_motor function. tested earlier but now stopped working.(sometimes) tested twice but not done this
