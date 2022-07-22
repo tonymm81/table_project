@@ -65,8 +65,14 @@ biggest problem is to check witch devices status you want to check.
 
 plan: how to check device, use devtype and index number. this how you can check what device to control. this how you can find correct ip to control devices
 
-bug: some how older device ip address still stays same even the device is different
-bug: when finding the ip address from string this re findall was not good choice
-fixed this two bugs
-bug: now the devices name and ip address is saving to json value but somehow the state of device wont work.
+bug: some how older device ip address still stays same even the device is different(fixed)
+bug: when finding the ip address from string this re findall was not good choice(fixed)
+bug: now the devices name and ip address is saving to json value but somehow the state of device wont work.(fixed)
 fixed earlier bug, now device state is saved on json string. 
+
+ver108:
+plan:
+- if i make program this how: in beging of program it search all wlandevices and keeps a json value where you can command devices. and i have to make a update button if some how some device wont show on the button list.
+- a have to also make a text field what shows wlan devices state.
+- i have to also make new window to bulps. there will be somesliders where you can change bulp state and colormode.
+- if sp4 broadlinkhas some enegry measuring option perhapsi should show it also. (optional)

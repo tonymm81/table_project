@@ -12,6 +12,7 @@ import time
 import os
 import re
 import json
+import pprint
 #import smbus
 
 #pin numbering
@@ -25,6 +26,7 @@ relay_down = 12
 temp_value = 0
 level1 = 0
 devices_library = '{"testing": 123 }' # here we save the devices name, ipaddress, lightbulb color setup, and devices state
+devices = []
 json.dumps(devices_library, indent=4)
 #gpio setups
 GP.setwarnings(False)
@@ -51,7 +53,7 @@ root.configure(background="black")
 #scrollbar.pack( side = RIGHT, fill = Y )
 btn = Button(root, text="Adjust table up",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_up()).pack() 
 btn1 = Button(root, text="Adjust table down",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_down()).pack() 
-btn2 = Button(root, text="Control the lights and wlan plugs",fg="white", bg="black",font=("helvetica", 15), command=lambda: control_wlan_devices()).pack() 
+btn2 = Button(root, text="Control the lights and wlan plugs",fg="white", bg="black",font=("helvetica", 15), command=lambda: search_all_devices_wlan(devices)).pack() 
 btn3 = Button(root, text="Save this setup",fg="white", bg="black",font=("helvetica", 15), command=lambda: save_setup()).pack() 
 btn3 = Button(root, text="Load setup",fg="white", bg="black",font=("helvetica", 15), command=lambda: load_setup()).pack() 
 btn4 = Button(root, text="Exit and shutdown the weatherstation",fg="white", bg="black",font=("helvetica", 15), command=lambda: exit_and_shutdown()).pack()
@@ -208,12 +210,6 @@ def going_down(): # make a function call to control motor
 
 
 def search_all_devices_wlan(devices): # here we check again the devices list
-    #top = Toplevel()
-    #top.title('Wlan devices')
-    #top.geometry("850x500")
-    #top.configure(background="black")
-    #scrollbar = Scrollbar(top)
-    #scrollbar.pack( side = RIGHT, fill = Y )
     # scrollbar main frame setup
     main_frame = Frame(root)
     main_frame.pack(fill=BOTH, expand=1)
@@ -230,13 +226,6 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     second_frame = Frame(my_canvas)
     #add that new frame to window in the canvas
     my_canvas.create_window((0,0), window=second_frame, anchor="nw")
-    #top.update()
-    #root.update()
-    devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118') # this cannot convert to json.
-    print(len(devices))
-    devices = check_wlan_device_status(devices)
-    #print (devices[2])
-    #print(devices[2].devtype) # this how you can check what devices ip address to command
     device_names = [] # remove if not needed
     for o in range (len(devices)):
         device_names.append(devices[o].name)
@@ -247,6 +236,10 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     
     rounds = 0
     button_rounds = 0
+    update_btn = Button(second_frame, text = "Update wlan devices list", command = lambda: check_wlan_device_status(devices) , bg = "black", fg = "white")# user can manually update the wlan list
+    update_btn.pack(pady=2, padx=2)
+    exit_btn = Button(second_frame, text = "EXIT", command = lambda: [second_frame.destroy(), main_frame.destroy()] , bg = "black", fg = "white")# exit button
+    exit_btn.pack(pady=2, padx=2)
     for i in range (len(devices)):
         # make here buttons what change number of devices
         infolabel = Label(second_frame, text=device_names[rounds])
@@ -262,7 +255,7 @@ def search_all_devices_wlan(devices): # here we check again the devices list
         button_rounds = button_rounds+100
         #break
         
-    #top.mainloop()
+    
     second_frame.mainloop()
     return devices
  
@@ -273,14 +266,6 @@ def load_setup():
  
 def save_setup():
      return
- 
- 
-def control_wlan_devices(): # plan this next. graphical view and how to show listed devices.
-    devices = []
-    root.update()
-    devices = search_all_devices_wlan(devices)
-    print(devices)
-    return
  
  
 def measure_distance():
@@ -305,6 +290,8 @@ def measure_distance():
  
  
 def exit_and_shutdown():
+    GP.cleanup()
+    root.destroy()
     return
  
  
@@ -339,6 +326,8 @@ def check_wlan_device_status(devices):
     for i in range (len(devices)):
         print("before if clause", devices[i].devtype)
         devtype = devices[i].devtype
+        
+        
         if devtype == 24686:
             bulbname = devices[i].name
             temp_str_bulb = devices[i]
@@ -347,6 +336,7 @@ def check_wlan_device_status(devices):
             bulb_ip = result_bulb[5]#this works on sp3-eu plugs and [4] works with sp4-eu light bulb test it
             if len(bulb_ip) < 9:
                 bulb_ip = result_bulb[4]
+                
             result_bulb.clear()
             print(bulb_ip, bulbname)
             devices_temp1 = broadlink.discover(timeout=5, discover_ip_address=bulb_ip)
@@ -365,6 +355,7 @@ def check_wlan_device_status(devices):
             sp4_ip = result_sp4[5]#this works on sp3-eu plugs and [4] works with sp4-eu
             if len(sp4_ip) < 9:
                 sp4_ip = result_sp4[4]
+                
             result_sp4.clear()
             print(sp4_ip)
             devices_temp2 = broadlink.discover(timeout=5, discover_ip_address=sp4_ip)
@@ -374,6 +365,7 @@ def check_wlan_device_status(devices):
             sp4_library = {sp4_name : sp4_ip, dev_name_status: device_state2}#temp value to json
             temp_json.update(sp4_library)
             dev_name_status = ""
+            
             
         if devtype == 32000:
             sp3_name = devices[i].name
@@ -393,15 +385,19 @@ def check_wlan_device_status(devices):
             temp_json.update(sp3_library)
             dev_name_status = ""
             
+            
         devtype = 0
      
     
     devices_library = json.dumps(temp_json)
     print(devices_library)
+    pprint.pprint(devices_library.json()) # easier way to read json value
     return devices
 
 
-devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')
+
+devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')# lets check devices list
+check_wlan_device_status(devices) # lets check devices begin of program and convert them to json value
 while True:
 #    root.update()
 #
