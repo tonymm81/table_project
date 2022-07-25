@@ -78,3 +78,5 @@ plan:
 - if sp4 broadlinkhas some enegry measuring option perhapsi should show it also. (optional)
 
 bug: distance measurement wont work on control_motor function. tested earlier but now stopped working.(sometimes) tested twice but not done this
+
+bug: else klause print out again some labels. to fix this use if elif else clause, not two if clause
