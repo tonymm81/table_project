@@ -242,8 +242,13 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     exit_btn.pack(pady=2, padx=2)
     for i in range (len(devices)):
         # make here buttons what change number of devices
-        infolabel = Label(second_frame, text=device_names[rounds])
-        infolabel.pack(pady=2, padx=2)
+        if devices_library[i][1] == False:
+            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 25), fg="black", bg="red")
+            infolabel.pack(pady=2, padx=2)
+            
+        else:
+            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 25), fg="white", bg="black")
+            infolabel.pack(pady=2, padx=2)
         #infolabel.place(x=550,y=button_rounds)
         btn = device_names[i] 
         btn = Button(second_frame, text = btn, command = lambda: [second_frame.destroy(), main_frame.destroy()], bg = "black", fg = "white")
@@ -343,7 +348,7 @@ def check_wlan_device_status(devices):
             devices_temp1[0].auth()
             dev_name_status = bulbname + " status"
             device_state1 = devices_temp1[0].get_state()
-            bulb_library = {bulbname : bulb_ip, dev_name_status: device_state1}#temp value to json
+            bulb_library = {bulbname : [bulb_ip,  device_state1]}#temp value to json
             temp_json.update(bulb_library)
             dev_name_status = ""
             
@@ -362,7 +367,7 @@ def check_wlan_device_status(devices):
             devices_temp2[0].auth()
             device_state2 = devices_temp2[0].check_power()
             dev_name_status = sp4_name + " status"
-            sp4_library = {sp4_name : sp4_ip, dev_name_status: device_state2}#temp value to json
+            sp4_library = {sp4_name : [sp4_ip,  device_state2]}#temp value to json
             temp_json.update(sp4_library)
             dev_name_status = ""
             
@@ -381,7 +386,7 @@ def check_wlan_device_status(devices):
             devices_temp3[0].auth()
             device_state3 = devices_temp3[0].check_power()
             dev_name_status = sp3_name + " status"
-            sp3_library = {sp3_name : sp3_ip, dev_name_status : device_state3} #temp value to json
+            sp3_library = {sp3_name : [sp3_ip, device_state3]} #temp value to json
             temp_json.update(sp3_library)
             dev_name_status = ""
             
