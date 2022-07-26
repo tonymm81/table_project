@@ -242,7 +242,7 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     devices_library_tmp = json.loads(devices_library)
     
     for i in range (len(devices)):
-        print(devices_library_tmp[device_names[rounds]][1])
+        #print(devices_library_tmp[device_names[rounds]][1])
         
         if devices_library_tmp[device_names[rounds]][1] == False: # here we choose color on label based on wlan state is it on or off
             infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 15), fg="black", bg="red")
@@ -256,12 +256,14 @@ def search_all_devices_wlan(devices): # here we check again the devices list
             infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 15), fg="black", bg="green")
             infolabel.pack(pady=2, padx=2)
             
-        btn = device_names[i] 
-        btn = Button(second_frame, text = btn, command = lambda: control_wlan_devices(device_names[i], devices, devices_library), bg = "black", fg = "white") # make here function call
+        btn = device_names[rounds]
+        dev_name_temp = device_names[rounds]# not working, saves last one only 
+        btn = Button(second_frame, text = btn, command = lambda: control_wlan_devices(dev_name_temp, devices, devices_library), bg = "black", fg = "white") # make here function call
         btn.pack(pady=2, padx=2)
         i = i +1
         rounds = rounds +1
         button_rounds = button_rounds+100
+        #dev_name_temp = ""
         #break
         
     
@@ -406,7 +408,10 @@ def check_wlan_device_status(devices):
 
 def control_wlan_devices(device_names, devices, devices_library):# here we change the wlan devices state
     device_name_tmp = device_names
-    if devices_library[device_name_tmp][2] == 24686:
+    temp_json = json.loads(devices_library)
+    print(device_name_tmp)
+    print(temp_json[device_name_tmp][2])
+    if temp_json[device_name_tmp][2] == 24686:
         print("Bulp!!!!")
     
     else:
