@@ -209,6 +209,8 @@ def going_down(): # make a function call to control motor
     return
 
 
+
+
 def search_all_devices_wlan(devices): # here we check again the devices list
     # scrollbar main frame setup
     main_frame = Frame(root)
@@ -227,12 +229,9 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     #add that new frame to window in the canvas
     my_canvas.create_window((0,0), window=second_frame, anchor="nw")
     device_names = [] # remove if not needed
-    for o in range (len(devices)):
+    for o in range (len(devices)): # name list for the buttons
         device_names.append(devices[o].name)
-        #print(device_names[o])
         o = o +1
-    
-    #test labels
     
     rounds = 0
     button_rounds = 0
@@ -241,24 +240,25 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     exit_btn = Button(second_frame, text = "EXIT", command = lambda: [second_frame.destroy(), main_frame.destroy()] , bg = "black", fg = "white")# exit button
     exit_btn.pack(pady=2, padx=2)
     devices_library_tmp = json.loads(devices_library)
+    
     for i in range (len(devices)):
-        # make here buttons what change number of devices
         print(devices_library_tmp[device_names[rounds]][1])
-        if devices_library_tmp[device_names[rounds]][1] == False:
+        
+        if devices_library_tmp[device_names[rounds]][1] == False: # here we choose color on label based on wlan state is it on or off
             infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 15), fg="black", bg="red")
             infolabel.pack(pady=0, padx=0)
-        if devices_library_tmp[device_names[rounds]][2] == 24686 and devices_library_tmp[device_names[rounds]][1]['pwr'] == 0:
+            
+        elif devices_library_tmp[device_names[rounds]][2] == 24686 and devices_library_tmp[device_names[rounds]][1]['pwr'] == 0:
             infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 15), fg="black", bg="red")
             infolabel.pack(pady=0, padx=0)
+            
         else:
-            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 15), fg="white", bg="black")
+            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 15), fg="black", bg="green")
             infolabel.pack(pady=2, padx=2)
-        #infolabel.place(x=550,y=button_rounds)
+            
         btn = device_names[i] 
-        btn = Button(second_frame, text = btn, command = lambda: [second_frame.destroy(), main_frame.destroy()], bg = "black", fg = "white")
+        btn = Button(second_frame, text = btn, command = lambda: control_wlan_devices(device_names[i], devices, devices_library), bg = "black", fg = "white") # make here function call
         btn.pack(pady=2, padx=2)
-        #btn.place(x=380, y=button_rounds)
-        #top.update()
         i = i +1
         rounds = rounds +1
         button_rounds = button_rounds+100
@@ -403,6 +403,17 @@ def check_wlan_device_status(devices):
     pprint.pprint(devices_library) # easier way to read json value
     return devices
 
+
+def control_wlan_devices(device_names, devices, devices_library):# here we change the wlan devices state
+    device_name_tmp = device_names
+    if devices_library[device_name_tmp][2] == 24686:
+        print("Bulp!!!!")
+    
+    else:
+        print("plug!!")
+    
+    device_name_tmp=""
+    return
 
 
 devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')# lets check devices list

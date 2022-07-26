@@ -79,4 +79,7 @@ plan:
 
 bug: distance measurement wont work on control_motor function. tested earlier but now stopped working.(sometimes) tested twice but not done this
 
-bug: else klause print out again some labels. to fix this use if elif else clause, not two if clause
+bug: else klause print out again some labels. to fix this use if elif else clause, not two if clause (fixed, not tested)
+
+plan:
+i make a control_wlan_devices(devices, devices_name, devices_library). when user push a button it opens a top window where you can change the wlan device status. also i have to made own window to bulps where you can adjust the colors etc.
