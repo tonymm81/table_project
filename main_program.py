@@ -62,7 +62,9 @@ btn6 = Button(root, text="Check the updates",fg="white", bg="black",font=("helve
 label_1 = Label(root, text= "sais", font=("helvetica", 25), fg="white", bg="black")
 label_1.pack()
 #ultrasonic_ranger = trigger
-
+#test_json = {"testing": 123, "Riipuksen eteinen valo|-1": ["192.168.68.115", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipuksen Keitti\u00f6 Valo|9": ["192.168.68.106", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipuksen kaffinkeiti|-1": ["192.168.68.105", false, 30073], "Riipuksen makkari valo|-1": ["192.168.68.100", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipuksen Makkari pistorasia|1": ["192.168.68.104", false, 32000], "Esp Bedroom|1": ["192.168.68.125", false, 32000], "Esp Kitchen|1": ["192.168.68.126", false, 32000], "Riipuksen Olkkari Valo|9": ["192.168.68.110", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipuksen Olkkari Valo3|9": ["192.168.68.111", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Weatherstation Riipus|1": ["192.168.68.127", false, 30073], "Riipukksen Olkkari Ledi|1": ["192.168.68.119", false, 30073], "Riipuksen Olkkari Valo2|9": ["192.168.68.112", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipukse Ty\u00f6piste val|9": ["192.168.68.129", {"red": 0, "blue": 0, "green": 0, "pwr": 1, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipuksen Olkkari Tv, Stereot|1": ["192.168.68.109", true, 32000], "Riipuksen Olkkari Tietsikka|1": ["192.168.68.107", true, 32000], "Riipuksen Olkkari Ty\u00f6piste|1": ["192.168.68.108", false, 32000], "Riipuksen Imari|1": ["192.168.68.123", false, 32000]}
+#test_json.dumps(test_json)
+button_dict = {}
 
 def update_setpoint(level):#needed to update the level value
     global level1
@@ -240,27 +242,27 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     exit_btn = Button(second_frame, text = "EXIT", command = lambda: [second_frame.destroy(), main_frame.destroy()] , bg = "black", fg = "white")# exit button
     exit_btn.pack(pady=2, padx=2)
     devices_library_tmp = json.loads(devices_library)
-    button_dict = {}
+    print(button_dict)
     
     for i in range (len(devices)):
         #print(devices_library_tmp[device_names[rounds]][1])
         
         if devices_library_tmp[device_names[rounds]][1] == False: # here we choose color on label based on wlan state is it on or off
-            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 15), fg="black", bg="red")
+            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 8), fg="black", bg="red")
             infolabel.pack(pady=0, padx=0)
             
         elif devices_library_tmp[device_names[rounds]][2] == 24686 and devices_library_tmp[device_names[rounds]][1]['pwr'] == 0:
-            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 15), fg="black", bg="red")
+            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 8), fg="black", bg="red")
             infolabel.pack(pady=0, padx=0)
             
         else:
-            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 15), fg="black", bg="green")
+            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 8), fg="black", bg="green")
             infolabel.pack(pady=2, padx=2)
          
         btn = device_names[rounds]
         dev_name_temp = device_names[rounds]# not working, saves last one only
-        button_dict[i] =  Button(second_frame, text = btn, command = lambda: control_wlan_devices(dev_name_temp, devices, devices_library), bg = "black", fg = "white") # make here function call  
-        button_dict[i].pack(pady=2, padx=2)
+        
+
         #btn = device_names[rounds]
         #dev_name_temp = device_names[rounds]# not working, saves last one only 
         #btn = Button(second_frame, text = btn, command = lambda: control_wlan_devices(dev_name_temp, devices, devices_library), bg = "black", fg = "white") # make here function call
@@ -271,7 +273,7 @@ def search_all_devices_wlan(devices): # here we check again the devices list
         #dev_name_temp = ""
         #break
         
-    
+    print(button_dict)
     second_frame.mainloop()
     return devices
  
@@ -339,13 +341,19 @@ def check_updates():
 def check_wlan_device_status(devices): # check here also buttons and save device in button command
     global devices_library
     temp_json = json.loads(devices_library)
+    
     for i in range (len(devices)):
         #print("before if clause", devices[i].devtype)
         devtype = devices[i].devtype
         
         
         if devtype == 24686:
+            bulb_button = " "
+            bulb_pack = " "
             bulbname = devices[i].name
+            button_dict[i] =  Button(second_frame, text = btn, command = lambda: control_wlan_devices(btn, devices, devices_library), bg = "black", fg = "white") # make here function call  
+            button_dict[i].pack(pady=2, padx=2)  
+        
             temp_str_bulb = devices[i]
             temp_str_bulb = str(temp_str_bulb)
             result_bulb = re.findall(r'[\d\.]+', temp_str_bulb)
@@ -364,10 +372,14 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             dev_name_status = ""
             
         if devtype == 30073:
+            sp4_button = " "
+            sp4_pack = " "
             sp4_name = devices[i].name
             temp_str_sp4 = devices[i]
             temp_str_sp4 = str(temp_str_sp4)
             result_sp4 = re.findall(r'[\d\.]+', temp_str_sp4)
+            button_dict[i] =  Button(second_frame, text = btn, command = lambda: control_wlan_devices(btn, devices, devices_library), bg = "black", fg = "white") # make here function call  
+            button_dict[i].pack(pady=2, padx=2)
             sp4_ip = result_sp4[5]#this works on sp3-eu plugs and [4] works with sp4-eu
             if len(sp4_ip) < 9:
                 sp4_ip = result_sp4[4]
@@ -384,6 +396,9 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             
             
         if devtype == 32000:
+            
+            sp3_button = " "
+            sp3_pack = " "
             sp3_name = devices[i].name
             temp_str_sp3 = devices[i]#here was problem
             temp_str_sp3 = str(temp_str_sp3)
@@ -426,7 +441,7 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
     device_name_tmp=""
     return
 
-
+second_frame = "root"
 devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')# lets check devices list
 check_wlan_device_status(devices) # lets check devices begin of program and convert them to json value
 while True:
