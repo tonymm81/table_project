@@ -84,3 +84,6 @@ bug: else klause print out again some labels. to fix this use if elif else claus
 plan:
 i make a control_wlan_devices(devices, devices_name, devices_library). when user push a button it opens a top window where you can change the wlan device status. also i have to made own window to bulps where you can adjust the colors etc.
 problem. when i make a devices button, i have to figure out how to save device name per button that i can use devices name in control wlan devices function. 
+
+- if i make a 20 buttons already. then in for loop we sahe the infoemation to buttons.. and in the sametime we store the device name to button value and use it to function call
+

@@ -240,6 +240,7 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     exit_btn = Button(second_frame, text = "EXIT", command = lambda: [second_frame.destroy(), main_frame.destroy()] , bg = "black", fg = "white")# exit button
     exit_btn.pack(pady=2, padx=2)
     devices_library_tmp = json.loads(devices_library)
+    button_dict = {}
     
     for i in range (len(devices)):
         #print(devices_library_tmp[device_names[rounds]][1])
@@ -255,11 +256,15 @@ def search_all_devices_wlan(devices): # here we check again the devices list
         else:
             infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 15), fg="black", bg="green")
             infolabel.pack(pady=2, padx=2)
-            
+         
         btn = device_names[rounds]
-        dev_name_temp = device_names[rounds]# not working, saves last one only 
-        btn = Button(second_frame, text = btn, command = lambda: control_wlan_devices(dev_name_temp, devices, devices_library), bg = "black", fg = "white") # make here function call
-        btn.pack(pady=2, padx=2)
+        dev_name_temp = device_names[rounds]# not working, saves last one only
+        button_dict[i] =  Button(second_frame, text = btn, command = lambda: control_wlan_devices(dev_name_temp, devices, devices_library), bg = "black", fg = "white") # make here function call  
+        button_dict[i].pack(pady=2, padx=2)
+        #btn = device_names[rounds]
+        #dev_name_temp = device_names[rounds]# not working, saves last one only 
+        #btn = Button(second_frame, text = btn, command = lambda: control_wlan_devices(dev_name_temp, devices, devices_library), bg = "black", fg = "white") # make here function call
+        #btn.pack(pady=2, padx=2)
         i = i +1
         rounds = rounds +1
         button_rounds = button_rounds+100
@@ -331,7 +336,7 @@ def check_updates():
     return
 
 
-def check_wlan_device_status(devices):
+def check_wlan_device_status(devices): # check here also buttons and save device in button command
     global devices_library
     temp_json = json.loads(devices_library)
     for i in range (len(devices)):
@@ -352,7 +357,7 @@ def check_wlan_device_status(devices):
             print(bulb_ip, bulbname)
             devices_temp1 = broadlink.discover(timeout=5, discover_ip_address=bulb_ip)
             devices_temp1[0].auth()
-            dev_name_status = bulbname + " status"
+            dev_name_status = bulbname 
             device_state1 = devices_temp1[0].get_state()
             bulb_library = {bulbname : [bulb_ip,  device_state1, devtype]}#temp value to json
             temp_json.update(bulb_library)
@@ -372,7 +377,7 @@ def check_wlan_device_status(devices):
             devices_temp2 = broadlink.discover(timeout=5, discover_ip_address=sp4_ip)
             devices_temp2[0].auth()
             device_state2 = devices_temp2[0].check_power()
-            dev_name_status = sp4_name + " status"
+            dev_name_status = sp4_name
             sp4_library = {sp4_name : [sp4_ip,  device_state2, devtype]}#temp value to json
             temp_json.update(sp4_library)
             dev_name_status = ""
@@ -386,12 +391,13 @@ def check_wlan_device_status(devices):
             sp3_ip = result_sp3[5]#this works on sp3-eu plugs and [4] works with sp4-eu
             if len(sp3_ip) < 9:
                 sp3_ip = result_sp3[4]
+                
             print(sp3_ip, sp3_name)
             result_sp3.clear()
             devices_temp3 = broadlink.discover(timeout=5, discover_ip_address=sp3_ip)
             devices_temp3[0].auth()
             device_state3 = devices_temp3[0].check_power()
-            dev_name_status = sp3_name + " status"
+            dev_name_status = sp3_name
             sp3_library = {sp3_name : [sp3_ip, device_state3, devtype]} #temp value to json
             temp_json.update(sp3_library)
             dev_name_status = ""
