@@ -86,4 +86,4 @@ i make a control_wlan_devices(devices, devices_name, devices_library). when user
 problem. when i make a devices button, i have to figure out how to save device name per button that i can use devices name in control wlan devices function. 
 
 - if i make a 20 buttons already. then in for loop we sahe the infoemation to buttons.. and in the sametime we store the device name to button value and use it to function call
-
+- i update the button define to json value at the same time when you save the devices information. If you try to open this part json it complains key error p. 

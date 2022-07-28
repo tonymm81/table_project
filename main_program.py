@@ -261,7 +261,7 @@ def search_all_devices_wlan(devices): # here we check again the devices list
          
         btn = device_names[rounds]
         dev_name_temp = device_names[rounds]# not working, saves last one only
-        print(devices_library_tmp) 
+        print("temp json" ,devices_library_tmp) 
         exec(devices_library_tmp[device_names[rounds][3]])# print clause wont work on this # gives a keyerror 'p' when key is not found in a dictoriany. json shows correct infoemation
         exec(devices_library_tmp[device_names[rounds][4]])
         #btn = device_names[rounds]
