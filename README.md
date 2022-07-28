@@ -87,3 +87,8 @@ problem. when i make a devices button, i have to figure out how to save device n
 
 - if i make a 20 buttons already. then in for loop we sahe the infoemation to buttons.. and in the sametime we store the device name to button value and use it to function call
 - i update the button define to json value at the same time when you save the devices information. If you try to open this part json it complains key error p. 
+
+ver109:
+- wlan devices button works fine. buttons are controlling to correct function. i insert buttons to json library and make them to graphics with for loop. this how i can save devices name to value what we send to function where we change devices state
+
+plan: next we do controlling to devices. i have to make window where we can change the devices state. also to bulps we have to make a slider on colors and brightness.

@@ -340,7 +340,7 @@ def check_updates():
 
 
 def check_wlan_device_status(devices): # check here also buttons and save device in button command
-    global devices_library
+    global devices_library # make here try exceptclause for Traceback error
     temp_json = json.loads(devices_library)
     
     for i in range (len(devices)):
@@ -351,14 +351,16 @@ def check_wlan_device_status(devices): # check here also buttons and save device
         if devtype == 24686:
             bulb_button = " "
             bulb_pack = " "
-            bulbname = devices[i].name  
-        
+            
+            bulbname = devices[i].name
+            size = len(bulbname)
+            temp_name = bulbname[:size -3]#delete 3 letters
             temp_str_bulb = devices[i]
             temp_str_bulb = str(temp_str_bulb)
             result_bulb = re.findall(r'[\d\.]+', temp_str_bulb)
             bulb_ip = result_bulb[5]#this works on sp3-eu plugs and [4] works with sp4-eu light bulb test it
-            bulb_button = devices[i].name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
-            bulb_pack = devices[i].name+".pack(pady=2, padx=2)"
+            bulb_button = temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
+            bulb_pack = temp_name+".pack(pady=2, padx=2)"
             if len(bulb_ip) < 9:
                 bulb_ip = result_bulb[4]
                 
@@ -376,11 +378,13 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             sp4_button = " "
             sp4_pack = " "
             sp4_name = devices[i].name
+            size = len(sp4_name)
+            sp4_temp_name = sp4_name[:size-3]
             temp_str_sp4 = devices[i]
             temp_str_sp4 = str(temp_str_sp4)
             result_sp4 = re.findall(r'[\d\.]+', temp_str_sp4)
-            sp4_button = devices[i].name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
-            sp4_pack = devices[i].name+".pack(pady=2, padx=2)"
+            sp4_button = sp4_temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
+            sp4_pack = sp4_temp_name+".pack(pady=2, padx=2)"
             sp4_ip = result_sp4[5]#this works on sp3-eu plugs and [4] works with sp4-eu
             if len(sp4_ip) < 9:
                 sp4_ip = result_sp4[4]
@@ -401,6 +405,8 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             sp3_button = " "
             sp3_pack = " "
             sp3_name = devices[i].name
+            size = len(sp3_name)
+            sp3_temp_name = sp3_name[:size -3]
             temp_str_sp3 = devices[i]#here was problem
             temp_str_sp3 = str(temp_str_sp3)
             result_sp3 = re.findall(r'[\d\.]+', temp_str_sp3)
@@ -408,8 +414,8 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             if len(sp3_ip) < 9:
                 sp3_ip = result_sp3[4]
                 
-            sp3_button = devices[i].name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
-            sp3_pack = devices[i].name+".pack(pady=2, padx=2)"
+            sp3_button = sp3_temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
+            sp3_pack = sp3_temp_name +".pack(pady=2, padx=2)"
             print(sp3_ip, sp3_name)
             result_sp3.clear()
             devices_temp3 = broadlink.discover(timeout=5, discover_ip_address=sp3_ip)
@@ -444,8 +450,12 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
     device_name_tmp=""
     return
 
-second_frame = "root"
+
 devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')# lets check devices list
+#Riipuksen_Olkkari_Valo = Button(root, text = "some", command = lambda: control_wlan_devices('Riipuksen Olkkari Valo|9', devices, devices_library), bg = 'black', fg = 'white') #devicename has to include
+#Riipuksen_Olkkari_Valo.pack()
+second_frame = "root"
+
 check_wlan_device_status(devices) # lets check devices begin of program and convert them to json value
 while True:
 #    root.update()
