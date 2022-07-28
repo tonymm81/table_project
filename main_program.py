@@ -25,7 +25,7 @@ relay_up = 15
 relay_down = 12
 temp_value = 0
 level1 = 0
-devices_library = '{"testing": 123 }' # here we save the devices name, ipaddress, lightbulb color setup, and devices state
+devices_library = '{}' # here we save the devices name, ipaddress, lightbulb color setup, and devices state
 devices = []
 json.dumps(devices_library, indent=4)
 #gpio setups
@@ -262,8 +262,8 @@ def search_all_devices_wlan(devices): # here we check again the devices list
         btn = device_names[rounds]
         dev_name_temp = device_names[rounds]# not working, saves last one only
         print("temp json" ,devices_library_tmp) 
-        exec(devices_library_tmp[device_names[rounds][3]])# print clause wont work on this # gives a keyerror 'p' when key is not found in a dictoriany. json shows correct infoemation
-        exec(devices_library_tmp[device_names[rounds][4]])
+        exec(devices_library_tmp[device_names[rounds]][3])# print clause wont work on this # gives a keyerror 'p' when key is not found in a dictoriany. json shows correct infoemation
+        exec(devices_library_tmp[device_names[rounds]][4])
         #btn = device_names[rounds]
         #dev_name_temp = device_names[rounds]# not working, saves last one only 
         #btn = Button(second_frame, text = btn, command = lambda: control_wlan_devices(dev_name_temp, devices, devices_library), bg = "black", fg = "white") # make here function call
@@ -357,7 +357,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             temp_str_bulb = str(temp_str_bulb)
             result_bulb = re.findall(r'[\d\.]+', temp_str_bulb)
             bulb_ip = result_bulb[5]#this works on sp3-eu plugs and [4] works with sp4-eu light bulb test it
-            bulb_button = devices[i].name + "  = Button(second_frame, text = btn, command = lambda: control_wlan_devices(" +devices[i].name+", devices, devices_library), bg = 'black', fg = 'white')"
+            bulb_button = devices[i].name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices(" '{devices[i].name}'", devices, devices_library), bg = 'black', fg = 'white')"
             bulb_pack = devices[i].name+".pack(pady=2, padx=2)"
             if len(bulb_ip) < 9:
                 bulb_ip = result_bulb[4]
@@ -379,7 +379,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             temp_str_sp4 = devices[i]
             temp_str_sp4 = str(temp_str_sp4)
             result_sp4 = re.findall(r'[\d\.]+', temp_str_sp4)
-            sp4_button = devices[i].name + "  = Button(second_frame, text = btn, command = lambda: control_wlan_devices(" +devices[i].name+", devices, devices_library), bg = 'black', fg = 'white')"
+            sp4_button = devices[i].name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices(" '{devices[i].name}'", devices, devices_library), bg = 'black', fg = 'white')"
             sp4_pack = devices[i].name+".pack(pady=2, padx=2)"
             sp4_ip = result_sp4[5]#this works on sp3-eu plugs and [4] works with sp4-eu
             if len(sp4_ip) < 9:
@@ -408,7 +408,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             if len(sp3_ip) < 9:
                 sp3_ip = result_sp3[4]
                 
-            sp3_button = devices[i].name + "  = Button(second_frame, text = btn, command = lambda: control_wlan_devices(" +devices[i].name+", devices, devices_library), bg = 'black', fg = 'white')"
+            sp3_button = devices[i].name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices(" '{devices[i].name}'", devices, devices_library), bg = 'black', fg = 'white')"
             sp3_pack = devices[i].name+".pack(pady=2, padx=2)"
             print(sp3_ip, sp3_name)
             result_sp3.clear()
