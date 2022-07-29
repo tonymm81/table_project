@@ -468,34 +468,41 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
     print(temp_json[device_name_tmp][2])
     if temp_json[device_name_tmp][2] == 24686:
         print("Bulp!!!!")
-        level = DoubleVar()
+        level_red = DoubleVar()
+        level_green = DoubleVar()
+        level_blue = DoubleVar()
+        level_bright = DoubleVar()
+        level_colortmp = DoubleVar()
+        level_satu = DoubleVar()
+        
         top2 = Toplevel()
         top2.title('light adjusment')
         top2.geometry("400x300")
         top2.configure(background="white")
         top2.update()
+        
         l2 = Label(top2)
-        s2 = Scale( top2, variable = level,from_ = 50, to = 1,orient = VERTICAL) #red
-        s2.pack(anchor = CENTER)
-        s3 = Scale( top2, variable = level,from_ = 50, to = 1,orient = VERTICAL) #green
-        s3.pack(anchor = CENTER)
-        s4 = Scale( top2, variable = level,from_ = 50, to = 1,orient = VERTICAL) #blue
+        s2 = Scale( top2, variable = level_red,from_ = 50, to = 1,orient = VERTICAL) #red
+        s2.pack(anchor = RIGHT)
+        s3 = Scale( top2, variable = level_green,from_ = 50, to = 1,orient = VERTICAL) #green
+        s3.pack(anchor = RIGHT)
+        s4 = Scale( top2, variable = level_blue,from_ = 50, to = 1,orient = VERTICAL) #blue
         s4.pack(anchor = CENTER)
-        s5 = Scale( top2, variable = level,from_ = 50, to = 1,orient = VERTICAL) #brightness
+        s5 = Scale( top2, variable = level_bright,from_ = 50, to = 1,orient = VERTICAL) #brightness
         s5.pack(anchor = CENTER)
-        s6 = Scale( top2, variable = level,from_ = 50, to = 1,orient = VERTICAL) # clolortemp 
-        s6.pack(anchor = CENTER)
-        s7 = Scale( top2, variable = level,from_ = 50, to = 1,orient = VERTICAL) # saturation
-        s7.pack(anchor = CENTER)
+        s6 = Scale( top2, variable = level_colortmp,from_ = 50, to = 1,orient = VERTICAL) # clolortemp 
+        s6.pack(anchor = LEFT)
+        s7 = Scale( top2, variable = level_satu,from_ = 50, to = 1,orient = VERTICAL) # saturation
+        s7.pack(anchor = LEFT)
     
-        sel = "Vertical Scale Value = " + str(level.get())
-        l2.config(text = sel, font =("Courier", 14)) 
-        l4 = Label(top2, text = "set measurement")
+        #sel = "Vertical Scale Value = " + str(level.get())
+       # l2.config(text = sel, font =("Courier", 14)) 
+       # l4 = Label(top2, text = "set measurement")
   
-        b2 = Button(top2, text ="choose measurement",
-            command = lambda:level.get(),
-            bg = "purple", 
-            fg = "white")
+       # b2 = Button(top2, text ="choose measurement",
+           # command = lambda:level.get(),
+           # bg = "purple", 
+           # fg = "white")
   
         #btn = Button(top1, text="stop", fg="white",bg="black", font=("helvetica", 15), command=lambda: [motor_up(1), top1.destroy()]).pack()
         b3 = Button(top1, text ="update measurement",
@@ -503,13 +510,13 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
             bg = "purple", 
             fg = "white")
      
-        l4.pack()
-        b2.pack()
+       # l4.pack()
+       # b2.pack()
         b3.pack()
         l2.pack()
         root.update()
         level1 = level
-        top1.mainloop()
+        top2.mainloop()
     else:
         print("plug!!")
     
