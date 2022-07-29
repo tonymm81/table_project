@@ -94,3 +94,5 @@ ver109:
 plan: next we do controlling to devices. i have to make window where we can change the devices state. also to bulps we have to make a slider on colors and brightness.
 also we have to do error handling whenwe check the wlan device status.
 bug: fix button letter sizes
+bug: table measurement wont update on label. (fixed)
+bug: sometimes program crash if wlan devices timeout comes. (plan try exept function)(fixed)

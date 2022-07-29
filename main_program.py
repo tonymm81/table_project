@@ -1,6 +1,8 @@
+from inspect import Traceback
 from logging import root
 from sre_parse import State
 from tkinter import *
+import traceback
 from broadlink import *
 from save_to_file import *
 from shutdown_weatherstation import *
@@ -195,7 +197,8 @@ def going_up(): #motor controlling up direction
     limit_switch = 23
     root.update()
     level1 = ask_user(level1, direction, limit_switch)
-    #motor_control(level1, direction, limit_switch)
+    label_1.configure(text = "waiting user to choose and distance is: " + str(measure_distance()))
+    label_1.pack()
     main_waiting_loop()
     return
  
@@ -207,6 +210,8 @@ def going_down(): # make a function call to control motor
     limit_switch = 8
     level1 = ask_user(level1, direction, limit_switch)
     #motor_control(level1, "relay_down", "relay_down_limit")
+    label_1.configure(text = "waiting user to choose and distance is: " + str(measure_distance()))
+    label_1.pack()
     main_waiting_loop()
     return
 
@@ -248,15 +253,15 @@ def search_all_devices_wlan(devices): # here we check again the devices list
         #print(devices_library_tmp[device_names[rounds]][1])
         
         if devices_library_tmp[device_names[rounds]][1] == False: # here we choose color on label based on wlan state is it on or off
-            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 8), fg="black", bg="red")
+            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 12), fg="black", bg="red")
             infolabel.pack(pady=0, padx=0)
             
         elif devices_library_tmp[device_names[rounds]][2] == 24686 and devices_library_tmp[device_names[rounds]][1]['pwr'] == 0:
-            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 8), fg="black", bg="red")
+            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 12), fg="black", bg="red")
             infolabel.pack(pady=0, padx=0)
             
         else:
-            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 8), fg="black", bg="green")
+            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 12), fg="black", bg="green")
             infolabel.pack(pady=2, padx=2)
          
         btn = device_names[rounds]
@@ -366,13 +371,19 @@ def check_wlan_device_status(devices): # check here also buttons and save device
                 
             result_bulb.clear()
             print(bulb_ip, bulbname)
-            devices_temp1 = broadlink.discover(timeout=5, discover_ip_address=bulb_ip)
-            devices_temp1[0].auth()
-            dev_command_bulb = devices_temp1[0]
-            device_state1 = devices_temp1[0].get_state()
-            bulb_library = {bulbname : [bulb_ip,  device_state1, devtype, bulb_button, bulb_pack, dev_command_bulb]}#temp value to json
+            try:
+                devices_temp1 = broadlink.discover(timeout=5, discover_ip_address=bulb_ip)
+                devices_temp1[0].auth()
+                device_state1 = devices_temp1[0].get_state()
+            except traceback:
+                print("device communication failed")
+                
+            except IndexError:
+                print("device wont find")
+                
+            bulb_library = {bulbname : [bulb_ip,  device_state1, devtype, bulb_button, bulb_pack]}#temp value to json
             temp_json.update(bulb_library)
-            dev_command_bulb = ""
+            
             
         if devtype == 30073:
             sp4_button = " "
@@ -391,13 +402,20 @@ def check_wlan_device_status(devices): # check here also buttons and save device
                 
             result_sp4.clear()
             print(sp4_ip, sp4_name)
-            devices_temp2 = broadlink.discover(timeout=5, discover_ip_address=sp4_ip)
-            devices_temp2[0].auth()
-            device_state2 = devices_temp2[0].check_power()
-            dev_command_sp4 = devices_temp2[0]
-            sp4_library = {sp4_name : [sp4_ip,  device_state2, devtype, sp4_button, sp4_pack, dev_command_sp4]}#temp value to json
+            try:
+                devices_temp2 = broadlink.discover(timeout=5, discover_ip_address=sp4_ip)
+                devices_temp2[0].auth()
+                device_state2 = devices_temp2[0].check_power()
+            except traceback:
+                print("device communication failed")
+                
+            except IndexError:
+                print("device wont find")
+            
+            
+            sp4_library = {sp4_name : [sp4_ip,  device_state2, devtype, sp4_button, sp4_pack]}#temp value to json
             temp_json.update(sp4_library)
-            dev_command_sp4 = ""
+            
             
             
         if devtype == 32000:
@@ -418,13 +436,20 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             sp3_pack = sp3_temp_name +".pack(pady=2, padx=2)"
             print(sp3_ip, sp3_name)
             result_sp3.clear()
-            devices_temp3 = broadlink.discover(timeout=5, discover_ip_address=sp3_ip)
-            devices_temp3[0].auth()
-            device_state3 = devices_temp3[0].check_power()
-            dev_command_sp3 = devices_temp3[0]
-            sp3_library = {sp3_name : [sp3_ip, device_state3, devtype, sp3_button, sp3_pack, dev_command_sp3]} #temp value to json
+            try:
+                devices_temp3 = broadlink.discover(timeout=5, discover_ip_address=sp3_ip)
+                devices_temp3[0].auth()
+                device_state3 = devices_temp3[0].check_power()
+
+            except traceback:
+                print("device communication failed")
+                
+            except IndexError:
+                print("device wont find")
+            
+            sp3_library = {sp3_name : [sp3_ip, device_state3, devtype, sp3_button, sp3_pack]} #temp value to json
             temp_json.update(sp3_library)
-            dev_command_sp3 = ""
+            
             
             
         devtype = 0
@@ -443,7 +468,48 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
     print(temp_json[device_name_tmp][2])
     if temp_json[device_name_tmp][2] == 24686:
         print("Bulp!!!!")
+        level = DoubleVar()
+        top2 = Toplevel()
+        top2.title('light adjusment')
+        top2.geometry("400x300")
+        top2.configure(background="white")
+        top2.update()
+        l2 = Label(top2)
+        s2 = Scale( top2, variable = level,from_ = 50, to = 1,orient = VERTICAL) #red
+        s2.pack(anchor = CENTER)
+        s3 = Scale( top2, variable = level,from_ = 50, to = 1,orient = VERTICAL) #green
+        s3.pack(anchor = CENTER)
+        s4 = Scale( top2, variable = level,from_ = 50, to = 1,orient = VERTICAL) #blue
+        s4.pack(anchor = CENTER)
+        s5 = Scale( top2, variable = level,from_ = 50, to = 1,orient = VERTICAL) #brightness
+        s5.pack(anchor = CENTER)
+        s6 = Scale( top2, variable = level,from_ = 50, to = 1,orient = VERTICAL) # clolortemp 
+        s6.pack(anchor = CENTER)
+        s7 = Scale( top2, variable = level,from_ = 50, to = 1,orient = VERTICAL) # saturation
+        s7.pack(anchor = CENTER)
     
+        sel = "Vertical Scale Value = " + str(level.get())
+        l2.config(text = sel, font =("Courier", 14)) 
+        l4 = Label(top2, text = "set measurement")
+  
+        b2 = Button(top2, text ="choose measurement",
+            command = lambda:level.get(),
+            bg = "purple", 
+            fg = "white")
+  
+        #btn = Button(top1, text="stop", fg="white",bg="black", font=("helvetica", 15), command=lambda: [motor_up(1), top1.destroy()]).pack()
+        b3 = Button(top1, text ="update measurement",
+            command = lambda: [update_setpoint(level.get()),motor_control(level1, direction, limit_switch), top1.destroy()],
+            bg = "purple", 
+            fg = "white")
+     
+        l4.pack()
+        b2.pack()
+        b3.pack()
+        l2.pack()
+        root.update()
+        level1 = level
+        top1.mainloop()
     else:
         print("plug!!")
     
