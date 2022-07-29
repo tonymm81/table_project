@@ -59,7 +59,7 @@ btn3 = Button(root, text="Load setup",fg="white", bg="black",font=("helvetica", 
 btn4 = Button(root, text="Exit and shutdown the weatherstation",fg="white", bg="black",font=("helvetica", 15), command=lambda: exit_and_shutdown()).pack()
 btn5 = Button(root, text="Exit this system",fg="white", bg="black",font=("helvetica", 15), command=lambda: exit_only()).pack() 
 btn6 = Button(root, text="Check the updates",fg="white", bg="black",font=("helvetica", 15), command=lambda: measure_distance()).pack() 
-label_1 = Label(root, text= "sais", font=("helvetica", 25), fg="white", bg="black")
+label_1 = Label(root, text= "sais", font=("helvetica", 10), fg="white", bg="black")
 label_1.pack()
 #ultrasonic_ranger = trigger
 #test_json = {"testing": 123, "Riipuksen eteinen valo|-1": ["192.168.68.115", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipuksen Keitti\u00f6 Valo|9": ["192.168.68.106", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipuksen kaffinkeiti|-1": ["192.168.68.105", false, 30073], "Riipuksen makkari valo|-1": ["192.168.68.100", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipuksen Makkari pistorasia|1": ["192.168.68.104", false, 32000], "Esp Bedroom|1": ["192.168.68.125", false, 32000], "Esp Kitchen|1": ["192.168.68.126", false, 32000], "Riipuksen Olkkari Valo|9": ["192.168.68.110", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipuksen Olkkari Valo3|9": ["192.168.68.111", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Weatherstation Riipus|1": ["192.168.68.127", false, 30073], "Riipukksen Olkkari Ledi|1": ["192.168.68.119", false, 30073], "Riipuksen Olkkari Valo2|9": ["192.168.68.112", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipukse Ty\u00f6piste val|9": ["192.168.68.129", {"red": 0, "blue": 0, "green": 0, "pwr": 1, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipuksen Olkkari Tv, Stereot|1": ["192.168.68.109", true, 32000], "Riipuksen Olkkari Tietsikka|1": ["192.168.68.107", true, 32000], "Riipuksen Olkkari Ty\u00f6piste|1": ["192.168.68.108", false, 32000], "Riipuksen Imari|1": ["192.168.68.123", false, 32000]}
@@ -262,7 +262,7 @@ def search_all_devices_wlan(devices): # here we check again the devices list
         btn = device_names[rounds]
         dev_name_temp = device_names[rounds]# not working, saves last one only
         print("temp json" ,devices_library_tmp) 
-        exec(devices_library_tmp[device_names[rounds]][3])# print clause wont work on this # gives a keyerror 'p' when key is not found in a dictoriany. json shows correct infoemation
+        exec(devices_library_tmp[device_names[rounds]][3])# works on ver109
         exec(devices_library_tmp[device_names[rounds]][4])
         #btn = device_names[rounds]
         #dev_name_temp = device_names[rounds]# not working, saves last one only 
@@ -368,11 +368,11 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             print(bulb_ip, bulbname)
             devices_temp1 = broadlink.discover(timeout=5, discover_ip_address=bulb_ip)
             devices_temp1[0].auth()
-            dev_name_status = bulbname 
+            dev_command_bulb = devices_temp1[0]
             device_state1 = devices_temp1[0].get_state()
-            bulb_library = {bulbname : [bulb_ip,  device_state1, devtype, bulb_button, bulb_pack]}#temp value to json
+            bulb_library = {bulbname : [bulb_ip,  device_state1, devtype, bulb_button, bulb_pack, dev_command_bulb]}#temp value to json
             temp_json.update(bulb_library)
-            dev_name_status = ""
+            dev_command_bulb = ""
             
         if devtype == 30073:
             sp4_button = " "
@@ -394,10 +394,10 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             devices_temp2 = broadlink.discover(timeout=5, discover_ip_address=sp4_ip)
             devices_temp2[0].auth()
             device_state2 = devices_temp2[0].check_power()
-            dev_name_status = sp4_name
-            sp4_library = {sp4_name : [sp4_ip,  device_state2, devtype, sp4_button, sp4_pack]}#temp value to json
+            dev_command_sp4 = devices_temp2[0]
+            sp4_library = {sp4_name : [sp4_ip,  device_state2, devtype, sp4_button, sp4_pack, dev_command_sp4]}#temp value to json
             temp_json.update(sp4_library)
-            dev_name_status = ""
+            dev_command_sp4 = ""
             
             
         if devtype == 32000:
@@ -421,10 +421,10 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             devices_temp3 = broadlink.discover(timeout=5, discover_ip_address=sp3_ip)
             devices_temp3[0].auth()
             device_state3 = devices_temp3[0].check_power()
-            dev_name_status = sp3_name
-            sp3_library = {sp3_name : [sp3_ip, device_state3, devtype, sp3_button, sp3_pack]} #temp value to json
+            dev_command_sp3 = devices_temp3[0]
+            sp3_library = {sp3_name : [sp3_ip, device_state3, devtype, sp3_button, sp3_pack, dev_command_sp3]} #temp value to json
             temp_json.update(sp3_library)
-            dev_name_status = ""
+            dev_command_sp3 = ""
             
             
         devtype = 0

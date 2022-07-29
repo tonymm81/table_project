@@ -92,3 +92,5 @@ ver109:
 - wlan devices button works fine. buttons are controlling to correct function. i insert buttons to json library and make them to graphics with for loop. this how i can save devices name to value what we send to function where we change devices state
 
 plan: next we do controlling to devices. i have to make window where we can change the devices state. also to bulps we have to make a slider on colors and brightness.
+also we have to do error handling whenwe check the wlan device status.
+bug: fix button letter sizes
