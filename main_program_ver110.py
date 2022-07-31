@@ -247,8 +247,8 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     rounds = 0
     button_rounds = 0
     update_btn = Button(second_frame, text = "Update wlan devices list", command = lambda: check_wlan_device_status(devices) , bg = "black", fg = "white")# user can manually update the wlan list
-    update_btn.grig(row=10, column=5)#pack(pady=2, padx=2)
-    exit_btn = Button(second_frame, text = "EXIT", command = lambda: [second_frame.destroy(), main_frame.destroy()] , bg = "black", fg = "white")# exit button
+    update_btn.grid(row=10, column=5)#pack(pady=2, padx=2)
+    exit_btn = Button(second_frame, text = "EXIT", command = lambda: [second_frame.destroy(), main_frame.destroy(), top3.destroy()] , bg = "black", fg = "white")# exit button
     exit_btn.grid(row=12, column=5)#pack(pady=2, padx=2)
     devices_library_tmp = json.loads(devices_library)
     #print(button_dict)
@@ -258,15 +258,15 @@ def search_all_devices_wlan(devices): # here we check again the devices list
         
         if devices_library_tmp[device_names[rounds]][1] == False: # here we choose color on label based on wlan state is it on or off
             infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 12), fg="black", bg="red")
-            infolabel.pack(pady=0, padx=0)
+            infolabel.grid(row=button_rounds, column=5)#pack(pady=0, padx=0)
             
         elif devices_library_tmp[device_names[rounds]][2] == 24686 and devices_library_tmp[device_names[rounds]][1]['pwr'] == 0:
             infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 12), fg="black", bg="red")
-            infolabel.pack(pady=0, padx=0)
+            infolabel.grid(row=button_rounds, column=5)#pack(pady=0, padx=0)
             
         else:
             infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 12), fg="black", bg="green")
-            infolabel.pack(pady=2, padx=2)
+            infolabel.grid(row=button_rounds, column=5)#pack(pady=2, padx=2)
          
         btn = device_names[rounds]
         dev_name_temp = device_names[rounds]# not working, saves last one only
@@ -279,12 +279,13 @@ def search_all_devices_wlan(devices): # here we check again the devices list
         #btn.pack(pady=2, padx=2)
         i = i +1
         rounds = rounds +1
-        button_rounds = button_rounds+100
+        button_rounds = button_rounds+5
         #dev_name_temp = ""
         #break
         
    
     second_frame.mainloop()
+    top3.mainloop()
     return devices
  
  
@@ -351,7 +352,7 @@ def check_updates():
 def check_wlan_device_status(devices): # check here also buttons and save device in button command
     global devices_library # make here try exceptclause for Traceback error
     temp_json = json.loads(devices_library)
-    
+    buttons_row = 0
     for i in range (len(devices)):
         #print("before if clause", devices[i].devtype)
         devtype = devices[i].devtype
@@ -369,7 +370,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             result_bulb = re.findall(r'[\d\.]+', temp_str_bulb)
             bulb_ip = result_bulb[5]#this works on sp3-eu plugs and [4] works with sp4-eu light bulb test it
             bulb_button = temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
-            bulb_pack = temp_name+".pack(pady=2, padx=2)"
+            bulb_pack = temp_name+ "grid(row ="+str(buttons_row)+", column=5)" 
             if len(bulb_ip) < 9:
                 bulb_ip = result_bulb[4]
                 
@@ -399,7 +400,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             temp_str_sp4 = str(temp_str_sp4)
             result_sp4 = re.findall(r'[\d\.]+', temp_str_sp4)
             sp4_button = sp4_temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
-            sp4_pack = sp4_temp_name+".pack(pady=2, padx=2)"
+            sp4_pack = sp4_temp_name+"grid(row ="+str(buttons_row)+", column=5)"
             sp4_ip = result_sp4[5]#this works on sp3-eu plugs and [4] works with sp4-eu
             if len(sp4_ip) < 9:
                 sp4_ip = result_sp4[4]
@@ -437,7 +438,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
                 sp3_ip = result_sp3[4]
                 
             sp3_button = sp3_temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
-            sp3_pack = sp3_temp_name +".pack(pady=2, padx=2)"
+            sp3_pack = sp3_temp_name +"grid(row ="+str(buttons_row)+", column=5)"
             print(sp3_ip, sp3_name)
             result_sp3.clear()
             try:
@@ -457,6 +458,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             
             
         devtype = 0
+        buttons_row = buttons_row + 1
      
     
     devices_library = json.dumps(temp_json)
@@ -547,3 +549,4 @@ while True:
 ##    time.sleep(1)
 #main_waiting_loop() # not helping scroll problem
 #root.mainloop()
+    
