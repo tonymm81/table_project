@@ -111,3 +111,6 @@ plan.
 
 testing:  
 -main root windows pack() command is moved now. test if thats okay to slave windows if there is some pack commands how it works.
+
+test result. label and buttons are different position. the slider is right side. this canvS is quite small. i have to figure out why it is so small
+its only half of top window side
