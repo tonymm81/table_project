@@ -96,3 +96,14 @@ also we have to do error handling whenwe check the wlan device status.
 bug: fix button letter sizes
 bug: table measurement wont update on label. (fixed)
 bug: sometimes program crash if wlan devices timeout comes. (plan try exept function)(fixed)
+
+ver110:
+plan. 
+- i have to figure out that how to remove all .pack() command becausae this wont allow me to place buttons and sliders how i want them. So next big move is get rid of place command. you cannot use anything else commands with pack() command. 
+- i was planning to use .grid() command where you can define button, slider, labels location on graphics.
+- also i have to fixed the measuring distance from main label. i wont work.
+- on wlan plugs i have to make only two buttons and label what shows devices state
+- also i have to get rid of global values but it might not easy, because graphics is behiving differently than regural program.
+- when i using in bulps the sliders, i need to conifuge the siledrs wint command option. this how the user changes will show immeadiately. other i have to make a update buttons on graphics
+- this changes is so big that i have to make a different program to make this changes. so in git this file is main_program_ver110.py
+- i have to figure out how to get interrupt pin to work. perhaps oscilosscope will show if there is some disturb signal. some how the interrupt wont work because it will acticvate without reason.
