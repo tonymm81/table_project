@@ -101,10 +101,10 @@ def ask_user(level, direction, limit_switch): # here user can select how far tab
             bg = "purple", 
             fg = "white")
      
-    l4.grid(row=15, column=1)
-    b2.grid(row=17, column=1)
-    b3.grid(row=19, column=1)
-    l2.grid(row=25, column=20)
+    l4.grid(row=15, column=10)
+    b2.grid(row=17, column=10)
+    b3.grid(row=19, column=10)
+    l2.grid(row=25, column=10)
     root.update()
     level1 = level
     top1.mainloop()
@@ -219,14 +219,19 @@ def going_down(): # make a function call to control motor
 
 def search_all_devices_wlan(devices): # here we check again the devices list
     # scrollbar main frame setup
-    main_frame = Frame(root)
-    main_frame.pack(fill=BOTH, expand=1)
+    top3 = Toplevel()
+    top3.title('light adjusment')
+    top3.geometry("400x300")
+    top3.configure(background="white")
+    top3.update()
+    main_frame = Frame(top3)
+    main_frame.grid(sticky='nwse')#pack(fill=BOTH, expand=1)
     #scrollbar canvas
     my_canvas = Canvas(main_frame)
-    my_canvas.pack(side=LEFT, fill=BOTH, expand=1)
+    my_canvas.grid(sticky='nwse')#pack(side=LEFT, fill=BOTH, expand=1)
     #scrollbar settings
     scrollbar1 = ttk.Scrollbar(main_frame, orient=VERTICAL, command=my_canvas.yview)
-    scrollbar1.pack(side=RIGHT, fill=Y)
+    scrollbar1.grid(sticky='ne', row=1, column=1)#pack(side=RIGHT, fill=Y)
     #configure the canvas
     my_canvas.configure(yscrollcommand=scrollbar1.set)
     my_canvas.bind('<Configure>', lambda e: my_canvas.configure(scrollregion = my_canvas.bbox("all")))
@@ -242,9 +247,9 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     rounds = 0
     button_rounds = 0
     update_btn = Button(second_frame, text = "Update wlan devices list", command = lambda: check_wlan_device_status(devices) , bg = "black", fg = "white")# user can manually update the wlan list
-    update_btn.pack(pady=2, padx=2)
+    update_btn.grig(row=10, column=5)#pack(pady=2, padx=2)
     exit_btn = Button(second_frame, text = "EXIT", command = lambda: [second_frame.destroy(), main_frame.destroy()] , bg = "black", fg = "white")# exit button
-    exit_btn.pack(pady=2, padx=2)
+    exit_btn.grid(row=12, column=5)#pack(pady=2, padx=2)
     devices_library_tmp = json.loads(devices_library)
     #print(button_dict)
     
