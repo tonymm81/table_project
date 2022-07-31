@@ -53,16 +53,16 @@ root.geometry("880x450")
 root.configure(background="black")
 #scrollbar = Scrollbar(root)
 #scrollbar.pack( side = RIGHT, fill = Y )
-btn = Button(root, text="Adjust table up",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_up()).pack() # replace this to grid command
-btn1 = Button(root, text="Adjust table down",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_down()).pack() 
-btn2 = Button(root, text="Control the lights and wlan plugs",fg="white", bg="black",font=("helvetica", 15), command=lambda: search_all_devices_wlan(devices)).pack() 
-btn3 = Button(root, text="Save this setup",fg="white", bg="black",font=("helvetica", 15), command=lambda: save_setup()).pack() 
-btn3 = Button(root, text="Load setup",fg="white", bg="black",font=("helvetica", 15), command=lambda: load_setup()).pack() 
-btn4 = Button(root, text="Exit and shutdown the weatherstation",fg="white", bg="black",font=("helvetica", 15), command=lambda: exit_and_shutdown()).pack()
-btn5 = Button(root, text="Exit this system",fg="white", bg="black",font=("helvetica", 15), command=lambda: exit_only()).pack() 
-btn6 = Button(root, text="Check the updates",fg="white", bg="black",font=("helvetica", 15), command=lambda: measure_distance()).pack() 
+btn = Button(root, text="Adjust table up",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_up()).grid(row = 1, column=1) # replace this to grid command
+btn1 = Button(root, text="Adjust table down",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_down()).grid(row=3, column=1) 
+btn2 = Button(root, text="Control the lights and wlan plugs",fg="white", bg="black",font=("helvetica", 15), command=lambda: search_all_devices_wlan(devices)).grid(row=5, column =1) 
+btn3 = Button(root, text="Save this setup",fg="white", bg="black",font=("helvetica", 15), command=lambda: save_setup()).grid(row=7, column=1) 
+btn3 = Button(root, text="Load setup",fg="white", bg="black",font=("helvetica", 15), command=lambda: load_setup()).grid(row=9, column =1) 
+btn4 = Button(root, text="Exit and shutdown the weatherstation",fg="white", bg="black",font=("helvetica", 15), command=lambda: exit_and_shutdown()).grid(row=11, column=1)
+btn5 = Button(root, text="Exit this system",fg="white", bg="black",font=("helvetica", 15), command=lambda: exit_only()).grid(row=13, column=1) 
+btn6 = Button(root, text="Check the updates",fg="white", bg="black",font=("helvetica", 15), command=lambda: measure_distance()).grid(row=15, column=1) 
 label_1 = Label(root, text= "sais", font=("helvetica", 10), fg="white", bg="black")
-label_1.pack()
+label_1.grid(row=17, column=1)
 #test_json = {"testing": 123, "Riipuksen eteinen valo|-1": ["192.168.68.115", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipuksen Keitti\u00f6 Valo|9": ["192.168.68.106", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipuksen kaffinkeiti|-1": ["192.168.68.105", false, 30073], "Riipuksen makkari valo|-1": ["192.168.68.100", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipuksen Makkari pistorasia|1": ["192.168.68.104", false, 32000], "Esp Bedroom|1": ["192.168.68.125", false, 32000], "Esp Kitchen|1": ["192.168.68.126", false, 32000], "Riipuksen Olkkari Valo|9": ["192.168.68.110", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipuksen Olkkari Valo3|9": ["192.168.68.111", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Weatherstation Riipus|1": ["192.168.68.127", false, 30073], "Riipukksen Olkkari Ledi|1": ["192.168.68.119", false, 30073], "Riipuksen Olkkari Valo2|9": ["192.168.68.112", {"red": 0, "blue": 0, "green": 0, "pwr": 0, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipukse Ty\u00f6piste val|9": ["192.168.68.129", {"red": 0, "blue": 0, "green": 0, "pwr": 1, "brightness": 40, "colortemp": 3500, "hue": 0, "saturation": 0, "transitionduration": 1000, "maxworktime": 0, "bulb_colormode": 1, "bulb_scenes": "", "bulb_scene": ""}, 24686], "Riipuksen Olkkari Tv, Stereot|1": ["192.168.68.109", true, 32000], "Riipuksen Olkkari Tietsikka|1": ["192.168.68.107", true, 32000], "Riipuksen Olkkari Ty\u00f6piste|1": ["192.168.68.108", false, 32000], "Riipuksen Imari|1": ["192.168.68.123", false, 32000]}
 #test_json.dumps(test_json)
 
@@ -82,7 +82,7 @@ def ask_user(level, direction, limit_switch): # here user can select how far tab
     top1.update()
     l2 = Label(top1)
     s2 = Scale( top1, variable = level,from_ = 50, to = 1,orient = VERTICAL)
-    s2.pack(anchor = CENTER)
+    s2.grid(row=10, column=10)
     
     sel = "Vertical Scale Value = " + str(level.get())
     l2.config(text = sel, font =("Courier", 14)) 
@@ -101,10 +101,10 @@ def ask_user(level, direction, limit_switch): # here user can select how far tab
             bg = "purple", 
             fg = "white")
      
-    l4.pack()
-    b2.pack()
-    b3.pack()
-    l2.pack()
+    l4.grid(row=15, column=1)
+    b2.grid(row=17, column=1)
+    b3.grid(row=19, column=1)
+    l2.grid(row=25, column=20)
     root.update()
     level1 = level
     top1.mainloop()
@@ -197,7 +197,7 @@ def going_up(): #motor controlling up direction
     root.update()
     level1 = ask_user(level1, direction, limit_switch)
     label_1.configure(text = "waiting user to choose and distance is: " + str(measure_distance()))
-    label_1.pack()
+    label_1.grid(row=17, column=1)
     main_waiting_loop()
     return
  
@@ -210,7 +210,7 @@ def going_down(): # make a function call to control motor
     level1 = ask_user(level1, direction, limit_switch)
     #motor_control(level1, "relay_down", "relay_down_limit")
     label_1.configure(text = "waiting user to choose and distance is: " + str(measure_distance()))
-    label_1.pack()
+    label_1.grid(row=17, column=1)
     main_waiting_loop()
     return
 
@@ -330,7 +330,7 @@ def main_waiting_loop():
     distance = round(distance)
     distance = int(distance)
     label_1.configure(text = "waiting user to choose and distance is: " + str(distance))
-    label_1.pack()
+    label_1.grid(row=17, column=1)
     time.sleep(1)
     
     
@@ -504,8 +504,8 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
            # fg = "white")
   
         #btn = Button(top1, text="stop", fg="white",bg="black", font=("helvetica", 15), command=lambda: [motor_up(1), top1.destroy()]).pack()
-        b3 = Button(top1, text ="update measurement",
-            command = lambda: [update_setpoint(level.get()),motor_control(level1, direction, limit_switch), top1.destroy()],
+        b3 = Button(top2, text ="update measurement",
+            command = lambda: [update_setpoint(level_red.get()),motor_control(level1, direction, limit_switch), top1.destroy()],
             bg = "purple", 
             fg = "white")
      
@@ -514,7 +514,7 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
         b3.pack()
         l2.pack()
         root.update()
-        level1 = level
+        level1 = level_red
         top2.mainloop()
     else:
         print("plug!!")

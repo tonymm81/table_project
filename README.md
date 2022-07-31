@@ -107,3 +107,7 @@ plan.
 - when i using in bulps the sliders, i need to conifuge the siledrs wint command option. this how the user changes will show immeadiately. other i have to make a update buttons on graphics
 - this changes is so big that i have to make a different program to make this changes. so in git this file is main_program_ver110.py
 - i have to figure out how to get interrupt pin to work. perhaps oscilosscope will show if there is some disturb signal. some how the interrupt wont work because it will acticvate without reason.
+- make a function what search right device to command. This has to be done because you cannot store in json value this kind of information.
+
+testing:  
+-main root windows pack() command is moved now. test if thats okay to slave windows if there is some pack commands how it works.
