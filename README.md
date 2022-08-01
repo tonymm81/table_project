@@ -116,3 +116,6 @@ test result. label and buttons are different position. the slider is right side.
 its only half of top window 
 sideplan:
 -perhaps i have to change button colors only??if doing this, you have to change the search wlan devices function where you define the button colors..or in controlling function?
+
+report:
+fixed the bugs, now buttons show correctly. also function controlling in bulb window works fine. i replace all pack() command to grid(). grid is good because you can give exact coordinates to buttons. 

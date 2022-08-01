@@ -228,7 +228,7 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     main_frame.grid(row=1, column=1,columnspan=3,sticky='nwse')#pack(fill=BOTH, expand=1)
     #scrollbar canvas
     my_canvas = Canvas(main_frame)
-    my_canvas.grid(row=1, column=1,columnspan=3,sticky='nwse')#pack(side=LEFT, fill=BOTH, expand=1)
+    my_canvas.grid(row=1, column=1,columnspan=3,sticky='nswe')#pack(side=LEFT, fill=BOTH, expand=1)
     #scrollbar settings
     scrollbar1 = ttk.Scrollbar(main_frame, orient=VERTICAL, command=my_canvas.yview)
     scrollbar1.grid(sticky= 'e',row=30, column=1)#pack(side=RIGHT, fill=Y)
@@ -247,9 +247,9 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     rounds = 0
     button_rounds = 15
     update_btn = Button(second_frame, text = "Update wlan devices list", command = lambda: check_wlan_device_status(devices) , bg = "black", fg = "white")# user can manually update the wlan list
-    update_btn.grid(row=10, column=1)#pack(pady=2, padx=2)
+    update_btn.grid(row=2, column=2)#pack(pady=2, padx=2)
     exit_btn = Button(second_frame, text = "EXIT", command = lambda: [second_frame.destroy(), main_frame.destroy(), top3.destroy()] , bg = "black", fg = "white")# exit button
-    exit_btn.grid(row=12, column=1)#pack(pady=2, padx=2)
+    exit_btn.grid(row=7, column=2)#pack(pady=2, padx=2)
     devices_library_tmp = json.loads(devices_library)
     #print(button_dict)
     
@@ -273,13 +273,9 @@ def search_all_devices_wlan(devices): # here we check again the devices list
         print("temp json" ,devices_library_tmp) 
         exec(devices_library_tmp[device_names[rounds]][3])# works on ver109
         exec(devices_library_tmp[device_names[rounds]][4])
-        #btn = device_names[rounds]
-        #dev_name_temp = device_names[rounds]# not working, saves last one only 
-        #btn = Button(second_frame, text = btn, command = lambda: control_wlan_devices(dev_name_temp, devices, devices_library), bg = "black", fg = "white") # make here function call
-        #btn.pack(pady=2, padx=2)
         i = i +1
         rounds = rounds +1
-        button_rounds = button_rounds+5
+        button_rounds = button_rounds+3
         #dev_name_temp = ""
         #break
         
@@ -352,7 +348,7 @@ def check_updates():
 def check_wlan_device_status(devices): # check here also buttons and save device in button command
     global devices_library # make here try exceptclause for Traceback error
     temp_json = json.loads(devices_library)
-    buttons_row = 0
+    buttons_row = 15
     for i in range (len(devices)):
         #print("before if clause", devices[i].devtype)
         devtype = devices[i].devtype
@@ -370,7 +366,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             result_bulb = re.findall(r'[\d\.]+', temp_str_bulb)
             bulb_ip = result_bulb[5]#this works on sp3-eu plugs and [4] works with sp4-eu light bulb test it
             bulb_button = temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
-            bulb_pack = temp_name+ ".grid(row ="+str(buttons_row)+", column=1)" 
+            bulb_pack = temp_name+ ".grid(row ="+str(buttons_row)+", column=2)" 
             if len(bulb_ip) < 9:
                 bulb_ip = result_bulb[4]
                 
@@ -400,7 +396,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             temp_str_sp4 = str(temp_str_sp4)
             result_sp4 = re.findall(r'[\d\.]+', temp_str_sp4)
             sp4_button = sp4_temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
-            sp4_pack = sp4_temp_name+".grid(row ="+str(buttons_row)+", column=1)"
+            sp4_pack = sp4_temp_name+".grid(row ="+str(buttons_row)+", column=2)"
             sp4_ip = result_sp4[5]#this works on sp3-eu plugs and [4] works with sp4-eu
             if len(sp4_ip) < 9:
                 sp4_ip = result_sp4[4]
@@ -438,7 +434,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
                 sp3_ip = result_sp3[4]
                 
             sp3_button = sp3_temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
-            sp3_pack = sp3_temp_name +".grid(row ="+str(buttons_row)+", column=1)"
+            sp3_pack = sp3_temp_name +".grid(row ="+str(buttons_row)+", column=2)"
             print(sp3_ip, sp3_name)
             result_sp3.clear()
             try:
@@ -458,7 +454,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             
             
         devtype = 0
-        buttons_row = buttons_row + 1
+        buttons_row = buttons_row + 3
      
     
     devices_library = json.dumps(temp_json)
@@ -518,7 +514,7 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
      
        # l4.pack()
        # b2.pack()
-        b3.grid(row=14, column=2)
+        b3.grid(row=20, column=2)
         l2.grid(row=16, column=2)
         root.update()
         level1 = level_red
