@@ -489,17 +489,17 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
         
         l2 = Label(top2)
         s2 = Scale( top2, variable = level_red,from_ = 50, to = 1,orient = VERTICAL) #red
-        s2.pack(anchor = RIGHT)
+        s2.grid(row=2, column=2)#s2.pack(anchor = RIGHT)
         s3 = Scale( top2, variable = level_green,from_ = 50, to = 1,orient = VERTICAL) #green
-        s3.pack(anchor = RIGHT)
+        s3.grid(row=2, column=5)#pack(anchor = RIGHT)
         s4 = Scale( top2, variable = level_blue,from_ = 50, to = 1,orient = VERTICAL) #blue
-        s4.pack(anchor = CENTER)
+        s4.grid(row=2, column=7)#pack(anchor = CENTER)
         s5 = Scale( top2, variable = level_bright,from_ = 50, to = 1,orient = VERTICAL) #brightness
-        s5.pack(anchor = CENTER)
+        s5.grid(row=2, column=9)#.pack(anchor = CENTER)
         s6 = Scale( top2, variable = level_colortmp,from_ = 50, to = 1,orient = VERTICAL) # clolortemp 
-        s6.pack(anchor = LEFT)
+        s6.grid(row=2, column=11)#.pack(anchor = LEFT)
         s7 = Scale( top2, variable = level_satu,from_ = 50, to = 1,orient = VERTICAL) # saturation
-        s7.pack(anchor = LEFT)
+        s7.grid(row=2, column=13)#.pack(anchor = LEFT)
     
         #sel = "Vertical Scale Value = " + str(level.get())
        # l2.config(text = sel, font =("Courier", 14)) 
@@ -518,8 +518,8 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
      
        # l4.pack()
        # b2.pack()
-        b3.pack()
-        l2.pack()
+        b3.grid(row=14, column=2)
+        l2.grid(row=16, column=2)
         root.update()
         level1 = level_red
         top2.mainloop()

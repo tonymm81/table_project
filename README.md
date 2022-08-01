@@ -112,5 +112,7 @@ plan.
 testing:  
 -main root windows pack() command is moved now. test if thats okay to slave windows if there is some pack commands how it works.
 
-test result. label and buttons are different position. the slider is right side. this canvS is quite small. i have to figure out why it is so small
-its only half of top window side
+test result. label and buttons are different position. the slider is right side. this canvas is quite small. i have to figure out why it is so small
+its only half of top window 
+sideplan:
+-perhaps i have to change button colors only??if doing this, you have to change the search wlan devices function where you define the button colors..or in controlling function?
