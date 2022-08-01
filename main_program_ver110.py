@@ -376,13 +376,14 @@ def check_wlan_device_status(devices): # check here also buttons and save device
                 devices_temp1 = broadlink.discover(timeout=5, discover_ip_address=bulb_ip)
                 devices_temp1[0].auth()
                 device_state1 = devices_temp1[0].get_state()
+                devices_command_name_bulp = "'" + str(devices_temp1[0])+ "'" 
             except traceback:
                 print("device communication failed")
                 
             except IndexError:
                 print("device wont find")
                 
-            bulb_library = {bulbname : [bulb_ip,  device_state1, devtype, bulb_button, bulb_pack]}#temp value to json
+            bulb_library = {bulbname : [bulb_ip,  device_state1, devtype, bulb_button, bulb_pack,devices_command_name_bulp]}#temp value to json
             temp_json.update(bulb_library)
             
             
@@ -440,6 +441,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             try:
                 devices_temp3 = broadlink.discover(timeout=5, discover_ip_address=sp3_ip)
                 devices_temp3[0].auth()
+                #print(devices[0])
                 device_state3 = devices_temp3[0].check_power()
 
             except traceback:
@@ -505,10 +507,11 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
            # command = lambda:level.get(),
            # bg = "purple", 
            # fg = "white")
-  
+        command_to_device = []#ver110 fix this. not work how i want
+        command_to_device.append(temp_json[device_name_tmp][5])
         #btn = Button(top1, text="stop", fg="white",bg="black", font=("helvetica", 15), command=lambda: [motor_up(1), top1.destroy()]).pack()
         b3 = Button(top2, text ="update measurement",
-            command = lambda: [update_setpoint(level_red.get()),motor_control(level1, direction, limit_switch), top1.destroy()],
+            command = lambda: command_to_device[0].set_state(pwr=1),
             bg = "purple", 
             fg = "white")
      
