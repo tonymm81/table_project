@@ -120,3 +120,7 @@ sideplan:
 report:
 - fixed the bugs, now buttons show correctly. also function controlling in bulb window works fine. i replace all pack() command to grid(). grid is good because you can give exact coordinates to buttons. 
 - i have to figure out how to command devices on cotrol_wlan_devices function. broadlink uses tuple typed list
+- now light controlling is working. Do here if clause what check devices status, also update json value based on devices state.
+
+bug: try exept clause gives an error, try to solve this before version number change
+

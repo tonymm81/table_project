@@ -468,6 +468,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
 def control_wlan_devices(device_names, devices, devices_library):# here we change the wlan devices state
     device_name_tmp = device_names
     temp_json = json.loads(devices_library)
+    control = ""
     print(device_name_tmp)
     print(temp_json[device_name_tmp][2])
     if temp_json[device_name_tmp][2] == 24686:
@@ -509,9 +510,14 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
            # fg = "white")
         command_to_device = []#ver110 fix this. not work how i want
         command_to_device.append(temp_json[device_name_tmp][5])
+        for i in range(len(devices)):
+            if device_name_tmp == devices[i].name:
+                control = devices[i]
+                print(control)
+                break
         #btn = Button(top1, text="stop", fg="white",bg="black", font=("helvetica", 15), command=lambda: [motor_up(1), top1.destroy()]).pack()
         b3 = Button(top2, text ="update measurement",
-            command = lambda: command_to_device[0].set_state(pwr=1),
+            command = lambda: set_state_bulp(control),
             bg = "purple", 
             fg = "white")
      
@@ -529,8 +535,10 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
     return
 
 
-def search_from_devices(devices, devices_library):
-    #make here for loop what search correct wlan device to command(you cannot save this information to json.)
+def set_state_bulp(control):
+    control.auth()
+    control.set_state(pwr=1)
+     
     return
 
 
