@@ -444,7 +444,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
                 #print(devices[0])
                 device_state3 = devices_temp3[0].check_power()
 
-            except traceback:
+            except traceback: #TypeError: catching classes that do not inherit from BaseException is not allowed
                 print("device communication failed")
                 
             except IndexError:
@@ -512,11 +512,11 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
         for i in range(len(devices)):
             if device_name_tmp == devices[i].name:
                 control = devices[i]
-                print(control)
+                #print(control)
                 break
         #btn = Button(top1, text="stop", fg="white",bg="black", font=("helvetica", 15), command=lambda: [motor_up(1), top1.destroy()]).pack()
         b3 = Button(top2, text ="update measurement",
-            command = lambda: set_state_bulp(temp_json, device_name_tmp, control),
+            command = lambda: set_state_bulp(device_name_tmp, control),
             bg = "purple", 
             fg = "white")
      
@@ -534,12 +534,15 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
     return
 
 
-def set_state_bulp(devices_library_tmp, device_names, state, control):
+def set_state_bulp(device_names, control):
     
     control.auth()
     state = control.get_state()
-    print (state)
-    control.set_state(pwr=1)
+    if state['pwr'] == 0:
+        control.set_state(pwr=1)
+        
+    else:
+        control.set_state(pwr=0)
      
     return
 
