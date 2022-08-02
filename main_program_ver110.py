@@ -508,8 +508,7 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
            # command = lambda:level.get(),
            # bg = "purple", 
            # fg = "white")
-        command_to_device = []#ver110 fix this. not work how i want
-        command_to_device.append(temp_json[device_name_tmp][5])
+        
         for i in range(len(devices)):
             if device_name_tmp == devices[i].name:
                 control = devices[i]
@@ -517,7 +516,7 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
                 break
         #btn = Button(top1, text="stop", fg="white",bg="black", font=("helvetica", 15), command=lambda: [motor_up(1), top1.destroy()]).pack()
         b3 = Button(top2, text ="update measurement",
-            command = lambda: set_state_bulp(control),
+            command = lambda: set_state_bulp(temp_json, device_name_tmp, control),
             bg = "purple", 
             fg = "white")
      
@@ -535,8 +534,11 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
     return
 
 
-def set_state_bulp(control):
+def set_state_bulp(devices_library_tmp, device_names, state, control):
+    
     control.auth()
+    state = control.get_state()
+    print (state)
     control.set_state(pwr=1)
      
     return
