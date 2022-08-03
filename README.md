@@ -129,3 +129,7 @@ plan:
 - name sliders in controlling window
 - figure out how to control windows that thos label colors will change if devices state is changed.
 
+report:
+added json update(not tested)
+button controlling made this how that wlan devices should update now from json file(not tested)
+

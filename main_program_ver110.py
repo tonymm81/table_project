@@ -365,7 +365,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             temp_str_bulb = str(temp_str_bulb)
             result_bulb = re.findall(r'[\d\.]+', temp_str_bulb)
             bulb_ip = result_bulb[5]#this works on sp3-eu plugs and [4] works with sp4-eu light bulb test it
-            bulb_button = temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
+            bulb_button = temp_name +" = Button(second_frame, text = btn, command = lambda: [control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), second_frame.destroy(), main_frame.destroy(), top3.destroy()], bg = 'black', fg = 'white')" #devicename has to include " "
             bulb_pack = temp_name+ ".grid(row ="+str(buttons_row)+", column=2)" 
             if len(bulb_ip) < 9:
                 bulb_ip = result_bulb[4]
@@ -396,7 +396,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             temp_str_sp4 = devices[i]
             temp_str_sp4 = str(temp_str_sp4)
             result_sp4 = re.findall(r'[\d\.]+', temp_str_sp4)
-            sp4_button = sp4_temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
+            sp4_button = sp4_temp_name +" = Button(second_frame, text = btn, command = lambda: [control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), second_frame.destroy(), main_frame.destroy(), top3.destroy()], bg = 'black', fg = 'white')" #devicename has to include " "
             sp4_pack = sp4_temp_name+".grid(row ="+str(buttons_row)+", column=2)"
             sp4_ip = result_sp4[5]#this works on sp3-eu plugs and [4] works with sp4-eu
             if len(sp4_ip) < 9:
@@ -434,7 +434,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             if len(sp3_ip) < 9:
                 sp3_ip = result_sp3[4]
                 
-            sp3_button = sp3_temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
+            sp3_button = sp3_temp_name +" = Button(second_frame, text = btn, command = lambda: [control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), second_frame.destroy(), main_frame.destroy(), top3.destroy()], bg = 'black', fg = 'white')" #devicename has to include " "
             sp3_pack = sp3_temp_name +".grid(row ="+str(buttons_row)+", column=2)"
             print(sp3_ip, sp3_name)
             result_sp3.clear()
@@ -501,7 +501,7 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
         s7.grid(row=2, column=13)#.pack(anchor = LEFT)
     
         #sel = "Vertical Scale Value = " + str(level.get())
-       # l2.config(text = sel, font =("Courier", 14)) 
+        l2.config(text = "red", font =("Courier", 14)) 
        # l4 = Label(top2, text = "set measurement")
   
        # b2 = Button(top2, text ="choose measurement",
@@ -514,16 +514,16 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
                 control = devices[i]
                 #print(control)
                 break
-        #btn = Button(top1, text="stop", fg="white",bg="black", font=("helvetica", 15), command=lambda: [motor_up(1), top1.destroy()]).pack()
-        b3 = Button(top2, text ="update measurement",
-            command = lambda: set_state_bulp(device_name_tmp, control),
+        btn = Button(top2, text="exit", fg="white",bg="black", font=("helvetica", 15), command=lambda: [search_all_devices_wlan(devices), top2.destroy()]).pack()
+        b3 = Button(top2, text ="on / off",
+            command = lambda: set_state_bulp(temp_json, device_name_tmp, control),
             bg = "purple", 
             fg = "white")
      
        # l4.pack()
-       # b2.pack()
+        btn.grid(row=22, column = 2)
         b3.grid(row=20, column=2)
-        l2.grid(row=16, column=2)
+        l2.grid(row=18, column=2)
         root.update()
         level1 = level_red
         top2.mainloop()
@@ -534,7 +534,7 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
     return
 
 
-def set_state_bulp(device_names, control):
+def set_state_bulp(temp_json,device_names, control):
     
     control.auth()
     state = control.get_state()
@@ -543,6 +543,9 @@ def set_state_bulp(device_names, control):
         
     else:
         control.set_state(pwr=0)
+     
+    temp_json[device_names]['pwr'] = State
+    devices_library = json.dumps(temp_json)
      
     return
 
