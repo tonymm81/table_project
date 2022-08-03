@@ -257,20 +257,20 @@ def search_all_devices_wlan(devices): # here we check again the devices list
         #print(devices_library_tmp[device_names[rounds]][1])
         
         if devices_library_tmp[device_names[rounds]][1] == False: # here we choose color on label based on wlan state is it on or off
-            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 10), fg="black", bg="red")
+            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 8), fg="black", bg="red")
             infolabel.grid(row=button_rounds, column=7)#pack(pady=0, padx=0)
             
         elif devices_library_tmp[device_names[rounds]][2] == 24686 and devices_library_tmp[device_names[rounds]][1]['pwr'] == 0:
-            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 10), fg="black", bg="red")
+            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 8), fg="black", bg="red")
             infolabel.grid(row=button_rounds, column=7)#pack(pady=0, padx=0)
             
         else:
-            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 10), fg="black", bg="green")
+            infolabel = Label(second_frame, text=device_names[rounds],font=("helvetica", 8), fg="black", bg="green")
             infolabel.grid(row=button_rounds, column=7)#pack(pady=2, padx=2)
          
         btn = device_names[rounds]
         dev_name_temp = device_names[rounds]# not working, saves last one only
-        print("temp json" ,devices_library_tmp) 
+        #print("temp json" ,devices_library_tmp) 
         exec(devices_library_tmp[device_names[rounds]][3])# works on ver109
         exec(devices_library_tmp[device_names[rounds]][4])
         i = i +1
@@ -279,7 +279,8 @@ def search_all_devices_wlan(devices): # here we check again the devices list
         #dev_name_temp = ""
         #break
         
-   
+    devices_directory = json.dumps(devices_library_tmp, indent=4)
+    devices_library_tmp = '{}'
     second_frame.mainloop()
     top3.mainloop()
     return devices
@@ -376,14 +377,14 @@ def check_wlan_device_status(devices): # check here also buttons and save device
                 devices_temp1 = broadlink.discover(timeout=5, discover_ip_address=bulb_ip)
                 devices_temp1[0].auth()
                 device_state1 = devices_temp1[0].get_state()
-                devices_command_name_bulp = "'" + str(devices_temp1[0])+ "'" 
+                 
             except traceback:
                 print("device communication failed")
                 
             except IndexError:
                 print("device wont find")
                 
-            bulb_library = {bulbname : [bulb_ip,  device_state1, devtype, bulb_button, bulb_pack,devices_command_name_bulp]}#temp value to json
+            bulb_library = {bulbname : [bulb_ip,  device_state1, devtype, bulb_button, bulb_pack]}#temp value to json
             temp_json.update(bulb_library)
             
             
@@ -460,17 +461,19 @@ def check_wlan_device_status(devices): # check here also buttons and save device
      
     
     devices_library = json.dumps(temp_json)
-    print(devices_library)
+    #print(devices_library)
     pprint.pprint(devices_library) # easier way to read json value
     return devices
 
 
 def control_wlan_devices(device_names, devices, devices_library):# here we change the wlan devices state
     device_name_tmp = device_names
+    
     temp_json = json.loads(devices_library)
+        
     control = ""
-    print(device_name_tmp)
-    print(temp_json[device_name_tmp][2])
+    #print(device_name_tmp)
+    #print(temp_json[device_name_tmp][2])
     if temp_json[device_name_tmp][2] == 24686:
         print("Bulp!!!!")
         level_red = DoubleVar()
@@ -486,66 +489,80 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
         top2.configure(background="white")
         top2.update()
         
-        l2 = Label(top2)
-        s2 = Scale( top2, variable = level_red,from_ = 50, to = 1,orient = VERTICAL) #red
+        red = Label(top2)
+        green = Label(top2)
+        blue = Label(top2)
+        bright = Label(top2)
+        colortemp = Label(top2)
+        satur = Label(top2)
+        s2 = Scale( top2, variable = level_red,from_ = 255, to = 1,orient = VERTICAL) #red
         s2.grid(row=2, column=2)#s2.pack(anchor = RIGHT)
-        s3 = Scale( top2, variable = level_green,from_ = 50, to = 1,orient = VERTICAL) #green
+        s3 = Scale( top2, variable = level_green,from_ = 255, to = 1,orient = VERTICAL) #green
         s3.grid(row=2, column=5)#pack(anchor = RIGHT)
-        s4 = Scale( top2, variable = level_blue,from_ = 50, to = 1,orient = VERTICAL) #blue
+        s4 = Scale( top2, variable = level_blue,from_ = 255, to = 1,orient = VERTICAL) #blue
         s4.grid(row=2, column=7)#pack(anchor = CENTER)
-        s5 = Scale( top2, variable = level_bright,from_ = 50, to = 1,orient = VERTICAL) #brightness
+        s5 = Scale( top2, variable = level_bright,from_ = 255, to = 1,orient = VERTICAL) #brightness
         s5.grid(row=2, column=9)#.pack(anchor = CENTER)
-        s6 = Scale( top2, variable = level_colortmp,from_ = 50, to = 1,orient = VERTICAL) # clolortemp 
+        s6 = Scale( top2, variable = level_colortmp,from_ = 255, to = 1,orient = VERTICAL) # clolortemp 
         s6.grid(row=2, column=11)#.pack(anchor = LEFT)
-        s7 = Scale( top2, variable = level_satu,from_ = 50, to = 1,orient = VERTICAL) # saturation
+        s7 = Scale( top2, variable = level_satu,from_ = 255, to = 1,orient = VERTICAL) # saturation
         s7.grid(row=2, column=13)#.pack(anchor = LEFT)
     
         #sel = "Vertical Scale Value = " + str(level.get())
-        l2.config(text = "red", font =("Courier", 14)) 
-       # l4 = Label(top2, text = "set measurement")
-  
-       # b2 = Button(top2, text ="choose measurement",
-           # command = lambda:level.get(),
-           # bg = "purple", 
-           # fg = "white")
-        
+        red.config(text = "red", font =("Courier", 10))
+        green.config(text = "green", font =("Courier", 10))
+        blue.config(text = "green", font =("Courier", 10))
+        bright.config(text = "green", font =("Courier", 10))
+        colortemp.config(text = "green", font =("Courier", 10))
+        satur.config(text = "green", font =("Courier", 10))
+
         for i in range(len(devices)):
             if device_name_tmp == devices[i].name:
                 control = devices[i]
                 #print(control)
                 break
-        btn = Button(top2, text="exit", fg="white",bg="black", font=("helvetica", 15), command=lambda: [search_all_devices_wlan(devices), top2.destroy()]).pack()
+        btn = Button(top2, text="exit", fg="white",bg="black", font=("helvetica", 15), command=lambda: [top2.destroy(), search_all_devices_wlan(devices) ])
         b3 = Button(top2, text ="on / off",
             command = lambda: set_state_bulp(temp_json, device_name_tmp, control),
             bg = "purple", 
             fg = "white")
      
        # l4.pack()
-        btn.grid(row=22, column = 2)
-        b3.grid(row=20, column=2)
-        l2.grid(row=18, column=2)
+        btn.grid(row=26, column = 3)
+        b3.grid(row=24, column=3)
+        red.grid(row=20, column=2)
+        green.grid(row=20, column =5)
+        blue.grid(row=2, column= 7)
+        bright.grid(row=2, column=9)
+        colortemp.grid(row=2, column=11)
+        satur.grid(row=2, column=13)
         root.update()
-        level1 = level_red
+        
         top2.mainloop()
     else:
         print("plug!!")
     
-    device_name_tmp=""
+    #device_name_tmp=""
     return
 
 
-def set_state_bulp(temp_json,device_names, control):
+def set_state_bulp(temp_json,device_name_tmp, control):
     
     control.auth()
     state = control.get_state()
     if state['pwr'] == 0:
         control.set_state(pwr=1)
+        state_ = 1
         
     else:
         control.set_state(pwr=0)
+        state_ = 0
      
-    temp_json[device_names]['pwr'] = State
-    devices_library = json.dumps(temp_json)
+    temp_json[device_name_tmp][1]['pwr'] = state_
+    print("whole json" ,temp_json[device_name_tmp])
+    print("testing", device_name_tmp, "json", str(temp_json[device_name_tmp][1]['pwr']))
+    devices_library = json.dumps(temp_json, indent=4)
+    
      
     return
 

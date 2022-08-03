@@ -123,13 +123,16 @@ report:
 - now light controlling is working. Do here if clause what check devices status, also update json value based on devices state.(solved)
 
 bug: try exept clause gives an error, try to solve this before version number change. TypeError: catching classes that do not inherit from BaseException is not allowed
+bug: json object wont updated from bulb controlling function
 
 plan: 
 - now i have to fugure out how to update in json value devices state.
 - name sliders in controlling window
 - figure out how to control windows that thos label colors will change if devices state is changed.
+- remove the device str from json library.(perhaps solved, test first)
 
 report:
 added json update(not tested)
 button controlling made this how that wlan devices should update now from json file(not tested)
+
 
