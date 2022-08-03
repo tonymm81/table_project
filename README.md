@@ -124,12 +124,14 @@ report:
 
 bug: try exept clause gives an error, try to solve this before version number change. TypeError: catching classes that do not inherit from BaseException is not allowed
 bug: json object wont updated from bulb controlling function
+bug: wlan devices button wont destroy the wlan devices list windows, says only that frames are not define
+
 
 plan: 
 - now i have to fugure out how to update in json value devices state.
 - name sliders in controlling window
 - figure out how to control windows that thos label colors will change if devices state is changed.
-- remove the device str from json library.(perhaps solved, test first)
+- remove the device str from json library.(solved)
 
 report:
 added json update(not tested)

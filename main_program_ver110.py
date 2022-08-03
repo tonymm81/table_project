@@ -366,7 +366,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             temp_str_bulb = str(temp_str_bulb)
             result_bulb = re.findall(r'[\d\.]+', temp_str_bulb)
             bulb_ip = result_bulb[5]#this works on sp3-eu plugs and [4] works with sp4-eu light bulb test it
-            bulb_button = temp_name +" = Button(second_frame, text = btn, command = lambda: [control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), second_frame.destroy(), main_frame.destroy(), top3.destroy()], bg = 'black', fg = 'white')" #devicename has to include " "
+            bulb_button = temp_name +" = Button(second_frame, text = btn, command = lambda: [control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), second_frame.destroy()], bg = 'black', fg = 'white')" #devicename has to include " "
             bulb_pack = temp_name+ ".grid(row ="+str(buttons_row)+", column=2)" 
             if len(bulb_ip) < 9:
                 bulb_ip = result_bulb[4]
@@ -570,7 +570,7 @@ def set_state_bulp(temp_json,device_name_tmp, control):
 devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')# lets check devices list
 #Riipuksen_Olkkari_Valo = Button(root, text = "some", command = lambda: control_wlan_devices('Riipuksen Olkkari Valo|9', devices, devices_library), bg = 'black', fg = 'white') #devicename has to include
 #Riipuksen_Olkkari_Valo.pack()
-second_frame = "root"
+#second_frame = "root"
 
 check_wlan_device_status(devices) # lets check devices begin of program and convert them to json value
 while True:
