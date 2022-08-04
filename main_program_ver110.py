@@ -397,7 +397,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             temp_str_sp4 = devices[i]
             temp_str_sp4 = str(temp_str_sp4)
             result_sp4 = re.findall(r'[\d\.]+', temp_str_sp4)
-            sp4_button = sp4_temp_name +" = Button(second_frame, text = btn, command = lambda: [control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), second_frame.destroy(), main_frame.destroy(), top3.destroy()], bg = 'black', fg = 'white')" #devicename has to include " "
+            sp4_button = sp4_temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
             sp4_pack = sp4_temp_name+".grid(row ="+str(buttons_row)+", column=2)"
             sp4_ip = result_sp4[5]#this works on sp3-eu plugs and [4] works with sp4-eu
             if len(sp4_ip) < 9:
@@ -435,7 +435,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             if len(sp3_ip) < 9:
                 sp3_ip = result_sp3[4]
                 
-            sp3_button = sp3_temp_name +" = Button(second_frame, text = btn, command = lambda: [control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), second_frame.destroy(), main_frame.destroy(), top3.destroy()], bg = 'black', fg = 'white')" #devicename has to include " "
+            sp3_button = sp3_temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
             sp3_pack = sp3_temp_name +".grid(row ="+str(buttons_row)+", column=2)"
             print(sp3_ip, sp3_name)
             result_sp3.clear()
@@ -466,7 +466,8 @@ def check_wlan_device_status(devices): # check here also buttons and save device
     return devices
 
 
-def control_wlan_devices(device_names, devices, devices_library):# here we change the wlan devices state    
+def control_wlan_devices(device_names, devices, devices_library):# here we change the wlan devices state   
+    global devices_library 
     device_name_tmp = device_names
     temp_json = json.loads(devices_library)
     choice= ""   
@@ -589,10 +590,6 @@ def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):
 
 
 devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')# lets check devices list
-#Riipuksen_Olkkari_Valo = Button(root, text = "some", command = lambda: control_wlan_devices('Riipuksen Olkkari Valo|9', devices, devices_library), bg = 'black', fg = 'white') #devicename has to include
-#Riipuksen_Olkkari_Valo.pack()
-#second_frame = "root"
-
 check_wlan_device_status(devices) # lets check devices begin of program and convert them to json value
 while True:
 #    root.update()
