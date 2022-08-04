@@ -132,10 +132,13 @@ plan:
 - name sliders in controlling window
 - figure out how to control windows that thos label colors will change if devices state is changed.
 - remove the device str from json library.(solved)
-- figure out how to takea value from slider and do things about it
+- figure out how to takea value from slider and do things about it(solved)
+- wlan bulbs wont work on rgb adjusment, only brightness works. figure out why
 
 report:
 added json update(not tested)
 button controlling made this how that wlan devices should update now from json file(not tested)
+wlan bulb controlling working, wlan switces working
+add back json library
 
 

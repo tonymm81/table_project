@@ -497,7 +497,7 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
         s4.grid(row=2, column=7)#pack(anchor = CENTER)
         s5 = Scale( top2, variable = level_bright,from_ = 255, to = 1,orient = VERTICAL) #brightness
         s5.grid(row=2, column=9)#.pack(anchor = CENTER)
-        s6 = Scale( top2, variable = level_colortmp,from_ = 255, to = 1,orient = VERTICAL) # clolortemp 
+        s6 = Scale( top2, variable = level_colortmp,from_ = 5, to = 0,orient = VERTICAL) # clolortemp 
         s6.grid(row=2, column=11)#.pack(anchor = LEFT)
         red = Button(top2, text="red", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "red", s2.get()) )
         green = Button(top2, text="green", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "green", s3.get()) )
@@ -512,7 +512,7 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
                 break
         btn = Button(top2, text="exit", fg="white",bg="black", font=("helvetica", 15), command=lambda: top2.destroy() )
         b3 = Button(top2, text ="on / off",
-            command = lambda: set_state_bulp(temp_json, device_name_tmp, control, "pwr", choice),
+            command = lambda: set_state_bulp(temp_json, device_name_tmp, control, "pwr", 0),
             bg = "purple", 
             fg = "white")
         btn.grid(row=26, column = 3)
@@ -536,20 +536,23 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
         switch_state = control.check_power()
         
         if switch_state == True:
-            control.set_power(1, False)
+            control.set_power(False)
             
         elif switch_state == False:
-            control.set_power(1, True)
-        
+            control.set_power(True)
+    temp_json[device_name_tmp][1] = switch_state
+    devices_library = json.dumps(temp_json, indent=4)
     #device_name_tmp=""
     return
 
 
 def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):
-    value_number = int(choice)
+    value_number = choice
+    value_number = int(value_number)
     colors_ = str(colors)
     global devices_library
     print("colors", str(colors))
+    #state_=2
     control.auth()
     state = control.get_state()
     if colors_ == "pwr":
@@ -575,8 +578,8 @@ def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):
     elif colors_ == "colortmp":
         control.set_state(bulb_colormode=value_number)
     
-    
-    temp_json[device_name_tmp][1]['pwr'] = state_
+    state = control.get_state()
+    temp_json[device_name_tmp][1]['pwr'] = state['pwr']
     print("whole json" ,temp_json[device_name_tmp])
     print("testing", device_name_tmp, "json", str(temp_json[device_name_tmp][1]['pwr']))
     devices_library = json.dumps(temp_json, indent=4)
