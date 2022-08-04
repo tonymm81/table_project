@@ -469,7 +469,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
 def control_wlan_devices(device_names, devices, devices_library):# here we change the wlan devices state    
     device_name_tmp = device_names
     temp_json = json.loads(devices_library)
-        
+    choice= ""   
     control = ""
     #print(device_name_tmp)
     #print(temp_json[device_name_tmp][2])
@@ -488,12 +488,7 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
         top2.configure(background="white")
         top2.update()
         
-        red = Label(top2)
-        green = Label(top2)
-        blue = Label(top2)
-        bright = Label(top2)
-        colortemp = Label(top2)
-        satur = Label(top2)
+        
         s2 = Scale( top2, variable = level_red,from_ = 255, to = 1,orient = VERTICAL) #red
         s2.grid(row=2, column=2)#s2.pack(anchor = RIGHT)
         s3 = Scale( top2, variable = level_green,from_ = 255, to = 1,orient = VERTICAL) #green
@@ -506,9 +501,14 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
         s6.grid(row=2, column=11)#.pack(anchor = LEFT)
         s7 = Scale( top2, variable = level_satu,from_ = 255, to = 1,orient = VERTICAL) # saturation
         s7.grid(row=2, column=13)#.pack(anchor = LEFT)
-    
+        red = Button(top2, text="red", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "red", s2.get()) )
+        green = Button(top2, text="green", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "green", s3.get()) )
+        blue = Button(top2, text="blue", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "blue", s4.get()) )
+        bright = Button(top2, text="brightn.", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "bright", s5.get()) )
+        colortemp = Button(top2, text="colortmp", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "colortmp", s6.get()) )
+        satur = Button(top2, text="saturat.", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "saturation", s7.get()) )
         #sel = "Vertical Scale Value = " + str(level.get())
-        red.config(text = "red", font =("Courier", 6))
+        
         green.config(text = "green", font =("Courier", 6))
         blue.config(text = "blue", font =("Courier", 6))
         bright.config(text = "bright", font =("Courier", 6))
@@ -520,9 +520,9 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
                 control = devices[i]
                 #print(control)
                 break
-        btn = Button(top2, text="exit", fg="white",bg="black", font=("helvetica", 15), command=lambda: [top2.destroy(), search_all_devices_wlan(devices) ])
+        btn = Button(top2, text="exit", fg="white",bg="black", font=("helvetica", 15), command=lambda: top2.destroy() )
         b3 = Button(top2, text ="on / off",
-            command = lambda: set_state_bulp(temp_json, device_name_tmp, control, colors),
+            command = lambda: set_state_bulp(temp_json, device_name_tmp, control, "pwr", choice),
             bg = "purple", 
             fg = "white")
      
@@ -545,19 +545,37 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
     return
 
 
-def set_state_bulp(temp_json,device_name_tmp, control, colors):
+def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):
+    value_number = int(choice)
+    colors_ = str(colors)
     global devices_library
     print("colors", str(colors))
     control.auth()
     state = control.get_state()
-    if state['pwr'] == 0:
-        control.set_state(pwr=1)
-        state_ = 1
+    if colors_ == "pwr":
+        if state['pwr'] == 0:
+            control.set_state(pwr=1)
+            state_ = 1
         
-    else:
-        control.set_state(pwr=0)
-        state_ = 0
-     
+        else:
+            control.set_state(pwr=0)
+            state_ = 0
+    elif colors_ == "red":
+        control.set_state(red=value_number)
+        
+    elif colors_ == "green":
+        control.set_state(green=value_number)
+        
+    elif colors_ == "blue":
+        control.set_state(blue=value_number)
+        
+    elif colors_ == "bright":
+        control.set_state(brightness=value_number)
+        
+    elif colors_ == "colortmp":
+        control.set_state(bulb_colormode=value_number)
+        
+    
     temp_json[device_name_tmp][1]['pwr'] = state_
     print("whole json" ,temp_json[device_name_tmp])
     print("testing", device_name_tmp, "json", str(temp_json[device_name_tmp][1]['pwr']))
