@@ -141,4 +141,6 @@ button controlling made this how that wlan devices should update now from json f
 wlan bulb controlling working, wlan switces working
 add back json library
 
+added max and min distance where you can adjust the table on ask user function
+
 
