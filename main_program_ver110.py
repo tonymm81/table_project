@@ -206,7 +206,7 @@ def motor_control(level1, direction, limit_switch):
  
  
 def going_up(): #motor controlling up direction max high 111
-    global level1
+    global level1, label_1
     direction = 15
     limit_switch = 23
     root.update()
@@ -218,7 +218,7 @@ def going_up(): #motor controlling up direction max high 111
  
  
 def going_down(): # make a function call to control motor min high 65
-    global level1
+    global level1, label_1
     root.update()
     direction = 12
     limit_switch = 8
@@ -381,7 +381,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             temp_str_bulb = str(temp_str_bulb)
             result_bulb = re.findall(r'[\d\.]+', temp_str_bulb)
             bulb_ip = result_bulb[5]#this works on sp3-eu plugs and [4] works with sp4-eu light bulb test it
-            bulb_button = temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
+            bulb_button = temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices), bg = 'black', fg = 'white')" #devicename has to include " "
             bulb_pack = temp_name+ ".grid(row ="+str(buttons_row)+", column=2)" 
             if len(bulb_ip) < 9:
                 bulb_ip = result_bulb[4]
@@ -412,7 +412,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             temp_str_sp4 = devices[i]
             temp_str_sp4 = str(temp_str_sp4)
             result_sp4 = re.findall(r'[\d\.]+', temp_str_sp4)
-            sp4_button = sp4_temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
+            sp4_button = sp4_temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices), bg = 'black', fg = 'white')" #devicename has to include " "
             sp4_pack = sp4_temp_name+".grid(row ="+str(buttons_row)+", column=2)"
             sp4_ip = result_sp4[5]#this works on sp3-eu plugs and [4] works with sp4-eu
             if len(sp4_ip) < 9:
@@ -450,7 +450,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
             if len(sp3_ip) < 9:
                 sp3_ip = result_sp3[4]
                 
-            sp3_button = sp3_temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices, devices_library), bg = 'black', fg = 'white')" #devicename has to include " "
+            sp3_button = sp3_temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices), bg = 'black', fg = 'white')" #devicename has to include " "
             sp3_pack = sp3_temp_name +".grid(row ="+str(buttons_row)+", column=2)"
             print(sp3_ip, sp3_name)
             result_sp3.clear()
@@ -481,8 +481,8 @@ def check_wlan_device_status(devices): # check here also buttons and save device
     return devices
 
 
-def control_wlan_devices(device_names, devices, devices_library):# here we change the wlan devices state   
-    #global devices_library 
+def control_wlan_devices(device_names, devices):# here we change the wlan devices state   
+    global devices_library 
     device_name_tmp = device_names
     temp_json = json.loads(devices_library)
     choice= ""   
@@ -559,7 +559,7 @@ def control_wlan_devices(device_names, devices, devices_library):# here we chang
     temp_json[device_name_tmp][1] = switch_state
     devices_library = json.dumps(temp_json, indent=4)
     #device_name_tmp=""
-    return
+    return 
 
 
 def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):
@@ -601,7 +601,7 @@ def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):
     devices_library = json.dumps(temp_json, indent=4)
     
      
-    return
+    return 
 
 
 devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')# lets check devices list
