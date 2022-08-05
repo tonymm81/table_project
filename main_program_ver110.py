@@ -556,6 +556,8 @@ def control_wlan_devices(device_names, devices):# here we change the wlan device
             
         elif switch_state == False:
             control.set_power(True)
+            
+    switch_state = control.check_power()
     temp_json[device_name_tmp][1] = switch_state
     devices_library = json.dumps(temp_json, indent=4)
     #device_name_tmp=""
@@ -596,8 +598,8 @@ def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):
     
     state = control.get_state()
     temp_json[device_name_tmp][1]['pwr'] = state['pwr']
-    print("whole json" ,temp_json[device_name_tmp])
-    print("testing", device_name_tmp, "json", str(temp_json[device_name_tmp][1]['pwr']))
+    #print("whole json" ,temp_json[device_name_tmp])
+    #print("testing", device_name_tmp, "json", str(temp_json[device_name_tmp][1]['pwr']))
     devices_library = json.dumps(temp_json, indent=4)
     
      
