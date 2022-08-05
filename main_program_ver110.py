@@ -72,16 +72,25 @@ def update_setpoint(level):#needed to update the level value
     level1 = level
     print(level1)
     return
-
+ 
 def ask_user(level, direction, limit_switch): # here user can select how far table is from floor
     level = DoubleVar()
     top1 = Toplevel()
+    max_distance = 0
+    
+    distance_now = measure_distance() # 15 up and 12 down
+    if direction == 12: #down
+        max_distance = distance_now - 65 
+        
+    if direction == 15:
+        max_distance = 111 - distance_now 
+    
     top1.title('table measurement')
     top1.geometry("400x300")
     top1.configure(background="white")
     top1.update()
     l2 = Label(top1)
-    s2 = Scale( top1, variable = level,from_ = 50, to = 1,orient = VERTICAL)
+    s2 = Scale( top1, variable = level,from_ = max_distance, to = 1,orient = VERTICAL)
     s2.grid(row=10, column=10)
     
     sel = "Vertical Scale Value = " + str(level.get())
@@ -114,7 +123,7 @@ def ask_user(level, direction, limit_switch): # here user can select how far tab
 # here we make only one function where we bring three parameters. What direction, up/down limit/ measuring value. This how we can save lots lines of code
 # lets build up the for loop what drives motor until limit switch says no or measurement goes to right distance. i dont have sensors so i have to use time rule now.
 #delete the rules. lets make this to forloop anf there whe end loop when limit switch activated. no needed up or down rules anymore.perhaps we dont need to use interrupt pins
-def motor_control(level1, direction, limit_switch):
+def motor_control(level1, direction, limit_switch): 
     i = measure_distance() #measured distance
     i = round(i)
     i = int(i)
@@ -152,6 +161,9 @@ def motor_control(level1, direction, limit_switch):
                 i = 0
                 level_temp = 0
                 break
+            if target_distance == 111 or target_distance > 111: # max table high
+                break
+            
         
     if direction == 12:#down
         target_distance = i - level_temp 
@@ -179,6 +191,9 @@ def motor_control(level1, direction, limit_switch):
                 i = 0
                 level_temp = 0
                 break
+            if target_distance == 65 or target_distance < 65:
+                break
+            
     
     if direction == 15:
         GP.output(relay_switch_direction, GP.LOW) #replace values
@@ -190,7 +205,7 @@ def motor_control(level1, direction, limit_switch):
 
  
  
-def going_up(): #motor controlling up direction
+def going_up(): #motor controlling up direction max high 111
     global level1
     direction = 15
     limit_switch = 23
@@ -202,7 +217,7 @@ def going_up(): #motor controlling up direction
     return
  
  
-def going_down(): # make a function call to control motor
+def going_down(): # make a function call to control motor min high 65
     global level1
     root.update()
     direction = 12
@@ -467,7 +482,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
 
 
 def control_wlan_devices(device_names, devices, devices_library):# here we change the wlan devices state   
-    global devices_library 
+    #global devices_library 
     device_name_tmp = device_names
     temp_json = json.loads(devices_library)
     choice= ""   
