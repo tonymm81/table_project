@@ -130,7 +130,7 @@ bug: wlan devices button wont destroy the wlan devices list windows, says only t
 plan: 
 - now i have to fugure out how to update in json value devices state. (control function shows correcty but search_wlan_devices wont.)(solved, json library is now global and it work fine)
 - name sliders in controlling window
-- figure out how to control windows that thos label colors will change if devices state is changed.
+- figure out how to control windows that thos label colors will change if devices state is changed.(not solved!)
 - remove the device str from json library.(solved)
 - figure out how to takea value from slider and do things about it(solved)
 - wlan bulbs wont work on rgb adjusment, only brightness works. figure out why
