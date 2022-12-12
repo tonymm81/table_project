@@ -133,7 +133,7 @@ plan:
 - figure out how to control windows that thos label colors will change if devices state is changed.(not solved!)
 - remove the device str from json library.(solved)
 - figure out how to takea value from slider and do things about it(solved)
-- wlan bulbs wont work on rgb adjusment, only brightness works. figure out why
+- wlan bulbs wont work on rgb adjusment, only brightness works. figure out why(This is cheaper version on broadlink bulb. Options are only colortemp and brightness)
 
 report:
 added json update(not tested)
@@ -144,5 +144,19 @@ add back json library
 added max and min distance where you can adjust the table on ask user function. make also software limit to max and min positions.
 
 
+ver111:
 
+ Plan: 
+- I have to take wlan devices to different file, It's easier to control main program if there isn't so much code. 
+
+- Also i have to figure out how to save settings to file and load it to program and do graphics about it.
+
+- Next thing to plan is how to load up the setups and command the wlan devices to saved state and also error handling if some of devices 
+ is offline. Perhaps we compare devices name from json and from finded devices list.
+
+- Fix the graphics because wlan devices window have some settings wrong because its so small and scrollbar is wrong position.(fixed: i use the ipadx and ipady commands, not testet yet)
+
+- Also figure out how to check the main devices ip address in program. I don't want to make static ip to this device. Its throws error if devices ip is changed.(fixed : code added. using socket program)
+
+- This is beta version still but put the program to autostart. And also make exit and shutdown function that it really shutdowns the device. (fixed: shutdown code added)
 

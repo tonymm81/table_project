@@ -16,6 +16,7 @@ import re
 import json
 import pprint
 from subprocess import call
+import socket
 #import smbus
 
 #pin numbering
@@ -241,13 +242,13 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     top3.configure(background="white")
     top3.update()
     main_frame = Frame(top3)
-    main_frame.grid(row=1, column=1,columnspan=3,sticky='nwse')#pack(fill=BOTH, expand=1)
+    main_frame.grid(ipadx=500, ipady=800)#pack(fill=BOTH, expand=1)grid(row=1, column=1,columnspan=3,sticky='nwse')
     #scrollbar canvas
     my_canvas = Canvas(main_frame)
-    my_canvas.grid(row=1, column=1,columnspan=3,sticky='nswe')#pack(side=LEFT, fill=BOTH, expand=1)
+    my_canvas.grid(ipadx=500, ipady=800)#pack(side=LEFT, fill=BOTH, expand=1)grid(row=1, column=1,columnspan=3,sticky='nswe')
     #scrollbar settings
-    scrollbar1 = ttk.Scrollbar(main_frame, orient=VERTICAL, command=my_canvas.yview)
-    scrollbar1.grid(sticky= 'e',row=30, column=1)#pack(side=RIGHT, fill=Y)
+    scrollbar1 = ttk.Scrollbar(main_frame, orient=HORIZONTAL, command=my_canvas.yview)#set was VERTICAL
+    scrollbar1.grid( column=10, ipady=700, ipadx=20)#pack(side=RIGHT, fill=Y)
     #configure the canvas
     my_canvas.configure(yscrollcommand=scrollbar1.set)
     my_canvas.bind('<Configure>', lambda e: my_canvas.configure(scrollregion = my_canvas.bbox("all")))
@@ -607,8 +608,10 @@ def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):
      
     return 
 
+hostname = socket.gethostname()
+IPAddr = socket.gethostbyname(hostname) # lets check the devies ip address
 
-devices = broadlink.discover(timeout=5, local_ip_address='192.168.68.118')# lets check devices list
+devices = broadlink.discover(timeout=5, local_ip_address=IPAddr)# lets check devices list '192.168.68.118'
 check_wlan_device_status(devices) # lets check devices begin of program and convert them to json value
 while True:
 #    root.update()
