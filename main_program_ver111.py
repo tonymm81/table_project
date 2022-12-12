@@ -241,14 +241,15 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     top3.geometry("800x500")
     top3.configure(background="white")
     top3.update()
-    main_frame = Frame(top3)
-    main_frame.grid(ipadx=500, ipady=800)#pack(fill=BOTH, expand=1)grid(row=1, column=1,columnspan=3,sticky='nwse')
+    main_frame = Frame(top3, bg="black")
+    main_frame.grid(sticky='news')#pack(fill=BOTH, expand=1)grid(row=1, column=1,columnspan=3,sticky='nwse')
     #scrollbar canvas
-    my_canvas = Canvas(main_frame)
-    my_canvas.grid(ipadx=500, ipady=800)#pack(side=LEFT, fill=BOTH, expand=1)grid(row=1, column=1,columnspan=3,sticky='nswe')
+    my_canvas = Canvas(main_frame, bg='gray')
+    my_canvas.grid(row=0, column=0, sticky='nw')#pack(side=LEFT, fill=BOTH, expand=1)grid(row=1, column=1,columnspan=3,sticky='nswe')
     #scrollbar settings
-    scrollbar1 = ttk.Scrollbar(main_frame, orient=HORIZONTAL, command=my_canvas.yview)#set was VERTICAL
-    scrollbar1.grid( column=10, ipady=700, ipadx=20)#pack(side=RIGHT, fill=Y)
+    scrollbar1 = ttk.Scrollbar(main_frame, orient=VERTICAL, command=my_canvas.yview)#set was VERTICAL
+    
+    scrollbar1.grid(row=0, column=1, sticky='ns' )#pack(side=RIGHT, fill=Y)
     #configure the canvas
     my_canvas.configure(yscrollcommand=scrollbar1.set)
     my_canvas.bind('<Configure>', lambda e: my_canvas.configure(scrollregion = my_canvas.bbox("all")))
@@ -263,9 +264,9 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     
     rounds = 0
     button_rounds = 15
-    update_btn = Button(second_frame, text = "Update wlan devices list", command = lambda: check_wlan_device_status(devices) , bg = "black", fg = "white")# user can manually update the wlan list
+    update_btn = Button(second_frame ,text = "Update wlan devices list", command = lambda: check_wlan_device_status(devices) , bg = "black", fg = "white")# user can manually update the wlan list
     update_btn.grid(row=2, column=2)#pack(pady=2, padx=2)
-    exit_btn = Button(second_frame, text = "EXIT", command = lambda: [second_frame.destroy(), main_frame.destroy(), top3.destroy()] , bg = "black", fg = "white")# exit button
+    exit_btn = Button(second_frame , text = "EXIT", command = lambda: [second_frame.destroy(), main_frame.destroy(), top3.destroy()] , bg = "black", fg = "white")# exit button
     exit_btn.grid(row=7, column=2)#pack(pady=2, padx=2)
     devices_library_tmp = json.loads(devices_library)
     #print(button_dict)
@@ -608,10 +609,9 @@ def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):
      
     return 
 
-hostname = socket.gethostname()
-IPAddr = socket.gethostbyname(hostname) # lets check the devies ip address
 
-devices = broadlink.discover(timeout=5, local_ip_address=IPAddr)# lets check devices list '192.168.68.118'
+ipv4 = os.popen('ip addr show wlan0 | grep "\<inet\>" | awk \'{ print $2 }\' | awk -F "/" \'{ print $1 }\'').read().strip()
+devices = broadlink.discover(timeout=5, local_ip_address=ipv4)# lets check devices list '192.168.68.118'
 check_wlan_device_status(devices) # lets check devices begin of program and convert them to json value
 while True:
 #    root.update()
