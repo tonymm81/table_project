@@ -160,3 +160,10 @@ ver111:
 
 - This is beta version still but put the program to autostart. And also make exit and shutdown function that it really shutdowns the device. (fixed: shutdown code added)
 
+-bug: i have to add bloadlinks own plug devtype on my json library from devices.
+
+-report: Canvas is that what bind scrollbar location. Defining the canvas size is not so easy.
+i tried to change the button size but other buttos overscale so there is some trick. but scrollbar is 
+now much better than earlier. Now its same high than canvas has.
+
+report : os based ip address search program works fine on rasbian. no mo wrong ip error crashes.
