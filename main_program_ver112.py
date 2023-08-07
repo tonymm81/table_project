@@ -15,6 +15,7 @@ import re
 import json
 import pprint
 from subprocess import call
+import wlan_devices
 import socket
 #import smbus
 
@@ -28,9 +29,7 @@ relay_up = 15
 relay_down = 12
 temp_value = 0
 level1 = 0
-devices_library = '{}' # here we save the devices name, ipaddress, lightbulb color setup, and devices state
-devices = []
-json.dumps(devices_library, indent=4)
+
 #gpio setups
 GP.setwarnings(False)
 GP.setmode(GP.BCM)
@@ -52,8 +51,6 @@ GP.add_event_detect(relay_down_limit, GP.RISING)
 root = Tk()
 root.geometry("880x450")
 root.configure(background="black")
-#scrollbar = Scrollbar(root)
-#scrollbar.pack( side = RIGHT, fill = Y )
 btn = Button(root, text="Adjust table up",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_up()).grid(row = 1, column=1) # replace this to grid command
 btn1 = Button(root, text="Adjust table down",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_down()).grid(row=3, column=1) 
 btn2 = Button(root, text="Control the lights and wlan plugs",fg="white", bg="black",font=("helvetica", 15), command=lambda: search_all_devices_wlan(devices)).grid(row=5, column =1) 
@@ -93,19 +90,14 @@ def ask_user(level, direction, limit_switch): # here user can select how far tab
     l2 = Label(top1)
     s2 = Scale( top1, variable = level,from_ = max_distance, to = 1,orient = VERTICAL)
     s2.grid(row=10, column=10)
-    
     sel = "Vertical Scale Value = " + str(level.get())
     l2.config(text = sel, font =("Courier", 14)) 
-     
-  
     l4 = Label(top1, text = "set measurement")
-  
     b2 = Button(top1, text ="choose measurement",
             command = lambda:level.get(),
             bg = "purple", 
             fg = "white")
   
-    #btn = Button(top1, text="stop", fg="white",bg="black", font=("helvetica", 15), command=lambda: [motor_up(1), top1.destroy()]).pack()
     b3 = Button(top1, text ="update measurement",
             command = lambda: [update_setpoint(level.get()),motor_control(level1, direction, limit_switch), top1.destroy()],
             bg = "purple", 
@@ -135,11 +127,11 @@ def motor_control(level1, direction, limit_switch):
     interrupt = time.time()
     interrupt_clk = time.time()
     if direction == 15: #up
-        
         target_distance = level_temp + i
         print("target distance", target_distance)
         print(i)
         while True:
+            time.sleep(1)
             GP.output(direction, GP.HIGH)
             i = measure_distance()
             i = round(i)
@@ -151,10 +143,7 @@ def motor_control(level1, direction, limit_switch):
                 print("limit!!!")
                 time.sleep(1)
                 print(interrupt_clk - interrupt)
-            
-            #if interrupt_clk - interrupt >= 5  : # fix this not working
-                #break
-                #rint("je")
+                
             
             if target_distance == i or target_distance < i:
                 print("target")
@@ -171,6 +160,7 @@ def motor_control(level1, direction, limit_switch):
         print("target", target_distance)
         print(i)
         while True:
+            time.sleep(1)
             GP.output(direction, GP.HIGH)
             i = measure_distance()
             i = round(i)
@@ -182,9 +172,6 @@ def motor_control(level1, direction, limit_switch):
                 time.sleep(1)
                 print(interrupt_clk - interrupt)
             
-            #if interrupt_clk - interrupt >= 5  : # fix this not working
-                #print("je")
-                #break
             
             if target_distance == i or target_distance > i :
                 print("target")
@@ -231,8 +218,6 @@ def going_down(): # make a function call to control motor min high 65
     return
 
 
-
-
 def search_all_devices_wlan(devices): # here we check again the devices list
     # scrollbar main frame setup
     top3 = Toplevel()
@@ -247,7 +232,6 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     my_canvas.grid(row=0, column=0, sticky='nw')#pack(side=LEFT, fill=BOTH, expand=1)grid(row=1, column=1,columnspan=3,sticky='nswe')
     #scrollbar settings
     scrollbar1 = ttk.Scrollbar(main_frame, orient=VERTICAL, command=my_canvas.yview)#set was VERTICAL
-    
     scrollbar1.grid(row=0, column=1, sticky='ns' )#pack(side=RIGHT, fill=Y)
     #configure the canvas
     my_canvas.configure(yscrollcommand=scrollbar1.set)
@@ -261,12 +245,14 @@ def search_all_devices_wlan(devices): # here we check again the devices list
         device_names.append(devices[o].name)
         o = o +1
     
+    
     rounds = 0
     button_rounds = 15
-    update_btn = Button(second_frame ,text = "Update wlan devices list", command = lambda: check_wlan_device_status(devices) , bg = "black", fg = "white")# user can manually update the wlan list
+    update_btn = Button(second_frame ,text = "Update wlan devices list", command = lambda: wlan_devices.check_wlan_device_status(devices) , bg = "black", fg = "white")# user can manually update the wlan list
     update_btn.grid(row=2, column=2)#pack(pady=2, padx=2)
     exit_btn = Button(second_frame , text = "EXIT", command = lambda: [second_frame.destroy(), main_frame.destroy(), top3.destroy()] , bg = "black", fg = "white")# exit button
     exit_btn.grid(row=7, column=2)#pack(pady=2, padx=2)
+    devices_library = wlan_devices.get_json()
     devices_library_tmp = json.loads(devices_library)
     #print(button_dict)
     
@@ -296,7 +282,7 @@ def search_all_devices_wlan(devices): # here we check again the devices list
         #dev_name_temp = ""
         #break
         
-    devices_directory = json.dumps(devices_library_tmp, indent=4)
+    devices_directory = json.dumps(devices_library_tmp, indent=4) # check if needed?
     devices_library_tmp = '{}'
     second_frame.mainloop()
     top3.mainloop()
@@ -306,11 +292,11 @@ def search_all_devices_wlan(devices): # here we check again the devices list
 def load_setup():
     # when user save the setting, lets save json value to file. When loading the settings lets take the wlan device status from old saved json and control device with newer json
     # this how we avoid error, if wlan has changed the ip address. But if the wlan device is not found, we have to make error handling about it
-     return
+    return
  
  
 def save_setup():
-     return
+    return
  
  
 def measure_distance():
@@ -355,265 +341,16 @@ def main_waiting_loop():
     label_1.configure(text = "waiting user to choose and distance is: " + str(distance))
     label_1.grid(row=17, column=1)
     time.sleep(1)
-    
-    
-    #print(distance)
     return
-
 
 
 def check_updates():
     return
 
 
-def check_wlan_device_status(devices): # check here also buttons and save device in button command
-    global devices_library # make here try exceptclause for Traceback error
-    temp_json = json.loads(devices_library)
-    buttons_row = 15
-    for i in range (len(devices)):
-        #print("before if clause", devices[i].devtype)
-        devtype = devices[i].devtype
-        
-        
-        if devtype == 24686:
-            bulb_button = " "
-            bulb_pack = " "
-            
-            bulbname = devices[i].name
-            size = len(bulbname)
-            temp_name = bulbname[:size -3]#delete 3 letters
-            temp_str_bulb = devices[i]
-            temp_str_bulb = str(temp_str_bulb)
-            result_bulb = re.findall(r'[\d\.]+', temp_str_bulb)
-            bulb_ip = result_bulb[5]#this works on sp3-eu plugs and [4] works with sp4-eu light bulb test it
-            bulb_button = temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices), bg = 'black', fg = 'white')" #devicename has to include " "
-            bulb_pack = temp_name+ ".grid(row ="+str(buttons_row)+", column=2)" 
-            if len(bulb_ip) < 9:
-                bulb_ip = result_bulb[4]
-                
-            result_bulb.clear()
-            print(bulb_ip, bulbname)
-            try:
-                devices_temp1 = broadlink.discover(timeout=5, discover_ip_address=bulb_ip)
-                devices_temp1[0].auth()
-                device_state1 = devices_temp1[0].get_state()
-                 
-            except traceback:
-                print("device communication failed")
-                
-            except IndexError:
-                print("device wont find")
-                
-            bulb_library = {bulbname : [bulb_ip,  device_state1, devtype, bulb_button, bulb_pack]}#temp value to json
-            temp_json.update(bulb_library)
-            
-            
-        if devtype == 30073:
-            sp4_button = " "
-            sp4_pack = " "
-            sp4_name = devices[i].name
-            size = len(sp4_name)
-            sp4_temp_name = sp4_name[:size-3]
-            temp_str_sp4 = devices[i]
-            temp_str_sp4 = str(temp_str_sp4)
-            result_sp4 = re.findall(r'[\d\.]+', temp_str_sp4)
-            sp4_button = sp4_temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices), bg = 'black', fg = 'white')" #devicename has to include " "
-            sp4_pack = sp4_temp_name+".grid(row ="+str(buttons_row)+", column=2)"
-            sp4_ip = result_sp4[5]#this works on sp3-eu plugs and [4] works with sp4-eu
-            if len(sp4_ip) < 9:
-                sp4_ip = result_sp4[4]
-                
-            result_sp4.clear()
-            print(sp4_ip, sp4_name)
-            try:
-                devices_temp2 = broadlink.discover(timeout=5, discover_ip_address=sp4_ip)
-                devices_temp2[0].auth()
-                device_state2 = devices_temp2[0].check_power()
-            except traceback:
-                print("device communication failed")
-                
-            except IndexError:
-                print("device wont find")
-            
-            
-            sp4_library = {sp4_name : [sp4_ip,  device_state2, devtype, sp4_button, sp4_pack]}#temp value to json
-            temp_json.update(sp4_library)
-            
-            
-            
-        if devtype == 32000:
-            
-            sp3_button = " "
-            sp3_pack = " "
-            sp3_name = devices[i].name
-            size = len(sp3_name)
-            sp3_temp_name = sp3_name[:size -3]
-            temp_str_sp3 = devices[i]#here was problem
-            temp_str_sp3 = str(temp_str_sp3)
-            result_sp3 = re.findall(r'[\d\.]+', temp_str_sp3)
-            sp3_ip = result_sp3[5]#this works on sp3-eu plugs and [4] works with sp4-eu
-            if len(sp3_ip) < 9:
-                sp3_ip = result_sp3[4]
-                
-            sp3_button = sp3_temp_name +" = Button(second_frame, text = btn, command = lambda: control_wlan_devices("+"'" +devices[i].name+ "'"+", devices), bg = 'black', fg = 'white')" #devicename has to include " "
-            sp3_pack = sp3_temp_name +".grid(row ="+str(buttons_row)+", column=2)"
-            print(sp3_ip, sp3_name)
-            result_sp3.clear()
-            try:
-                devices_temp3 = broadlink.discover(timeout=5, discover_ip_address=sp3_ip)
-                devices_temp3[0].auth()
-                #print(devices[0])
-                device_state3 = devices_temp3[0].check_power()
-
-            except traceback: #TypeError: catching classes that do not inherit from BaseException is not allowed
-                print("device communication failed")
-                
-            except IndexError:
-                print("device wont find")
-            
-            sp3_library = {sp3_name : [sp3_ip, device_state3, devtype, sp3_button, sp3_pack]} #temp value to json
-            temp_json.update(sp3_library)
-            
-            
-            
-        devtype = 0
-        buttons_row = buttons_row + 3
-     
-    
-    devices_library = json.dumps(temp_json)
-    #print(devices_library)
-    pprint.pprint(devices_library) # easier way to read json value
-    return devices 
-
-
-def control_wlan_devices(device_names, devices):# here we change the wlan devices state   
-    global devices_library 
-    device_name_tmp = device_names
-    temp_json = json.loads(devices_library)
-    choice= ""   
-    control = ""
-    #print(device_name_tmp)
-    #print(temp_json[device_name_tmp][2])
-    if temp_json[device_name_tmp][2] == 24686:
-        print("Bulp!!!!")
-        level_red = DoubleVar()
-        level_green = DoubleVar()
-        level_blue = DoubleVar()
-        level_bright = DoubleVar()
-        level_colortmp = DoubleVar()
-        level_satu = DoubleVar()
-        colors = 0
-        top2 = Toplevel()
-        top2.title('light adjusment')
-        top2.geometry("400x300")
-        top2.configure(background="white")
-        top2.update()
-        
-        
-        s2 = Scale( top2, variable = level_red,from_ = 255, to = 1,orient = VERTICAL) #red
-        s2.grid(row=2, column=2)#s2.pack(anchor = RIGHT)
-        s3 = Scale( top2, variable = level_green,from_ = 255, to = 1,orient = VERTICAL) #green
-        s3.grid(row=2, column=5)#pack(anchor = RIGHT)
-        s4 = Scale( top2, variable = level_blue,from_ = 255, to = 1,orient = VERTICAL) #blue
-        s4.grid(row=2, column=7)#pack(anchor = CENTER)
-        s5 = Scale( top2, variable = level_bright,from_ = 255, to = 1,orient = VERTICAL) #brightness
-        s5.grid(row=2, column=9)#.pack(anchor = CENTER)
-        s6 = Scale( top2, variable = level_colortmp,from_ = 5, to = 0,orient = VERTICAL) # clolortemp 
-        s6.grid(row=2, column=11)#.pack(anchor = LEFT)
-        red = Button(top2, text="red", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "red", s2.get()) )
-        green = Button(top2, text="green", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "green", s3.get()) )
-        blue = Button(top2, text="blue", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "blue", s4.get()) )
-        bright = Button(top2, text="brightn.", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "bright", s5.get()) )
-        colortemp = Button(top2, text="colortmp", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "colortmp", s6.get()) )
-    
-        for i in range(len(devices)):
-            if device_name_tmp == devices[i].name:
-                control = devices[i]
-                #print(control)
-                break
-        btn = Button(top2, text="exit", fg="white",bg="black", font=("helvetica", 15), command=lambda: top2.destroy() )
-        b3 = Button(top2, text ="on / off",
-            command = lambda: set_state_bulp(temp_json, device_name_tmp, control, "pwr", 0),
-            bg = "purple", 
-            fg = "white")
-        btn.grid(row=26, column = 3)
-        b3.grid(row=24, column=3)
-        red.grid(row=20, column=2)
-        green.grid(row=20, column =5)
-        blue.grid(row=20, column= 7)
-        bright.grid(row=20, column=9)
-        colortemp.grid(row=20, column=11)
-        root.update()
-        top2.mainloop()
-    else:
-       
-        print("plug!!")
-        for i in range(len(devices)):
-            if device_name_tmp == devices[i].name:
-                control = devices[i]
-                break
-            
-        control.auth()
-        switch_state = control.check_power()
-        
-        if switch_state == True:
-            control.set_power(False)
-            
-        elif switch_state == False:
-            control.set_power(True)
-            
-    switch_state = control.check_power()
-    temp_json[device_name_tmp][1] = switch_state
-    devices_library = json.dumps(temp_json, indent=4)
-    #device_name_tmp=""
-    return 
-
-
-def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):
-    value_number = choice
-    value_number = int(value_number)
-    colors_ = str(colors)
-    global devices_library
-    print("colors", str(colors))
-    #state_=2
-    control.auth()
-    state = control.get_state()
-    if colors_ == "pwr":
-        if state['pwr'] == 0:
-            control.set_state(pwr=1)
-            state_ = 1
-        
-        else:
-            control.set_state(pwr=0)
-            state_ = 0
-    elif colors_ == "red":
-        control.set_state(red=value_number)
-        
-    elif colors_ == "green":
-        control.set_state(green=value_number)
-        
-    elif colors_ == "blue":
-        control.set_state(blue=value_number)
-        
-    elif colors_ == "bright":
-        control.set_state(brightness=value_number)
-        
-    elif colors_ == "colortmp":
-        control.set_state(bulb_colormode=value_number)
-    
-    state = control.get_state()
-    temp_json[device_name_tmp][1]['pwr'] = state['pwr']
-    #print("whole json" ,temp_json[device_name_tmp])
-    #print("testing", device_name_tmp, "json", str(temp_json[device_name_tmp][1]['pwr']))
-    devices_library = json.dumps(temp_json, indent=4)
-    
-     
-    return 
-
-
 ipv4 = os.popen('ip addr show wlan0 | grep "\<inet\>" | awk \'{ print $2 }\' | awk -F "/" \'{ print $1 }\'').read().strip() # this how we take broker ip address in beging of program-
 devices = broadlink.discover(timeout=5, local_ip_address=ipv4)# lets check devices list '192.168.68.118'
-devices_library = check_wlan_device_status(devices) # lets check devices begin of program and convert them to json value
+devices_library_main = wlan_devices.check_wlan_device_status(devices) # lets check devices begin of program and convert them to json value
 while True:
 #    root.update()
 #

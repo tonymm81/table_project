@@ -167,3 +167,12 @@ i tried to change the button size but other buttos overscale so there is some tr
 now much better than earlier. Now its same high than canvas has.
 
 report : os based ip address search program works fine on rasbian. no mo wrong ip error crashes.
+
+version 112:
+
+Started to edit the programs that wlan devices are their own file. Also devices_libary updating happens there also.
+
+New files on this version: wlan_devices.py
+
+Report.I fix the distancemeasuring problem. Now wlan devices control and searching are different file.
+next I start to planning user settings save and load preferenses. I have to think, should i make this to different file, or main proram?
