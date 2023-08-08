@@ -113,10 +113,14 @@ def ask_user(level, direction, limit_switch): # here user can select how far tab
     #top1.destroy()
     return level1
 
+
 # here we make only one function where we bring three parameters. What direction, up/down limit/ measuring value. This how we can save lots lines of code
 # lets build up the for loop what drives motor until limit switch says no or measurement goes to right distance. i dont have sensors so i have to use time rule now.
 #delete the rules. lets make this to forloop anf there whe end loop when limit switch activated. no needed up or down rules anymore.perhaps we dont need to use interrupt pins
 def motor_control(level1, direction, limit_switch): 
+    motor_temp_json = wlan_devices.get_json()
+    library_tmp = json.loads(motor_temp_json)
+    measure_from_floor = 0
     i = measure_distance() #measured distance
     i = round(i)
     i = int(i)
@@ -150,8 +154,12 @@ def motor_control(level1, direction, limit_switch):
                 target_distance = 0
                 i = 0
                 level_temp = 0
+                desk_level = {measure_from_floor : i}
+                library_tmp.update(desk_level)
                 break
             if target_distance == 111 or target_distance > 111: # max table high
+                desk_level = {measure_from_floor : i}
+                library_tmp.update(desk_level)
                 break
             
         
@@ -178,8 +186,12 @@ def motor_control(level1, direction, limit_switch):
                 target_distance = 0
                 i = 0
                 level_temp = 0
+                desk_level = {measure_from_floor : i}
+                library_tmp.update(desk_level)
                 break
             if target_distance == 65 or target_distance < 65:
+                desk_level = {measure_from_floor : i}
+                library_tmp.update(desk_level)
                 break
             
     
@@ -187,7 +199,7 @@ def motor_control(level1, direction, limit_switch):
         GP.output(relay_switch_direction, GP.LOW) #replace values
         
     GP.output(direction, GP.LOW)
-              
+    wlan_devices.update_json(library_tmp)# when table has adjusted, we save the desk level to devices_library json value     
     return
 
 

@@ -176,3 +176,9 @@ New files on this version: wlan_devices.py
 
 Report.I fix the distancemeasuring problem. Now wlan devices control and searching are different file.
 next I start to planning user settings save and load preferenses. I have to think, should i make this to different file, or main proram?
+
+version 113:
+made up the save and load view. There is some buttons and labels.
+
+plan:
+I want to get user name, what is save file name. Also when program started again, it will load the filenames to load button texts. I have to make also file open and file save to program. The most changes had made to save_to_file.py.

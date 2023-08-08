@@ -28,9 +28,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
     temp_json = json.loads(devices_library_temp)
     buttons_row = 15
     for i in range (len(devices)):
-        #print("before if clause", devices[i].devtype)
         devtype = devices[i].devtype
-        
         
         if devtype == 24686:
             bulb_button = " "
