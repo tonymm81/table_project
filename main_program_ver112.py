@@ -17,6 +17,7 @@ import pprint
 from subprocess import call
 import wlan_devices
 import socket
+import save_to_file
 #import smbus
 
 #pin numbering
@@ -54,8 +55,8 @@ root.configure(background="black")
 btn = Button(root, text="Adjust table up",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_up()).grid(row = 1, column=1) # replace this to grid command
 btn1 = Button(root, text="Adjust table down",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_down()).grid(row=3, column=1) 
 btn2 = Button(root, text="Control the lights and wlan plugs",fg="white", bg="black",font=("helvetica", 15), command=lambda: search_all_devices_wlan(devices)).grid(row=5, column =1) 
-btn3 = Button(root, text="Save this setup",fg="white", bg="black",font=("helvetica", 15), command=lambda: save_setup()).grid(row=7, column=1) 
-btn3 = Button(root, text="Load setup",fg="white", bg="black",font=("helvetica", 15), command=lambda: load_setup()).grid(row=9, column =1) 
+btn3 = Button(root, text="Save this setup",fg="white", bg="black",font=("helvetica", 15), command=lambda: save_to_file.save_settings(echo, trigger)).grid(row=7, column=1) 
+btn3 = Button(root, text="Load setup",fg="white", bg="black",font=("helvetica", 15), command=lambda: save_to_file.load_settings(echo, trigger)).grid(row=9, column =1) 
 btn4 = Button(root, text="Exit and shutdown the weatherstation",fg="white", bg="black",font=("helvetica", 15), command=lambda: exit_and_shutdown()).grid(row=11, column=1)
 btn5 = Button(root, text="Exit this system",fg="white", bg="black",font=("helvetica", 15), command=lambda: exit_only()).grid(row=13, column=1) 
 btn6 = Button(root, text="Check the updates weatherstation",fg="white", bg="black",font=("helvetica", 15), command=lambda: measure_distance()).grid(row=15, column=1) 
@@ -120,7 +121,7 @@ def ask_user(level, direction, limit_switch): # here user can select how far tab
 def motor_control(level1, direction, limit_switch): 
     motor_temp_json = wlan_devices.get_json()
     library_tmp = json.loads(motor_temp_json)
-    measure_from_floor = 0
+    measure_from_floor = "distance from floor"
     i = measure_distance() #measured distance
     i = round(i)
     i = int(i)

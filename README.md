@@ -182,3 +182,9 @@ made up the save and load view. There is some buttons and labels.
 
 plan:
 I want to get user name, what is save file name. Also when program started again, it will load the filenames to load button texts. I have to make also file open and file save to program. The most changes had made to save_to_file.py.
+
+Report:
+Now file save is working. i also save user setup list to file, this how we can check, wich name settings user has saved and that how find also the correct json file, where we can load settings.
+
+bug: if user doesnt adjust the table, the table measurement wont save on json value.(fixed)
+
