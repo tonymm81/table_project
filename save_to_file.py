@@ -26,12 +26,27 @@ def load_settings():
 
 
 def save_settings():
+    listbox = Listbox(top4, width=40, height=10, selectmode=MULTIPLE)
+    listbox.insert(1, "load_1")
+    listbox.insert(2, "load_2")
+    listbox.insert(3, "load_3")
+    listbox.insert(4, "load_4")
+    listbox.grid(row=5, column=1)
     label_2 = Label(top4, text= "Give us name for the saved setup", font=("helvetica", 10), fg="white", bg="black")
     label_2.grid(row=1, column=1)
     entry= Entry(top4, width= 40)
     entry.focus_set()
     entry.grid(row=3, column=1)
+    save_btn = Button(top4, text="Save changes",fg="white", bg="black",font=("helvetica", 15), command=lambda: get_user_data(listbox, entry)).grid(row = 12, column=1)
     #string= entry.get() when ok button pressed
+    return
+
+def get_user_data(listbox, entry):
+    for i in listbox.curselection():
+        saveslot = listbox.get(i)
+        
+        
+    name_file= entry.get()
     return
 
 def return_wlan_devices():
