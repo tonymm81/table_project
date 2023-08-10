@@ -117,7 +117,7 @@ def return_wlan_devices(saveslot, echo, trigger, devices): # here we open new an
                 print("same device")
                 if saved_json[device_saved[0]][1] != new_json_temp[x][1]: # if state is different lets start of shutdown the device
                     #wlan_devices.control_wlan_devices(device_saved[0], devices)
-                    print("change plug state", aved_json[device_saved[0]][1], new_json_temp[x][1])
+                    print("change plug state", saved_json[device_saved[0]][1], new_json_temp[x][1])
                 if saved_json[device_saved[0]][1]['pwr'] != new_json_temp[x][1]['pwr']:
                     #wlan_devices.set_state_bulp(new_json_temp, device_saved[0], "", "pwr", 0)    
                     print("change bulp state", saved_json[device_saved[0]][1]['pwr'], new_json_temp[x][1]['pwr'])
