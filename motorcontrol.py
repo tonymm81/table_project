@@ -91,11 +91,11 @@ def motor_control(level1, direction, limit_switch, echo, trigger): #motor contro
                 target_distance = 0
                 i = 0
                 level_temp = 0
-                desk_level = {measure_from_floor : i}
+                desk_level = {measure_from_floor : [i]}
                 library_tmp.update(desk_level)
                 break
             if target_distance == 111 or target_distance > 111: # max table high
-                desk_level = {measure_from_floor : i}
+                desk_level = {measure_from_floor : [i]}
                 library_tmp.update(desk_level)
                 break
             
@@ -122,12 +122,12 @@ def motor_control(level1, direction, limit_switch, echo, trigger): #motor contro
                 target_distance = 0
                 i = 0
                 level_temp = 0
-                desk_level = {measure_from_floor : i}
+                desk_level = {measure_from_floor :[i]}
                 library_tmp.update(desk_level)
                 break
             if target_distance == 65 or target_distance < 65:
                 print("target reach")
-                desk_level = {measure_from_floor : i}
+                desk_level = {measure_from_floor : [i]}
                 library_tmp.update(desk_level)
                 break
             

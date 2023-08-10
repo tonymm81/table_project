@@ -5,6 +5,20 @@ This project is for adjusment of table level from floor. It has also graphical i
 it has rasbperry pi4, 7 inch touch screen, uln2804 chip, three relays and resistors. there is also gearbox motor what lift or lower the desk.
 ultrasonic sensor measures the desk distance from floor and you can save your favorite setup and load it later. We can save all light and plugs setup and distance from floor.
 
+main_program_ver112.py keeps up the graphics and there is also wlan control window. here you can adjust the table and save or load the setup.
+
+motorcontrol.py
+This file has and ultrasonic measurint function. here is also table motor control. After controlling table measurement grom floor, it will save the measure to devices_library.json file.
+when pressing button, we will start this program.
+
+save_to_file.py
+here user can save or load settings with given name. This file has function what compares devices and tables state, if they are not same, program will change the state of table or wlan devices.
+when pressing button, we will start this program.
+
+wlan.devices.py
+This file keeps up the devices_library updating or loading. It also makes this device_library.json, when system is starting. Here we can adjust wlan devices examble bulps and plugs.
+when pressing button, we will start this program.
+
 ver 100
 just setting upsystems.
 
@@ -198,4 +212,6 @@ version 115
 There is new file motorcontrol.py. There we measure table distance and controlling the table motor
 
 this version is tested, so next plan is to make for loop where we compare the table distance and wlan devices state between old and new json value.
+
+i make a for loop what compares new and saved json value. This how we can set the device the same state
 
