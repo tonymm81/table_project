@@ -188,3 +188,14 @@ Now file save is working. i also save user setup list to file, this how we can c
 
 bug: if user doesnt adjust the table, the table measurement wont save on json value.(fixed)
 
+version 114:
+Started to make save_to_file.py load settings function.
+
+plan: I think that we compare old and new json value, and drive the table to right level. Also set wlan devices to same position what they was, when settings was saved.
+but now i have to move the measuring and motorcontrol function from main program. This is not typescript and react. Perhaps i should make them own file.
+
+version 115
+There is new file motorcontrol.py. There we measure table distance and controlling the table motor
+
+this version is tested, so next plan is to make for loop where we compare the table distance and wlan devices state between old and new json value.
+

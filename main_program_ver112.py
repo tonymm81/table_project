@@ -18,16 +18,13 @@ from subprocess import call
 import wlan_devices
 import socket
 import save_to_file
+import motorcontrol
 #import smbus
 
 #pin numbering
 trigger = 7
 echo = 14
-relay_down_limit = 8
-relay_switch_direction = 25
-relay_up_limit = 23
-relay_up = 15
-relay_down = 12
+
 temp_value = 0
 level1 = 0
 
@@ -36,17 +33,7 @@ GP.setwarnings(False)
 GP.setmode(GP.BCM)
 GP.setup(trigger, GP.OUT)
 GP.setup(echo, GP.IN)
-GP.setup(relay_down_limit, GP.IN)
-GP.setup(relay_switch_direction, GP.OUT)
-GP.setup(relay_up_limit, GP.IN)
-GP.setup(relay_up, GP.OUT)
-GP.setup(relay_down, GP.OUT)
-GP.output(relay_switch_direction, GP.LOW)
-GP.output(relay_up, GP.LOW)
-GP.output(relay_down, GP.LOW)
-#GP.setup(echo, GP.IN, pull_up_down=GP.PUD_DOWN)
-GP.add_event_detect(relay_up_limit, GP.RISING)
-GP.add_event_detect(relay_down_limit, GP.RISING)
+
 
 #graphical view and buttons
 root = Tk()
@@ -66,18 +53,14 @@ label_1.grid(row=17, column=1)
 #test_json.dumps(test_json)
 
 
-def update_setpoint(level):#needed to update the level value
-    global level1
-    level1 = level
-    print(level1)
-    return
+
  
 def ask_user(level, direction, limit_switch): # here user can select how far table is from floor
     level = DoubleVar()
     top1 = Toplevel()
     max_distance = 0
     
-    distance_now = measure_distance() # 15 up and 12 down
+    distance_now = motorcontrol.measure_table(echo, trigger) # 15 up and 12 down
     if direction == 12: #down
         max_distance = distance_now - 65 
         
@@ -100,7 +83,7 @@ def ask_user(level, direction, limit_switch): # here user can select how far tab
             fg = "white")
   
     b3 = Button(top1, text ="update measurement",
-            command = lambda: [update_setpoint(level.get()),motor_control(level1, direction, limit_switch), top1.destroy()],
+            command = lambda: [motorcontrol.update_setpoint(level.get()),motorcontrol.motor_control(level1, direction, limit_switch, echo, trigger), top1.destroy()],
             bg = "purple", 
             fg = "white")
      
@@ -115,93 +98,6 @@ def ask_user(level, direction, limit_switch): # here user can select how far tab
     return level1
 
 
-# here we make only one function where we bring three parameters. What direction, up/down limit/ measuring value. This how we can save lots lines of code
-# lets build up the for loop what drives motor until limit switch says no or measurement goes to right distance. i dont have sensors so i have to use time rule now.
-#delete the rules. lets make this to forloop anf there whe end loop when limit switch activated. no needed up or down rules anymore.perhaps we dont need to use interrupt pins
-def motor_control(level1, direction, limit_switch): 
-    motor_temp_json = wlan_devices.get_json()
-    library_tmp = json.loads(motor_temp_json)
-    measure_from_floor = "distance from floor"
-    i = measure_distance() #measured distance
-    i = round(i)
-    i = int(i)
-    print("in motor function")
-    level_temp = level1.get()
-    level_temp = round(level_temp)
-    level_temp = int(level_temp)
-    interrupt = time.time()
-    interrupt_clk = time.time()
-    if direction == 15: #up
-        target_distance = level_temp + i
-        print("target distance", target_distance)
-        print(i)
-        while True:
-            time.sleep(1)
-            GP.output(direction, GP.HIGH)
-            i = measure_distance()
-            i = round(i)
-            i = int(i)
-            GP.output(relay_switch_direction, GP.HIGH) #replace values            GP.output(relay_up, GP.HIGH)
-            print("direction up and distance now:", i)
-            if GP.event_detected(limit_switch):# 
-                interrupt_clk = time.time()
-                print("limit!!!")
-                time.sleep(1)
-                print(interrupt_clk - interrupt)
-                
-            
-            if target_distance == i or target_distance < i:
-                print("target")
-                target_distance = 0
-                i = 0
-                level_temp = 0
-                desk_level = {measure_from_floor : i}
-                library_tmp.update(desk_level)
-                break
-            if target_distance == 111 or target_distance > 111: # max table high
-                desk_level = {measure_from_floor : i}
-                library_tmp.update(desk_level)
-                break
-            
-        
-    if direction == 12:#down
-        target_distance = i - level_temp 
-        print("target", target_distance)
-        print(i)
-        while True:
-            time.sleep(1)
-            GP.output(direction, GP.HIGH)
-            i = measure_distance()
-            i = round(i)
-            i = int(i)
-            print("distance now",i)
-            if GP.event_detected(limit_switch):# 
-                interrupt_clk = time.time()
-                print("limit!!!")
-                time.sleep(1)
-                print(interrupt_clk - interrupt)
-            
-            
-            if target_distance == i or target_distance > i :
-                print("target")
-                target_distance = 0
-                i = 0
-                level_temp = 0
-                desk_level = {measure_from_floor : i}
-                library_tmp.update(desk_level)
-                break
-            if target_distance == 65 or target_distance < 65:
-                desk_level = {measure_from_floor : i}
-                library_tmp.update(desk_level)
-                break
-            
-    
-    if direction == 15:
-        GP.output(relay_switch_direction, GP.LOW) #replace values
-        
-    GP.output(direction, GP.LOW)
-    wlan_devices.update_json(library_tmp)# when table has adjusted, we save the desk level to devices_library json value     
-    return
 
 
  
@@ -212,7 +108,7 @@ def going_up(): #motor controlling up direction max high 111
     limit_switch = 23
     root.update()
     level1 = ask_user(level1, direction, limit_switch)
-    label_1.configure(text = "waiting user to choose and distance is: " + str(measure_distance()))
+    label_1.configure(text = "waiting user to choose and distance is: " + str(motorcontrol.measure_table(echo, trigger)))
     label_1.grid(row=17, column=1)
     main_waiting_loop()
     return
@@ -225,7 +121,7 @@ def going_down(): # make a function call to control motor min high 65
     limit_switch = 8
     level1 = ask_user(level1, direction, limit_switch)
     #motor_control(level1, "relay_down", "relay_down_limit")
-    label_1.configure(text = "waiting user to choose and distance is: " + str(measure_distance()))
+    label_1.configure(text = "waiting user to choose and distance is: " + str(motorcontrol.measure_table(echo, trigger)))
     label_1.grid(row=17, column=1)
     main_waiting_loop()
     return
@@ -301,38 +197,7 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     top3.mainloop()
     return devices
  
- 
-def load_setup():
-    # when user save the setting, lets save json value to file. When loading the settings lets take the wlan device status from old saved json and control device with newer json
-    # this how we avoid error, if wlan has changed the ip address. But if the wlan device is not found, we have to make error handling about it
-    return
- 
- 
-def save_setup():
-    return
- 
- 
-def measure_distance():
-    GP.output(trigger, True)
-    time.sleep(0.00001)
-    GP.output(trigger, False)
-    StartTime = time.time()
-    StopTime = time.time()
-    while GP.input(echo) == 0:
-        StartTime = time.time()
-        
-        
-    while GP.input(echo) == 1:
-        StopTime = time.time()
-    
-    time.sleep(0.4)
-    TimeElapsed = StopTime - StartTime
-    # multiply with the sonic speed (34300 cm/s)
-    # and divide by 2, because there and back
-    distance = (TimeElapsed * 34300) / 2
-    return distance
- 
- 
+  
 def exit_and_shutdown():
     GP.cleanup()
     root.destroy()
@@ -348,9 +213,7 @@ def exit_only():
  
 def main_waiting_loop():
     
-    distance = measure_distance()
-    distance = round(distance)
-    distance = int(distance)
+    distance = motorcontrol.measure_table(echo, trigger)
     label_1.configure(text = "waiting user to choose and distance is: " + str(distance))
     label_1.grid(row=17, column=1)
     time.sleep(1)
