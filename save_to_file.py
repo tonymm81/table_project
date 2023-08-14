@@ -44,10 +44,10 @@ def save_settings(echo, trigger):
     measure = motorcontrol.measure_table(echo, trigger)
     listbox = Listbox(top4, width=40, height=10, selectmode=SINGLE)
     listbox.grid(row=15, column=1)
-    listbox.insert(1, 0)
-    listbox.insert(2, 1)
-    listbox.insert(3, 2)
-    listbox.insert(4, 3)
+    listbox.insert(1, "save1")
+    listbox.insert(2, "save2")
+    listbox.insert(3, "save3")
+    listbox.insert(4, "save4")
     label_2 = Label(top4, text= "Give us name for the saved setup and choose a save slot", font=("helvetica", 10), fg="white", bg="black")
     label_2.grid(row=1, column=1)
     entry= Entry(top4, width= 40)
@@ -62,9 +62,9 @@ def get_user_data(listbox, entry, measure):
     global savename
     measure_from_floor = "distance from floor"
     save_json = wlan_devices.get_json()
-    save_json_temp = json.loads(save_json)
+    save_json_temp = json.loads(save_json) # lets test to load() function if it takes a problem away
     for i in listbox.curselection():
-        saveslot = listbox.get(i) # we can try .index(i)
+        saveslot = listbox.index(i) # we can try .index(i)
         
         
     name_file= entry.get()
@@ -72,10 +72,10 @@ def get_user_data(listbox, entry, measure):
     savename[saveslot] = str(name_file)
     desk_level = {measure_from_floor : [measure] }
     save_json_temp.update(desk_level)
-    save_json= json.dumps(save_json_temp, indent=4)
-    with open(f"{name_file}.json", "w") as outfile: #lets save user setup to file what user has giveb the name
-        outfile.write(save_json)
-        #json.dump(save_json, outfile)
+    #save_json= json.dumps(save_json_temp, indent=4)#?? is this the problem
+    with open(f"{name_file}.json", "w", encoding="utf-8") as outfile: #lets save user setup to file what user has giveb the name
+        #outfile.write(save_json)
+        json.dump(save_json, outfile, ensure_ascii=False)# this doenst matter wich one you use. but let test it!!!
         
     file = open('saves.txt','w')
     for item in savename: # lets save the user modified list to file
@@ -87,32 +87,38 @@ def get_user_data(listbox, entry, measure):
 
 def return_wlan_devices(saveslot, echo, trigger, devices): # here we open new and saved json and measure table distance from loaded json value
     new_json = wlan_devices.get_json() # this is new. based on start time
-    new_json_temp = json.loads(new_json)
+    new_json_temp = json.loads(new_json) # loads convert to python dictonary and load only json string.
     size = len(saveslot)
     saveslot_temp = saveslot[:size -1]#lets delete newline
     
     with open(f'{saveslot_temp}.json') as json_file:
         saved_json = json.load(json_file)
-        #saved_json = json.loads(saved_jsontemp)
+        #saved_json = json.loads(saved_jsontemp)#gives an wrong value error
         
     print("loaded json", saved_json)
     json_file.close()
-    #temp_json = saved_json
-    #saved_json = json.loads(temp_json)
-    # here we check if the table is lower or higer in saved settings comparing new json value
-    #if saved_json["distance from floor"] < new_json_temp["distance from floor"]: # lets adjust table up
-        #motorcontrol.motor_control(saved_json["distance from floor"], 15, 23, echo, trigger)
-       # print("motor up", saved_json["distance from floor"], new_json_temp["distance from floor"])
     
-   # if saved_json["distance from floor"] > new_json_temp["distance from floor"]:# lets adjust table down
+    temp_json = saved_json
+    saved_json = json.dumps(temp_json, indent=4)
+    temp_jspn2= new_json
+    new_json = json.dumps(temp_jspn2, indent=4)
+    print("type", type(saved_json), type(new_json)) 
+    # here we check if the table is lower or higer in saved settings comparing new json value
+    if saved_json["distance from floor"] < new_json_temp["distance from floor"]: # lets adjust table up
+        #motorcontrol.motor_control(saved_json["distance from floor"], 15, 23, echo, trigger)
+        print("motor up", saved_json["distance from floor"], new_json_temp["distance from floor"])
+    
+    if saved_json["distance from floor"] > new_json_temp["distance from floor"]:# lets adjust table down
         #motorcontrol.motor_control(saved_json["distance from floor"], 12, 8, echo, trigger)
-      #  print("motor up", saved_json["distance from floor"], new_json_temp["distance from floor"])
+        print("motor up", saved_json["distance from floor"], new_json_temp["distance from floor"])
         
     # here we will check the wlan devices state and turn on or off comparing saved settings
     for i in range (len(saved_json)):
         device_saved = saved_json[i] # lets save first device name
+        time.spleep(1)
         
         for x in range (len(new_json_temp)): # lets compare if found on json
+            time.sleep(1)
             if device_saved[0] == new_json_temp[x]:
                 print("same device")
                 if saved_json[device_saved[0]][1] != new_json_temp[x][1]: # if state is different lets start of shutdown the device

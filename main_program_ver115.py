@@ -41,7 +41,7 @@ root.geometry("880x450")
 root.configure(background="black")
 btn = Button(root, text="Adjust table up",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_up()).grid(row = 1, column=1) # replace this to grid command
 btn1 = Button(root, text="Adjust table down",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_down()).grid(row=3, column=1) 
-btn2 = Button(root, text="Control the lights and wlan plugs",fg="white", bg="black",font=("helvetica", 15), command=lambda: search_all_devices_wlan(devices)).grid(row=5, column =1) 
+btn2 = Button(root, text="Control the lights and wlan plugs",fg="white", bg="black",font=("helvetica", 15), command=lambda: search_all_devices_wlan(devices, echo, trigger)).grid(row=5, column =1) 
 btn3 = Button(root, text="Save this setup",fg="white", bg="black",font=("helvetica", 15), command=lambda: save_to_file.save_settings(echo, trigger)).grid(row=7, column=1) 
 btn3 = Button(root, text="Load setup",fg="white", bg="black",font=("helvetica", 15), command=lambda: save_to_file.load_settings(echo, trigger, devices)).grid(row=9, column =1) 
 btn4 = Button(root, text="Exit and shutdown the weatherstation",fg="white", bg="black",font=("helvetica", 15), command=lambda: exit_and_shutdown()).grid(row=11, column=1)
@@ -154,12 +154,12 @@ def search_all_devices_wlan(devices): # here we check again the devices list
     
     rounds = 0
     button_rounds = 15
-    update_btn = Button(second_frame ,text = "Update wlan devices list", command = lambda: wlan_devices.check_wlan_device_status(devices) , bg = "black", fg = "white")# user can manually update the wlan list
+    update_btn = Button(second_frame ,text = "Update wlan devices list", command = lambda: wlan_devices.check_wlan_device_status(devices, echo, trigger) , bg = "black", fg = "white")# user can manually update the wlan list
     update_btn.grid(row=2, column=2)#pack(pady=2, padx=2)
     exit_btn = Button(second_frame , text = "EXIT", command = lambda: [second_frame.destroy(), main_frame.destroy(), top3.destroy()] , bg = "black", fg = "white")# exit button
     exit_btn.grid(row=7, column=2)#pack(pady=2, padx=2)
     devices_library = wlan_devices.get_json()
-    devices_library_tmp = json.loads(devices_library)
+    devices_library_tmp = json.loads(devices_library)#??
     #print(button_dict)
     
     for i in range (len(devices)):
@@ -188,7 +188,8 @@ def search_all_devices_wlan(devices): # here we check again the devices list
         #dev_name_temp = ""
         #break
         
-    devices_directory = json.dumps(devices_library_tmp, indent=4) # check if needed?
+    #devices_directory = json.dumps(devices_library_tmp, indent=4) # check if needed?
+    
     devices_library_tmp = '{}'
     second_frame.mainloop()
     top3.mainloop()
