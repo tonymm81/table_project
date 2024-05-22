@@ -2,6 +2,8 @@ import RPi.GPIO as GP
 import time
 import wlan_devices
 import json
+from tkinter import *
+from tkinter import ttk
 #pins
 relay_down_limit = 8
 relay_switch_direction = 25
@@ -57,11 +59,20 @@ def measure_table(echo, trigger): # lets measure the desk distance from floor
 
 
 def motor_control(level1, direction, limit_switch, echo, trigger): #motor control function
+    adjusting = Toplevel()
+    adjusting.title("Adjustin the table")
+    progressbaradj = ttk.Progressbar(adjusting, mode="indeterminate")
+    progressbaradj.place(x=30, y=60, width=200)
+    adjusting.geometry("300x200")
+    progressbaradj.start()
+    adjusting.update()
+    progressbaradj.update()
     motor_temp_json = wlan_devices.get_json()
     library_tmp = json.loads(motor_temp_json)
-    measure_from_floor = "distance from floor"
+    measure_from_floor = "distance_from_floor"
     i = measure_table(echo, trigger) #measured distance
     print("in motor function")
+    print("what is this level", level1.get())
     level_temp = level1.get()
     level_temp = round(level_temp)
     level_temp = int(level_temp)
@@ -72,6 +83,8 @@ def motor_control(level1, direction, limit_switch, echo, trigger): #motor contro
         print("target distance", target_distance)
         print(i)
         while True:
+            adjusting.update()
+            progressbaradj.update()
             time.sleep(1)
             GP.output(direction, GP.HIGH)
             i = measure_table(echo, trigger)
@@ -102,9 +115,11 @@ def motor_control(level1, direction, limit_switch, echo, trigger): #motor contro
         
     if direction == 12:#down
         target_distance = i - level_temp 
-        print("target", target_distance)
+        print("target and down", target_distance)
         print(i)
         while True:
+            adjusting.update()
+            progressbaradj.update()
             time.sleep(1)
             GP.output(direction, GP.HIGH)
             i = measure_table(echo, trigger)
@@ -126,7 +141,7 @@ def motor_control(level1, direction, limit_switch, echo, trigger): #motor contro
                 library_tmp.update(desk_level)
                 break
             if target_distance == 65 or target_distance < 65:
-                print("target reach")
+                print("limit reach")
                 desk_level = {measure_from_floor : [i]}
                 library_tmp.update(desk_level)
                 break
@@ -137,4 +152,7 @@ def motor_control(level1, direction, limit_switch, echo, trigger): #motor contro
         
     GP.output(direction, GP.LOW)
     wlan_devices.update_json(library_tmp)# when table has adjusted, we save the desk level to devices_library json value     
+    progressbaradj.stop()
+    adjusting.destroy()
+    progressbaradj.destroy()     
     return

@@ -41,7 +41,7 @@ root.geometry("880x450")
 root.configure(background="black")
 btn = Button(root, text="Adjust table up",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_up()).grid(row = 1, column=1) # replace this to grid command
 btn1 = Button(root, text="Adjust table down",fg="white", bg="black",font=("helvetica", 15), command=lambda: going_down()).grid(row=3, column=1) 
-btn2 = Button(root, text="Control the lights and wlan plugs",fg="white", bg="black",font=("helvetica", 15), command=lambda: search_all_devices_wlan(devices, echo, trigger)).grid(row=5, column =1) 
+btn2 = Button(root, text="Control the lights and wlan plugs",fg="white", bg="black",font=("helvetica", 15), command=lambda: search_all_devices_wlan(devices)).grid(row=5, column =1) 
 btn3 = Button(root, text="Save this setup",fg="white", bg="black",font=("helvetica", 15), command=lambda: save_to_file.save_settings(echo, trigger)).grid(row=7, column=1) 
 btn3 = Button(root, text="Load setup",fg="white", bg="black",font=("helvetica", 15), command=lambda: save_to_file.load_settings(echo, trigger, devices)).grid(row=9, column =1) 
 btn4 = Button(root, text="Exit and shutdown the weatherstation",fg="white", bg="black",font=("helvetica", 15), command=lambda: exit_and_shutdown()).grid(row=11, column=1)
