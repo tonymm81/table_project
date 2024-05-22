@@ -3,6 +3,7 @@ import json
 import wlan_devices
 import motorcontrol
 import time
+from tkinter import ttk
 
 savenumber = 0
 savename = ["save1", "save2", "save3", "save4"] # this we will save to file. This how we know what name of json file we are looking for..
@@ -60,32 +61,32 @@ def save_settings(echo, trigger):
 
 def get_user_data(listbox, entry, measure):
     global savename
-    measure_from_floor = "distance from floor"
+    measure_from_floor = "distance_from_floor"
     save_json = wlan_devices.get_json()
-    save_json_temp = json.loads(save_json) # lets test to load() function if it takes a problem away
+    save_json_temp = json.loads(save_json)  # Muunna JSON-merkkijono Python-sanakirjaksi
     for i in listbox.curselection():
-        saveslot = listbox.index(i) # we can try .index(i)
+        saveslot = listbox.index(i)
         
-        
-    name_file= entry.get()
+    name_file = entry.get()
     print("test", name_file, saveslot)
     savename[saveslot] = str(name_file)
-    desk_level = {measure_from_floor : [measure] }
+    desk_level = {measure_from_floor: [measure]}
     save_json_temp.update(desk_level)
-    #save_json= json.dumps(save_json_temp, indent=4)#?? is this the problem
-    with open(f"{name_file}.json", "w", encoding="utf-8") as outfile: #lets save user setup to file what user has giveb the name
-        #outfile.write(save_json)
-        json.dump(save_json, outfile, ensure_ascii=False)# this doenst matter wich one you use. but let test it!!!
+    wlan_devices.update_json(save_json_temp)
+    
+    with open(f"{name_file}.json", "w", encoding="utf-8") as outfile:
+        json.dump(save_json_temp, outfile, ensure_ascii=False)  # Tallenna JSON-tiedosto
         
-    file = open('saves.txt','w')
-    for item in savename: # lets save the user modified list to file
-	    file.write(item + "\n")
+    with open('saves.txt', 'w') as file:
+        for item in savename:
+            file.write(item + "\n")
      
-     
-    file.close()
     return
 
 def return_wlan_devices(saveslot, echo, trigger, devices): # here we open new and saved json and measure table distance from loaded json value
+    #wlan_devices.update_json(devices)
+    progress = IntVar()
+    level = DoubleVar()
     new_json = wlan_devices.get_json() # this is new. based on start time
     new_json_temp = json.loads(new_json) # loads convert to python dictonary and load only json string.
     size = len(saveslot)
@@ -94,44 +95,68 @@ def return_wlan_devices(saveslot, echo, trigger, devices): # here we open new an
     with open(f'{saveslot_temp}.json') as json_file:
         saved_json = json.load(json_file)
         #saved_json = json.loads(saved_jsontemp)#gives an wrong value error
-        
-    print("loaded json", saved_json)
+
+
     json_file.close()
-    
-    temp_json = saved_json
-    saved_json = json.dumps(temp_json, indent=4)
-    temp_jspn2= new_json
-    new_json = json.dumps(temp_jspn2, indent=4)
-    print("type", type(saved_json), type(new_json)) 
-    # here we check if the table is lower or higer in saved settings comparing new json value
-    if saved_json["distance from floor"] < new_json_temp["distance from floor"]: # lets adjust table up
-        #motorcontrol.motor_control(saved_json["distance from floor"], 15, 23, echo, trigger)
-        print("motor up", saved_json["distance from floor"], new_json_temp["distance from floor"])
-    
-    if saved_json["distance from floor"] > new_json_temp["distance from floor"]:# lets adjust table down
-        #motorcontrol.motor_control(saved_json["distance from floor"], 12, 8, echo, trigger)
-        print("motor up", saved_json["distance from floor"], new_json_temp["distance from floor"])
+    try:
+        rootloading = Toplevel()
+        rootloading.title("Loading settings")
+        progressbar = ttk.Progressbar(rootloading, mode="indeterminate")
+        progressbar.place(x=30, y=60, width=200)
+        rootloading.geometry("300x200")
+        progressbar.start()
+        rootloading.update()
+        progressbar.update()
+        print("what now again saved: ", saved_json["distance_from_floor"][0], "this moment", new_json_temp["distance_from_floor"][0] )
+        if float(saved_json["distance_from_floor"][0]) > float(new_json_temp["distance_from_floor"][0]): # lets adjust table up
+            max_distance = saved_json["distance_from_floor"][0] - new_json_temp["distance_from_floor"][0] 
+            level.set(max_distance)
+            print("motor up", saved_json["distance_from_floor"][0], new_json_temp["distance_from_floor"][0], max_distance)
+            motorcontrol.motor_control(level,  15, 23, echo, trigger)
+            print("motor up", saved_json["distance_from_floor"][0], new_json_temp["distance_from_floor"][0], max_distance)            
+            rootloading.update()
+            progressbar.update()
+
+
+        if float(saved_json["distance_from_floor"][0]) < float(new_json_temp["distance_from_floor"][0]):# lets adjust table down
+            max_distance = new_json_temp["distance_from_floor"][0] - saved_json["distance_from_floor"][0] 
+            level.set(max_distance)
+            motorcontrol.motor_control( level, 12, 8, echo, trigger)
+            print("motor down", saved_json["distance_from_floor"][0], new_json_temp["distance_from_floor"][0], max_distance)
+            rootloading.update()
+            progressbar.update()
+        # here we will check the wlan devices state and turn on or off comparing saved settings
+        for device_saved in saved_json:
+            time.sleep(0.2)
+           
+            rootloading.update()
+            progressbar.update()
+            #print("what data outer loop", device_saved)
+            for x in new_json_temp:
+                time.sleep(0.2)
+                #print("what data in inner loop", x)
+                if device_saved != "distance_from_floor":
+                    if device_saved == x:
+                        #print("Same device:", device_saved)
+                        if (saved_json[device_saved][2] == 32000 or saved_json[device_saved][2] == 42348  or saved_json[device_saved][2] == 30073):
+                            if saved_json[device_saved][1] != new_json_temp[x][1]:
+                                #print("Change plug state:", saved_json[device_saved][1], new_json_temp[x][1])
+                                wlan_devices.control_wlan_devices(device_saved, devices)
+                            #else:
+                                #print("same state", saved_json[device_saved][1],new_json_temp[x][1])
+                        if (saved_json[device_saved][2] == 24686):
+                            #if saved_json[device_saved][1] == 
+                            if saved_json[device_saved][1]['pwr'] != new_json_temp[x][1]['pwr']:
+                                control = wlan_devices.SearchSpecific_device(device_saved, devices)
+                                #print("Change bulb state:", saved_json[device_saved][1]['pwr'], new_json_temp[x][1]['pwr'])
+                                wlan_devices.set_state_bulp(new_json_temp, device_saved, control, "pwr", 0)
+                            #else:
         
-    # here we will check the wlan devices state and turn on or off comparing saved settings
-    for i in range (len(saved_json)):
-        device_saved = saved_json[i] # lets save first device name
-        time.spleep(1)
-        
-        for x in range (len(new_json_temp)): # lets compare if found on json
-            time.sleep(1)
-            if device_saved[0] == new_json_temp[x]:
-                print("same device")
-                if saved_json[device_saved[0]][1] != new_json_temp[x][1]: # if state is different lets start of shutdown the device
-                    #wlan_devices.control_wlan_devices(device_saved[0], devices)
-                    print("change plug state", saved_json[device_saved[0]][1], new_json_temp[x][1])
-                if saved_json[device_saved[0]][1]['pwr'] != new_json_temp[x][1]['pwr']:
-                    #wlan_devices.set_state_bulp(new_json_temp, device_saved[0], "", "pwr", 0)    
-                    print("change bulp state", saved_json[device_saved[0]][1]['pwr'], new_json_temp[x][1]['pwr'])
-                    
-            x = x +1
-            print("inner loop", x, device_saved[0])
-                    
-        i = i+1
-        print("outer loop", i, device_saved[0])
+                                #print("not changes on lights", saved_json[device_saved][1]['pwr'], new_json_temp[x][1]['pwr'])
+    except Exception as e:
+        print("wlan devices control fails on error : ", e)  
+    progressbar.stop()
+    rootloading.destroy()
+    progressbar.destroy()       
     return
 

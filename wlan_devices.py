@@ -5,6 +5,7 @@ import traceback
 import pprint
 from tkinter import *
 import re
+from motorcontrol import measure_table
 
 
 devices_library = '{}' # here we save the devices name, ipaddress, lightbulb color setup, and devices state
@@ -53,11 +54,10 @@ def check_wlan_device_status(devices): # check here also buttons and save device
                 devices_temp1[0].auth()
                 device_state1 = devices_temp1[0].get_state()
                  
-            except traceback:
-                print("device communication failed")
+            except Exception as e:
+                print("device communication failed", e)
                 
-            except IndexError:
-                print("device wont find")
+           
                 
             bulb_library = {bulbname : [bulb_ip,  device_state1, devtype, bulb_button, bulb_pack]}#temp value to json
             temp_json.update(bulb_library)
@@ -84,11 +84,8 @@ def check_wlan_device_status(devices): # check here also buttons and save device
                 devices_temp2 = broadlink.discover(timeout=5, discover_ip_address=sp4_ip)
                 devices_temp2[0].auth()
                 device_state2 = devices_temp2[0].check_power()
-            except traceback:
-                print("device communication failed")
-                
-            except IndexError:
-                print("device wont find")
+            except Exception as e:
+                print("device communication failed", e)
             
             
             sp4_library = {sp4_name : [sp4_ip,  device_state2, devtype, sp4_button, sp4_pack]}#temp value to json
@@ -120,11 +117,8 @@ def check_wlan_device_status(devices): # check here also buttons and save device
                 #print(devices[0])
                 device_state3 = devices_temp3[0].check_power()
 
-            except traceback: #TypeError: catching classes that do not inherit from BaseException is not allowed
-                print("device communication failed")
-                
-            except IndexError:
-                print("device wont find")
+            except Exception as e:
+                print("device communication failed", e)
             
             sp3_library = {sp3_name : [sp3_ip, device_state3, devtype, sp3_button, sp3_pack]} #temp value to json
             temp_json.update(sp3_library)
@@ -134,7 +128,9 @@ def check_wlan_device_status(devices): # check here also buttons and save device
         devtype = 0
         buttons_row = buttons_row + 3
      
-    
+    table_distance = measure_table(14, 7)
+    desk_level = {"distance_from_floor" : [table_distance]}
+    temp_json.update(desk_level)
     #devices_library = json.dumps(temp_json)
     update_json(temp_json)
     #print(devices_library)
@@ -181,12 +177,12 @@ def control_wlan_devices(device_names, devices):# here we change the wlan device
         blue = Button(top2, text="blue", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "blue", s4.get()) )
         bright = Button(top2, text="brightn.", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "bright", s5.get()) )
         colortemp = Button(top2, text="colortmp", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "colortmp", s6.get()) )
-    
-        for i in range(len(devices)):
+        control = SearchSpecific_device(device_name_tmp, devices)
+        """for i in range(len(devices)):
             if device_name_tmp == devices[i].name:
                 control = devices[i]
-                #print(control)
-                break
+                print(control)
+                break"""
         btn = Button(top2, text="exit", fg="white",bg="black", font=("helvetica", 15), command=lambda: top2.destroy() )
         b3 = Button(top2, text ="on / off",
             command = lambda: set_state_bulp(temp_json, device_name_tmp, control, "pwr", 0),
@@ -204,10 +200,11 @@ def control_wlan_devices(device_names, devices):# here we change the wlan device
     else:
        
         print("plug!!")
-        for i in range(len(devices)):
+        control = SearchSpecific_device(device_name_tmp, devices)
+        """for i in range(len(devices)):
             if device_name_tmp == devices[i].name:
                 control = devices[i]
-                break
+                break"""
             
         control.auth()
         switch_state = control.check_power()
@@ -224,6 +221,16 @@ def control_wlan_devices(device_names, devices):# here we change the wlan device
     update_json(temp_json)
     #device_name_tmp=""
     return 
+
+
+def SearchSpecific_device(device_name_tmp, devices):
+    control = ""
+    for i in range(len(devices)):
+        if device_name_tmp == devices[i].name:
+            control = devices[i]
+            break
+            
+    return control
 
 
 def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):
@@ -258,6 +265,7 @@ def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):
         control.set_state(bulb_colormode=value_number)
     
     state = control.get_state()
+    print("lamp case", device_name_tmp)
     temp_json[device_name_tmp][1]['pwr'] = state['pwr']
     #print("whole json" ,temp_json[device_name_tmp])
     #print("testing", device_name_tmp, "json", str(temp_json[device_name_tmp][1]['pwr']))
