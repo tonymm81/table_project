@@ -216,3 +216,6 @@ this version is tested, so next plan is to make for loop where we compare the ta
 i make a for loop what compares new and saved json value. This how we can set the device the same state
 
 bug. I think that json file is not saved the correct way. Some how it gives type str when i am checking the json value type.
+
+version 116
+testing the mqtt to phoneapp project
