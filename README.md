@@ -19,45 +19,45 @@ wlan.devices.py
 This file keeps up the devices_library updating or loading. It also makes this device_library.json, when system is starting. Here we can adjust wlan devices examble bulps and plugs.
 when pressing button, we will start this program.
 
-ver 100
+### ver 100
 just setting upsystems.
 
-ver101
-limit switches areworking well. software stops when the limit switch state turns 1. also motor powering is working well. uln chip works well.
-i dont haveultrasonic sensor yetbutthey are one rule also. user can set themeasurement to adjust the table. 
-but we continue the planning and developing
+### ver101
+- limit switches areworking well. software stops when the limit switch state turns 1. also motor powering is working well. uln chip works well.
+- i dont haveultrasonic sensor yetbutthey are one rule also. user can set themeasurement to adjust the table.  
+- but we continue the planning and developing
 
-bug:
+#### bug:
 -up and down limit interrupt pin are not working as i hope. i have to figure out what is the problem here. I was ordering the better ultrasonic sensors from china
 i dont know why you cannot buy this versions from finland. That one what i buy from local shop was bad version. It demands own controlling board. 
 
-plan:
+#### plan:
 perhaps inerruptpin has to check out twice is it true before it can give an order to stop the motor controlling. a also add graphical button where user
 can stop the motor. I also want to build up the radio button where user can choose table distanse or how much it gonna rise or going down.
 
-ver102
+### ver102
 added the slider where user can choose what is table distance from floor. limits are now working but i have to plan out how to control motor based on measurement.
 perhaps i build up totally different motorcontrol function. This how we can do less lines of code.
 
 
-ver 103:
+### ver 103:
 deleted motor_up and motor_down function. also changed going up and going down functions. testing and figureout the bugs. now changes are made and lots of code deleted.
 bug: motorcontrol function doesnt work so perhaps probles is there that i have to control code flow where program goes after user choose the measurement.
 
-ver 104:
+### ver 104:
 table control works no and limit switches working also. i update the function ask user to control motor, and this how everything works now.
 plan: i dont know what should i do next. saveto file with obect orieted programming style or should i do next lamp controlling?
 
-ver 105:
+### ver 105:
 update graphics to wlan devices and also make a search function to wlan devices so its easy to update if wanted.
 
-ver 106:
+### ver 106:
 table adjusment is now working with ultrasonic sensor. limit Interrupt has not working yet. I have to figure out what is the best way to do this. 
 
-ver 107:
+### ver 107:
 added scrollbar on search wlan devices. there is also buttons what is created by number of wlan devices.
 
-bug:
+#### bug:
 scrollbar wont work on down side. upside yes
 -tested mainloop function
 -tested changing packing options.
@@ -70,50 +70,50 @@ scrollbar wont work on down side. upside yes
 -tested to use grid command on buttons. error comes. no grid command on slavve label
 -tested also place function. not helping, buttons gone somewhere
 
-fixed: scrollbar works only on root
-plan: if i dont find problem i have to change different code. Or instead pack() use grid() command to all buttons and labels.
+#### fixed: scrollbar works only on root
+#### plan: if i dont find problem i have to change different code. Or instead pack() use grid() command to all buttons and labels.
 
 
-plan: how to check wlan devices status. first you havew to figureout wich device. then use value.get_state() (pulbs) and check_power() whith wlan plugs.
+#### plan: how to check wlan devices status. first you havew to figureout wich device. then use value.get_state() (pulbs) and check_power() whith wlan plugs.
 biggest problem is to check witch devices status you want to check. 
 
-plan: how to check device, use devtype and index number. this how you can check what device to control. this how you can find correct ip to control devices
+#### plan: how to check device, use devtype and index number. this how you can check what device to control. this how you can find correct ip to control devices
 
-bug: some how older device ip address still stays same even the device is different(fixed)
-bug: when finding the ip address from string this re findall was not good choice(fixed)
-bug: now the devices name and ip address is saving to json value but somehow the state of device wont work.(fixed)
-fixed earlier bug, now device state is saved on json string. 
+- bug: some how older device ip address still stays same even the device is different(fixed)
+- bug: when finding the ip address from string this re findall was not good choice(fixed)
+- bug: now the devices name and ip address is saving to json value but somehow the state of device wont work.(fixed)
+- fixed earlier bug, now device state is saved on json string. 
 
-ver108:
-plan:
+### ver108:
+#### plan:
 - if i make program this how: in beging of program it search all wlandevices and keeps a json value where you can command devices. and i have to make a update button if some how some device wont show on the button list.
 - a have to also make a text field what shows wlan devices state.
 - i have to also make new window to bulps. there will be somesliders where you can change bulp state and colormode.
 - if sp4 broadlinkhas some enegry measuring option perhapsi should show it also. (optional)
 
-bug: distance measurement wont work on control_motor function. tested earlier but now stopped working.(sometimes) tested twice but not done this
+- bug: distance measurement wont work on control_motor function. tested earlier but now stopped working.(sometimes) tested twice but not done this
 
-bug: else klause print out again some labels. to fix this use if elif else clause, not two if clause (fixed, not tested)
+- bug: else klause print out again some labels. to fix this use if elif else clause, not two if clause (fixed, not tested)
 
-plan:
+- plan:
 i make a control_wlan_devices(devices, devices_name, devices_library). when user push a button it opens a top window where you can change the wlan device status. also i have to made own window to bulps where you can adjust the colors etc.
 problem. when i make a devices button, i have to figure out how to save device name per button that i can use devices name in control wlan devices function. 
 
 - if i make a 20 buttons already. then in for loop we sahe the infoemation to buttons.. and in the sametime we store the device name to button value and use it to function call
 - i update the button define to json value at the same time when you save the devices information. If you try to open this part json it complains key error p. 
 
-ver109:
+### ver109:
 - wlan devices button works fine. buttons are controlling to correct function. i insert buttons to json library and make them to graphics with for loop. this how i can save devices name to value what we send to function where we change devices state
 
-plan: next we do controlling to devices. i have to make window where we can change the devices state. also to bulps we have to make a slider on colors and brightness.
+#### plan: next we do controlling to devices. i have to make window where we can change the devices state. also to bulps we have to make a slider on colors and brightness.
 also we have to do error handling whenwe check the wlan device status.
 bug: fix button letter sizes
 bug: table measurement wont update on label. (fixed)
 bug: sometimes program crash if wlan devices timeout comes. (plan try exept function)(fixed)
 
-ver110:
-plan. 
-- i have to figure out that how to remove all .pack() command becausae this wont allow me to place buttons and sliders how i want them. So next big move is get rid of place command. you cannot use anything else commands with pack() command. 
+### ver110:
+#### plan. 
+- i  have to figure out that how to remove all .pack() command becausae this wont allow me to place buttons and sliders how i want them. So next big move is get rid of place command. you cannot use anything else commands with pack() command. 
 - i was planning to use .grid() command where you can define button, slider, labels location on graphics.
 - also i have to fixed the measuring distance from main label. i wont work.
 - on wlan plugs i have to make only two buttons and label what shows devices state
@@ -158,7 +158,7 @@ add back json library
 added max and min distance where you can adjust the table on ask user function. make also software limit to max and min positions.
 
 
-ver111:
+### ver111:
 
  Plan: 
 - I have to take wlan devices to different file, It's easier to control main program if there isn't so much code. 
@@ -182,7 +182,7 @@ now much better than earlier. Now its same high than canvas has.
 
 report : os based ip address search program works fine on rasbian. no mo wrong ip error crashes.
 
-version 112:
+### version 112:
 
 Started to edit the programs that wlan devices are their own file. Also devices_libary updating happens there also.
 
@@ -191,7 +191,7 @@ New files on this version: wlan_devices.py
 Report.I fix the distancemeasuring problem. Now wlan devices control and searching are different file.
 next I start to planning user settings save and load preferenses. I have to think, should i make this to different file, or main proram?
 
-version 113:
+### version 113:
 made up the save and load view. There is some buttons and labels.
 
 plan:
@@ -208,7 +208,7 @@ Started to make save_to_file.py load settings function.
 plan: I think that we compare old and new json value, and drive the table to right level. Also set wlan devices to same position what they was, when settings was saved.
 but now i have to move the measuring and motorcontrol function from main program. This is not typescript and react. Perhaps i should make them own file.
 
-version 115
+### version 115
 There is new file motorcontrol.py. There we measure table distance and controlling the table motor
 
 this version is tested, so next plan is to make for loop where we compare the table distance and wlan devices state between old and new json value.
@@ -217,5 +217,7 @@ i make a for loop what compares new and saved json value. This how we can set th
 
 bug. I think that json file is not saved the correct way. Some how it gives type str when i am checking the json value type.
 
-version 116
-testing the mqtt to phoneapp project
+### version 116
+- testing the mqtt to phoneapp project. I add python 3 flask server to this project so we can control wlan devices trough reat native phoneapp with Mqtt messages.
+
+- There is some problems with connecting python 3 flaskserver port.
