@@ -1,5 +1,5 @@
 import eventlet
 from eventlet import wsgi
-from flaskserver import app  # Tuo Flask-sovellus pääkoodista
+from flaskserverWS import app  # Tuo Flask-sovellus pääkoodista
 
 wsgi.server(eventlet.listen(('0.0.0.0', 5000)), app)

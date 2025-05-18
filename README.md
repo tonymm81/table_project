@@ -242,3 +242,9 @@ Now the liad settings is working and it is controlling the wlan devices.
 Table level is not still working on load user settings feature. Perhaps we are calculating wrong the measurements.
 
 Bug fixed, the table will adjust the saved level and i made loading window also to table adjusting view and load settings view.
+
+listener 1884
+protocol websockets
+
+## version 117
+- tested to create pythonServer.py flask server, what listens to https request and it worked fine on my computers terminal, or phone terminal but not from react native expo.
