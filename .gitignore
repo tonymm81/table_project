@@ -1,0 +1,8 @@
+.crt
+.pem
+/broadlink/*
+/kasa/*
+/python-broadlink/*
+/__pycache__/
+*.pyc
+*.json
