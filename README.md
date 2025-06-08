@@ -248,3 +248,11 @@ protocol websockets
 
 ## version 117
 - tested to create pythonServer.py flask server, what listens to https request and it worked fine on my computers terminal, or phone terminal but not from react native expo.
+
+## version 118
+- Pythonserver.py works now. The phone app does the get request to pythonserver.py and it returns json object, where is every wlan devices state. Then wen user wants to change the state from phone, updated json value gets back from POST request. 
+
+### plan
+- Build up the logic, how to control chanced devices. This might need some modifications to wlan_devices.py codes.
+
+- Figure out, how we can adjust the buld brightness and table state.

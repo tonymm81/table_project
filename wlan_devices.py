@@ -8,18 +8,35 @@ import re
 from motorcontrol import measure_table
 
 
-devices_library = '{}' # here we save the devices name, ipaddress, lightbulb color setup, and devices state
+
+   
+
+devices_library = {}
 devices = []
 json.dumps(devices_library, indent=4)
 
+def save_json(devices_library):
+    with open("devices.json", "w") as f:
+        json.dump(devices_library, f, indent=4)
+
+def load_json():
+    try:
+        with open("devices.json", "r") as f:
+            return json.load(f)  # Lataa JSON-tiedostosta
+    except FileNotFoundError:
+        return {}  # Jos tiedostoa ei ole, palautetaan tyhjä
+
+
 def get_json():
     global devices_library
-    return devices_library
+    devices_library = load_json()
+    return json.dumps(devices_library, indent=4) 
 
 
 def update_json(device_library_temp):
     global devices_library
-    devices_library = json.dumps(device_library_temp, indent=4)
+    devices_library = device_library_temp#json.dumps(device_library_temp, indent=4)
+    save_json(device_library_temp)
     #pprint.pprint(devices_library) # easier way to read json value
     return
 
