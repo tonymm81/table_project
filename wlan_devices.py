@@ -195,11 +195,7 @@ def control_wlan_devices(device_names, devices):# here we change the wlan device
         bright = Button(top2, text="brightn.", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "bright", s5.get()) )
         colortemp = Button(top2, text="colortmp", fg="white",bg="black", font=("helvetica", 6), command=lambda: set_state_bulp(temp_json, device_name_tmp, control, "colortmp", s6.get()) )
         control = SearchSpecific_device(device_name_tmp, devices)
-        """for i in range(len(devices)):
-            if device_name_tmp == devices[i].name:
-                control = devices[i]
-                print(control)
-                break"""
+       
         btn = Button(top2, text="exit", fg="white",bg="black", font=("helvetica", 15), command=lambda: top2.destroy() )
         b3 = Button(top2, text ="on / off",
             command = lambda: set_state_bulp(temp_json, device_name_tmp, control, "pwr", 0),
@@ -241,13 +237,41 @@ def control_wlan_devices(device_names, devices):# here we change the wlan device
 
 
 def SearchSpecific_device(device_name_tmp, devices):
-    control = ""
-    for i in range(len(devices)):
-        if device_name_tmp == devices[i].name:
-            control = devices[i]
-            break
+    for dev in devices:
+        print("devices name", dev.name)
+        print("from function call", device_name_tmp)
+        if dev.name == device_name_tmp:
+            return dev
+    return None  
+
+def controlFromPhone(WhatDevice, temp_json, device_name_tmp):
+    if WhatDevice.devtype == 24686:
+        WhatDevice.auth()
+        state = WhatDevice.get_state()
+        if state['pwr'] == 0:
+            WhatDevice.set_state(pwr=1)
+            state_ = 1
+        
+        else:
+            WhatDevice.set_state(pwr=0)
+            state_ = 0
+        temp_json[device_name_tmp][1]['pwr'] = state['pwr']
+    else:
+        WhatDevice.auth()
+        switch_state = WhatDevice.check_power()
+        
+        if switch_state == True:
+            WhatDevice.set_power(False)
             
-    return control
+        elif switch_state == False:
+            WhatDevice.set_power(True)
+            switch_state = WhatDevice.check_power()
+            temp_json[device_name_tmp][1] = switch_state
+            
+    
+    #devices_library = json.dumps(temp_json, indent=4)
+    update_json(temp_json)
+    return
 
 
 def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):
@@ -290,3 +314,5 @@ def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):
     update_json(temp_json)
     return 
     
+
+   

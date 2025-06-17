@@ -256,3 +256,6 @@ protocol websockets
 - Build up the logic, how to control chanced devices. This might need some modifications to wlan_devices.py codes.
 
 - Figure out, how we can adjust the buld brightness and table state.
+
+## version 119
+- Now I can change the device state from react native. There is still some issues with pulps and some errors still coming but it still good procress. So lets continue figuring out this in next version
