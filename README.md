@@ -259,3 +259,6 @@ protocol websockets
 
 ## version 119
 - Now I can change the device state from react native. There is still some issues with pulps and some errors still coming but it still good procress. So lets continue figuring out this in next version
+
+## version 120
+- I notice, that measure table function is causing errors because main:program_ver115 is the place where I set the gpio. This cause errors when I try to measure the table level from pythonserver.py. But get request is working fine and post request in pythonserver works almoust fine with several errors so lets continue the developing :)

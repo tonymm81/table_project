@@ -16,6 +16,8 @@ devices = []
 json.dumps(devices_library, indent=4)
 
 def save_json(devices_library):
+    height = measure_table(14, 7)   # toteuta tämä funktio
+    devices_library['distance_from_floor'] = [height]
     with open("devices.json", "w") as f:
         json.dump(devices_library, f, indent=4)
 
