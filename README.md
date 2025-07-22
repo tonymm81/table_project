@@ -262,3 +262,13 @@ protocol websockets
 
 ## version 120
 - I notice, that measure table function is causing errors because main:program_ver115 is the place where I set the gpio. This cause errors when I try to measure the table level from pythonserver.py. But get request is working fine and post request in pythonserver works almoust fine with several errors so lets continue the developing :)
+
+## version 121
+- Now we are cleaning the gpio handilng to one place and this how we can cann measure_table function without parameters, because from python server it causes error, when the gpio is defined in different part of program.
+
+- Remember to updae the pythonserver.py to rasbian
+
+- Now react native controls the devices correctly. Remember to commented out the logger codes.
+
+### plan
+- Perhaps i should add the timer and another needed stuff to json, if I want to adjust the lamp and sockets timer settings.

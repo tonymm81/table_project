@@ -6,18 +6,29 @@ import pprint
 from tkinter import *
 import re
 from motorcontrol import measure_table
+import logging
+from pprint import pformat
 
-
-
-   
+logger2 = logging.getLogger("wlan_devices")
+file_handler = logging.FileHandler("/home/table/Desktop/table2/table_project/Wlandevices.log")
+formatter = logging.Formatter("%(asctime)s - %(message)s")
+file_handler.setFormatter(formatter)
+logger2.setLevel(logging.INFO)
+logger2.addHandler(file_handler)
 
 devices_library = {}
 devices = []
 json.dumps(devices_library, indent=4)
 
 def save_json(devices_library):
-    height = measure_table(14, 7)   # toteuta tämä funktio
-    devices_library['distance_from_floor'] = [height]
+    formatted = json.dumps(devices_library, indent=4)
+    logger2.info(f"Save json function \n%s:" ,formatted)
+    #height = measure_table()   # toteuta tämä funktio
+    #devices_library['distance_from_floor'] = [height]
+    table_distance = measure_table()
+    desk_level = {"distance_from_floor" : [table_distance]}
+    devices_library.update(desk_level)
+
     with open("devices.json", "w") as f:
         json.dump(devices_library, f, indent=4)
 
@@ -37,6 +48,8 @@ def get_json():
 
 def update_json(device_library_temp):
     global devices_library
+    formatted2 = json.dumps(devices_library, indent=4)
+    logger2.info(f"Update json function: \n%s" ,formatted2)
     devices_library = device_library_temp#json.dumps(device_library_temp, indent=4)
     save_json(device_library_temp)
     #pprint.pprint(devices_library) # easier way to read json value
@@ -147,7 +160,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
         devtype = 0
         buttons_row = buttons_row + 3
      
-    table_distance = measure_table(14, 7)
+    table_distance = measure_table()
     desk_level = {"distance_from_floor" : [table_distance]}
     temp_json.update(desk_level)
     #devices_library = json.dumps(temp_json)
@@ -158,6 +171,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
 
 
 def control_wlan_devices(device_names, devices):# here we change the wlan devices state   
+    logger2.info("and How it goes orginally:device_names %s, devices \n%s", device_names, devices)
     devices_library_temp_control = get_json() 
     device_name_tmp = device_names
     temp_json = json.loads(devices_library_temp_control)
@@ -213,7 +227,7 @@ def control_wlan_devices(device_names, devices):# here we change the wlan device
         #root.update()
         top2.mainloop()
     else:
-       
+        
         print("plug!!")
         control = SearchSpecific_device(device_name_tmp, devices)
         """for i in range(len(devices)):
@@ -239,6 +253,7 @@ def control_wlan_devices(device_names, devices):# here we change the wlan device
 
 
 def SearchSpecific_device(device_name_tmp, devices):
+    logger2.info("SearchSpecific_device function: device_name_tmp %s, devices\n%s", device_name_tmp, devices)
     for dev in devices:
         print("devices name", dev.name)
         print("from function call", device_name_tmp)
@@ -247,13 +262,14 @@ def SearchSpecific_device(device_name_tmp, devices):
     return None  
 
 def controlFromPhone(WhatDevice, temp_json, device_name_tmp):
+    logger2.info("controlFromPhone function: WhatDevice %s tempjson : %s, davicenametemp \n%s", WhatDevice, pformat(temp_json), device_name_tmp)
     if WhatDevice.devtype == 24686:
         WhatDevice.auth()
         state = WhatDevice.get_state()
         if state['pwr'] == 0:
             WhatDevice.set_state(pwr=1)
             state_ = 1
-        
+            logger2.info("it was a fucking lamp")
         else:
             WhatDevice.set_state(pwr=0)
             state_ = 0
@@ -264,6 +280,7 @@ def controlFromPhone(WhatDevice, temp_json, device_name_tmp):
         
         if switch_state == True:
             WhatDevice.set_power(False)
+            logger2.info("it was a fucking socket")
             
         elif switch_state == False:
             WhatDevice.set_power(True)

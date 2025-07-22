@@ -11,8 +11,16 @@ relay_up_limit = 23
 relay_up = 15
 relay_down = 12
 
+trigger = 7
+echo = 14
+#gpio setups
+
+
+
 GP.setwarnings(False)
 GP.setmode(GP.BCM)
+GP.setup(trigger, GP.OUT)
+GP.setup(echo, GP.IN)
 
 GP.setup(relay_down_limit, GP.IN)
 GP.setup(relay_switch_direction, GP.OUT)
@@ -35,7 +43,7 @@ def update_setpoint(level):#needed to update the level value
     return
 
 
-def measure_table(echo, trigger): # lets measure the desk distance from floor
+def measure_table(): # lets measure the desk distance from floor
     GP.output(trigger, True)
     time.sleep(0.00001)
     GP.output(trigger, False)
@@ -58,7 +66,7 @@ def measure_table(echo, trigger): # lets measure the desk distance from floor
     return distance
 
 
-def motor_control(level1, direction, limit_switch, echo, trigger): #motor control function
+def motor_control(level1, direction, limit_switch): #motor control function
     adjusting = Toplevel()
     adjusting.title("Adjustin the table")
     progressbaradj = ttk.Progressbar(adjusting, mode="indeterminate")
@@ -70,7 +78,7 @@ def motor_control(level1, direction, limit_switch, echo, trigger): #motor contro
     motor_temp_json = wlan_devices.get_json()
     library_tmp = json.loads(motor_temp_json)
     measure_from_floor = "distance_from_floor"
-    i = measure_table(echo, trigger) #measured distance
+    i = measure_table() #measured distance
     print("in motor function")
     print("what is this level", level1.get())
     level_temp = level1.get()
@@ -87,7 +95,7 @@ def motor_control(level1, direction, limit_switch, echo, trigger): #motor contro
             progressbaradj.update()
             time.sleep(1)
             GP.output(direction, GP.HIGH)
-            i = measure_table(echo, trigger)
+            i = measure_table()
             i = round(i)
             i = int(i)
             GP.output(relay_switch_direction, GP.HIGH) #replace values            GP.output(relay_up, GP.HIGH)
@@ -122,7 +130,7 @@ def motor_control(level1, direction, limit_switch, echo, trigger): #motor contro
             progressbaradj.update()
             time.sleep(1)
             GP.output(direction, GP.HIGH)
-            i = measure_table(echo, trigger)
+            i = measure_table()
         
             print("distance now",i)
             if GP.event_detected(limit_switch):# 

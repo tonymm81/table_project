@@ -17,7 +17,7 @@ def starting():
     return top4
 
 
-def load_settings(echo, trigger, devices):
+def load_settings(devices):
     global savename
     
     with open('saves.txt', 'r') as file:
@@ -40,9 +40,9 @@ def load_settings(echo, trigger, devices):
     return
 
 
-def save_settings(echo, trigger):
+def save_settings():
     top4 = starting()
-    measure = motorcontrol.measure_table(echo, trigger)
+    measure = motorcontrol.measure_table()
     listbox = Listbox(top4, width=40, height=10, selectmode=SINGLE)
     listbox.grid(row=15, column=1)
     listbox.insert(1, "save1")
@@ -83,7 +83,7 @@ def get_user_data(listbox, entry, measure):
      
     return
 
-def return_wlan_devices(saveslot, echo, trigger, devices): # here we open new and saved json and measure table distance from loaded json value
+def return_wlan_devices(saveslot, devices): # here we open new and saved json and measure table distance from loaded json value
     #wlan_devices.update_json(devices)
     progress = IntVar()
     level = DoubleVar()

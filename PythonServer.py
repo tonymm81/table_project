@@ -8,14 +8,20 @@ import os
 import broadlink
 import re
 from motorcontrol import measure_table as MC
-
+from pprint import pformat
 # Luo Flask-sovellus
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Define the log file
-logging.basicConfig(filename="/home/table/Desktop/table2/table_project/flaskserver_log.log",
-                    level=logging.INFO, format="%(asctime)s - %(message)s")
+logger = logging.getLogger("pythonserver")
+file_handler = logging.FileHandler("/home/table/Desktop/table2/table_project/flaskserver_log.log")
+formatter = logging.Formatter("%(asctime)s - %(message)s")
+file_handler.setFormatter(formatter)
+logger.setLevel(logging.INFO)
+logger.addHandler(file_handler)
+
+
 BeforeCompare = {}
 ipv4 = os.popen('ip addr show wlan0 | grep "\<inet\>" | awk \'{ print $2 }\' | awk -F "/" \'{ print $1 }\'').read().strip() # this how we take broker ip address in beging of program-
 devicesInServer = broadlink.discover(timeout=5, local_ip_address=ipv4)# lets check devices list '192.168.68.118'
@@ -27,7 +33,7 @@ def get_data():
     ##height = MC(14, 7)   # toteuta tämä funktio
     ##json_data['distance_from_floor'] = [height]
     #json_data = json.loads(json_data_raw)
-    #logging.info(f"GET-pyyntö vastaanotettu: {json_data}")
+    logger.info("GET-pyyntö vastaanotettu: \n%s", pformat(json_data))
     #print(f"GET vastaanotettu: {json_data}")
     return jsonify(json_data)
 
@@ -35,11 +41,14 @@ def get_data():
 @app.route('/receive', methods=['POST'])
 def receive_data():
     request_data = request.get_json(force=True)
+    logger.info("Post-pyyntö vastaanotettu: \n%s", pformat(request_data))
     if not request_data:
+        logger.error("error in post, no data from client")
         return jsonify({"error": "Virhe JSON-datan käsittelyssä!"}), 400
 
     # Ladataan palvelimen versio
     server_data = wlandevices.load_json()
+
     updates = []
 
     for key, new_arr in request_data.items():
@@ -51,7 +60,12 @@ def receive_data():
         old_arr = server_data.get(key)
         if not (isinstance(old_arr, list) and len(old_arr) >= 2):
             continue
-
+        if key not in server_data:
+            logger.error(f"Key {key} puuttuu server_data:sta")
+            continue
+        if not isinstance(server_data[key], list):
+            logger.error(f"server_data[{key}] ei ole lista: {server_data[key]}")
+            continue
         old_conf = old_arr[1]
         new_conf = new_arr[1]
 
@@ -60,7 +74,8 @@ def receive_data():
             dev = wlandevices.SearchSpecific_device(key, devicesInServer)
             if dev:
                 # lähetetään komento
-                wlandevices.controlFromPhone(dev, new_conf, key)
+                logger.info("The fucking parameters to controlfromphone funtion: dev %s, new_conf : %s, key: \n%s ",dev, server_data, key )
+                wlandevices.controlFromPhone(dev, server_data, key)
                 updates.append(key)
                 # päivitetään palvelimen JSON‐tila
                 server_data[key][1] = new_conf
@@ -69,12 +84,14 @@ def receive_data():
     try:
         wlandevices.save_json(server_data)
     except AttributeError:
+        return jsonify({"error": str(e)}), 500
         pass
+    return jsonify({"status": "OK"}), 200
+    #return jsonify({"status": "Success", "updated": updates})
 
-    return jsonify({"status": "Success", "updated": updates})
-# 🔧 **Palvelimen käynnistys**
+
 if __name__ == '__main__':
     context = ('/etc/ssl/certificate.crt', '/etc/ssl/private.key')  # HTTPS-sertifikaatti
-    logging.info("Flask-palvelin käynnistyy...")
+    logger.info("Flask-palvelin käynnistyy...")
     print("Flask-palvelin käynnistyy...")
     app.run(host='0.0.0.0', port=5000)

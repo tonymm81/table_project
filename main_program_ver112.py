@@ -60,7 +60,7 @@ def ask_user(level, direction, limit_switch): # here user can select how far tab
     top1 = Toplevel()
     max_distance = 0
     
-    distance_now = motorcontrol.measure_table(echo, trigger) # 15 up and 12 down
+    distance_now = motorcontrol.measure_table() # 15 up and 12 down
     if direction == 12: #down
         max_distance = distance_now - 65 
         
