@@ -48,10 +48,13 @@ def get_json():
 
 def update_json(device_library_temp):
     global devices_library
+    if not device_library_temp:
+        logger2.warning("update_json sai tyhjän device_library_temp!")
+    #devices_library = {} 
     formatted2 = json.dumps(devices_library, indent=4)
     logger2.info(f"Update json function: \n%s" ,formatted2)
     devices_library = device_library_temp#json.dumps(device_library_temp, indent=4)
-    save_json(device_library_temp)
+    save_json(devices_library)
     #pprint.pprint(devices_library) # easier way to read json value
     return
 

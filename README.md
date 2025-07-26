@@ -272,3 +272,6 @@ protocol websockets
 
 ### plan
 - Perhaps i should add the timer and another needed stuff to json, if I want to adjust the lamp and sockets timer settings.
+
+## version 122
+- There was some data messing up in pythonserver.py but it is figured out now and json data is now valid anfd python server takes http request pretty nice.
