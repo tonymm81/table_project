@@ -20,9 +20,10 @@ devices_library = {}
 devices = []
 json.dumps(devices_library, indent=4)
 
+
 def save_json(devices_library):
-    formatted = json.dumps(devices_library, indent=4)
-    logger2.info(f"Save json function \n%s:" ,formatted)
+    #formatted = json.dumps(devices_library, indent=4) #debugging
+    #logger2.info(f"Save json function \n%s:" ,formatted)
     #height = measure_table()   # toteuta tämä funktio
     #devices_library['distance_from_floor'] = [height]
     table_distance = measure_table()
@@ -51,8 +52,8 @@ def update_json(device_library_temp):
     if not device_library_temp:
         logger2.warning("update_json sai tyhjän device_library_temp!")
     #devices_library = {} 
-    formatted2 = json.dumps(devices_library, indent=4)
-    logger2.info(f"Update json function: \n%s" ,formatted2)
+    #formatted2 = json.dumps(devices_library, indent=4)#debugging
+    #logger2.info(f"Update json function: \n%s" ,formatted2)
     devices_library = device_library_temp#json.dumps(device_library_temp, indent=4)
     save_json(devices_library)
     #pprint.pprint(devices_library) # easier way to read json value
@@ -256,7 +257,7 @@ def control_wlan_devices(device_names, devices):# here we change the wlan device
 
 
 def SearchSpecific_device(device_name_tmp, devices):
-    logger2.info("SearchSpecific_device function: device_name_tmp %s, devices\n%s", device_name_tmp, devices)
+    #logger2.info("SearchSpecific_device function: device_name_tmp %s, devices\n%s", device_name_tmp, devices)
     for dev in devices:
         print("devices name", dev.name)
         print("from function call", device_name_tmp)
@@ -265,14 +266,14 @@ def SearchSpecific_device(device_name_tmp, devices):
     return None  
 
 def controlFromPhone(WhatDevice, temp_json, device_name_tmp):
-    logger2.info("controlFromPhone function: WhatDevice %s tempjson : %s, davicenametemp \n%s", WhatDevice, pformat(temp_json), device_name_tmp)
+    #logger2.info("controlFromPhone function: WhatDevice %s tempjson : %s, davicenametemp \n%s", WhatDevice, pformat(temp_json), device_name_tmp)
     if WhatDevice.devtype == 24686:
         WhatDevice.auth()
         state = WhatDevice.get_state()
         if state['pwr'] == 0:
             WhatDevice.set_state(pwr=1)
             state_ = 1
-            logger2.info("it was a fucking lamp")
+            #logger2.info("it was a fucking lamp")
         else:
             WhatDevice.set_state(pwr=0)
             state_ = 0
@@ -283,7 +284,7 @@ def controlFromPhone(WhatDevice, temp_json, device_name_tmp):
         
         if switch_state == True:
             WhatDevice.set_power(False)
-            logger2.info("it was a fucking socket")
+            #logger2.info("it was a fucking socket")
             
         elif switch_state == False:
             WhatDevice.set_power(True)
@@ -292,8 +293,25 @@ def controlFromPhone(WhatDevice, temp_json, device_name_tmp):
             
     
     #devices_library = json.dumps(temp_json, indent=4)
-    update_json(temp_json)
+    #update_json(temp_json)
     return
+
+def SetPulpStateFromPhone(
+    WhatDevice, brightness=None, colormode=None, mode=None, temp=None
+):
+    WhatDevice.auth()
+
+    if mode == 'brightness' and brightness is not None:
+        WhatDevice.set_state(brightness=brightness)
+
+    elif mode == 'colormode' and colormode is not None:
+        WhatDevice.set_state(bulb_colormode=colormode)
+
+    elif mode == 'colortemp' and temp is not None:
+        WhatDevice.set_state(colortemp=temp)
+
+    return
+
 
 
 def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):

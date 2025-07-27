@@ -275,3 +275,6 @@ protocol websockets
 
 ## version 122
 - There was some data messing up in pythonserver.py but it is figured out now and json data is now valid anfd python server takes http request pretty nice.
+
+## version 123
+- Modifying the pythonserver.py and wlan_devices.py. There is now builded up the lamp adjusment logic wich is not ready yet. Still missing the eletrick table adjusment logic.
