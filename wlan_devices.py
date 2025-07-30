@@ -8,6 +8,8 @@ import re
 from motorcontrol import measure_table
 import logging
 from pprint import pformat
+import os
+
 
 logger2 = logging.getLogger("wlan_devices")
 file_handler = logging.FileHandler("/home/table/Desktop/table2/table_project/Wlandevices.log")
@@ -21,24 +23,39 @@ devices = []
 json.dumps(devices_library, indent=4)
 
 
-def save_json(devices_library):
-    #formatted = json.dumps(devices_library, indent=4) #debugging
-    #logger2.info(f"Save json function \n%s:" ,formatted)
-    #height = measure_table()   # toteuta tämä funktio
-    #devices_library['distance_from_floor'] = [height]
-    table_distance = measure_table()
-    desk_level = {"distance_from_floor" : [table_distance]}
-    devices_library.update(desk_level)
+def get_local_path(filename):
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_dir, filename)
 
-    with open("devices.json", "w") as f:
-        json.dump(devices_library, f, indent=4)
+
+
+def save_json(devices_library):
+    try:
+        table_distance = measure_table()
+        devices_library.update({"distance_from_floor": [table_distance]})
+        filepath = get_local_path("devices.json")
+
+        with open(filepath, "w") as f:
+            json.dump(devices_library, f, indent=4)
+        logger2.info(" devices.json saved")
+    except Exception as e:
+        logger2.error(" save_json failed: %s", e)
+
 
 def load_json():
+    filepath = get_local_path("devices.json")
     try:
-        with open("devices.json", "r") as f:
-            return json.load(f)  # Lataa JSON-tiedostosta
+        with open(filepath, "r") as f:
+            data = json.load(f)
+        logger2.info("Json file loaded: %s", filepath)
+        return data
     except FileNotFoundError:
-        return {}  # Jos tiedostoa ei ole, palautetaan tyhjä
+        logger2.warning(" File not found ehhehe: %s", filepath)
+        return {}
+    except Exception as e:
+        logger2.error(" JSON loading fail: %s", e)
+        return {}
+
 
 
 def get_json():
@@ -299,16 +316,20 @@ def controlFromPhone(WhatDevice, temp_json, device_name_tmp):
 def SetPulpStateFromPhone(
     WhatDevice, brightness=None, colormode=None, mode=None, temp=None
 ):
+    logger2.info("SearchSpecific_device function: device_name_tmp %s, brightness\n%s, colormode \n%s, Mode\n%s, temp\n%s", WhatDevice, brightness, colormode, mode, temp)
     WhatDevice.auth()
 
     if mode == 'brightness' and brightness is not None:
         WhatDevice.set_state(brightness=brightness)
+        logger2.info("adjust brightness")
 
     elif mode == 'colormode' and colormode is not None:
         WhatDevice.set_state(bulb_colormode=colormode)
+        logger2.info("adjust colormode")
 
     elif mode == 'colortemp' and temp is not None:
         WhatDevice.set_state(colortemp=temp)
+        logger2.info("adjust colortemp")
 
     return
 

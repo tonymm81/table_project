@@ -49,6 +49,7 @@ def measure_table(): # lets measure the desk distance from floor
     GP.output(trigger, False)
     StartTime = time.time()
     StopTime = time.time()
+    timeout = time.time() + 0.05
     while GP.input(echo) == 0:
         StartTime = time.time()
         

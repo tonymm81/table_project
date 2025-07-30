@@ -129,7 +129,7 @@ def receive_data():
             ct_new = new_cfg.get('colortemp', ct_old)
             if ct_new != ct_old:
                 logger.info(f"Color temp change for {key}: {ct_old} → {ct_new}")
-                wlandevices.SetPulpStateFromPhone(dev, None, None, mode='colortemp', temp=ct_new)
+                wlandevices.SetPulpStateFromPhone(dev,None, None, mode='colortemp', temp=ct_new)
                 server_data[key][1]['colortemp'] = ct_new
                 updates.append(key)
 

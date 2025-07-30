@@ -278,3 +278,6 @@ protocol websockets
 
 ## version 123
 - Modifying the pythonserver.py and wlan_devices.py. There is now builded up the lamp adjusment logic wich is not ready yet. Still missing the eletrick table adjusment logic.
+
+## version 124
+- pythonserver is working now quite good and there was some bug, what was related to save the json to file. I have to test it more, but now it seems to work.
