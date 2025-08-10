@@ -35,11 +35,19 @@ def save_json(devices_library):
         devices_library.update({"distance_from_floor": [table_distance]})
         filepath = get_local_path("devices.json")
 
+        # Poista vanha tiedosto, jos se on olemassa
+        if os.path.exists(filepath):
+            os.remove(filepath)
+
         with open(filepath, "w") as f:
             json.dump(devices_library, f, indent=4)
+            f.flush()
+            os.fsync(f.fileno())
+
         logger2.info(" devices.json saved")
     except Exception as e:
         logger2.error(" save_json failed: %s", e)
+
 
 
 def load_json():
@@ -78,8 +86,8 @@ def update_json(device_library_temp):
 
 def check_wlan_device_status(devices): # check here also buttons and save device in button command
    
-    devices_library_temp = get_json()
-    temp_json = json.loads(devices_library_temp)
+    #devices_library_temp = {}#get_json()
+    temp_json = {}#json.loads(devices_library_temp)
     buttons_row = 15
     for i in range (len(devices)):
         devtype = devices[i].devtype

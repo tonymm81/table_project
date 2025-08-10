@@ -44,27 +44,49 @@ def update_setpoint(level):#needed to update the level value
 
 
 def measure_table(): # lets measure the desk distance from floor
-    GP.output(trigger, True)
-    time.sleep(0.00001)
-    GP.output(trigger, False)
-    StartTime = time.time()
-    StopTime = time.time()
-    timeout = time.time() + 0.05
-    while GP.input(echo) == 0:
+    samples = 5         # montako mittausta otetaan
+    tolerance = 10      # sallittu poikkeama keskiarvosta
+
+    readings = []
+    for _ in range(samples):
+        # Trigger ultraäänianturi
+        GP.output(trigger, True)
+        time.sleep(0.00001)
+        GP.output(trigger, False)
+
         StartTime = time.time()
-        
-        
-    while GP.input(echo) == 1:
         StopTime = time.time()
-    
-    time.sleep(0.4)
-    TimeElapsed = StopTime - StartTime
-    # multiply with the sonic speed (34300 cm/s)
-    # and divide by 2, because there and back
-    distance = (TimeElapsed * 34300) / 2
-    distance = round(distance)
-    distance = int(distance)
-    return distance
+        timeout = time.time() + 0.05
+
+        # Odota että echo menee HIGH
+        while GP.input(echo) == 0 and time.time() < timeout:
+            StartTime = time.time()
+
+        # Odota että echo menee LOW
+        while GP.input(echo) == 1 and time.time() < timeout:
+            StopTime = time.time()
+
+        time.sleep(0.04)  # pieni tauko mittausten välillä
+
+        # Laske etäisyys
+        TimeElapsed = StopTime - StartTime
+        distance = (TimeElapsed * 34300) / 2
+        distance = round(distance)
+        readings.append(distance)
+
+    # Laske keskiarvo ja suodata poikkeavat
+    avg = sum(readings) / len(readings)
+    filtered = [r for r in readings if abs(r - avg) <= tolerance]
+
+    # Palauta vakain mittaus
+    if filtered:
+        stable = round(sum(filtered) / len(filtered))
+    else:
+        stable = round(avg)
+
+    return stable
+
+
 
 
 def motor_control(level1, direction, limit_switch): #motor control function
@@ -164,4 +186,89 @@ def motor_control(level1, direction, limit_switch): #motor control function
     progressbaradj.stop()
     adjusting.destroy()
     progressbaradj.destroy()     
+    return
+
+
+def motorControlFromPhone(level1, direction, limit_switch): #motor control function
+    motor_temp_json = wlan_devices.get_json()
+    library_tmp = json.loads(motor_temp_json)
+    measure_from_floor = "distance_from_floor"
+    i = measure_table() #measured distance
+    print("in motor function")
+    print("what is this level", level1)
+    level_temp = level1
+    level_temp = round(level_temp)
+    level_temp = int(level_temp)
+    interrupt = time.time()
+    interrupt_clk = time.time()
+    if direction == 15: #up
+        target_distance = level_temp + i
+        print("target distance", target_distance)
+        print(i)
+        while True:
+            time.sleep(1)
+            GP.output(direction, GP.HIGH)
+            i = measure_table()
+            i = round(i)
+            i = int(i)
+            GP.output(relay_switch_direction, GP.HIGH) #replace values            GP.output(relay_up, GP.HIGH)
+            print("direction up and distance now:", i)
+            if GP.event_detected(limit_switch):# 
+                interrupt_clk = time.time()
+                print("limit!!!")
+                time.sleep(1)
+                print(interrupt_clk - interrupt)
+                
+            
+            if target_distance == i or target_distance < i:
+                print("target")
+                target_distance = 0
+                i = 0
+                level_temp = 0
+                desk_level = {measure_from_floor : [i]}
+                library_tmp.update(desk_level)
+                break
+            if target_distance == 111 or target_distance > 111: # max table high
+                desk_level = {measure_from_floor : [i]}
+                library_tmp.update(desk_level)
+                break
+            
+        
+    if direction == 12:#down
+        target_distance = i - level_temp 
+        print("target and down", target_distance)
+        print(i)
+        while True:
+            time.sleep(1)
+            GP.output(direction, GP.HIGH)
+            i = measure_table()
+        
+            print("distance now",i)
+            if GP.event_detected(limit_switch):# 
+                interrupt_clk = time.time()
+                print("limit!!!")
+                time.sleep(1)
+                print(interrupt_clk - interrupt)
+            
+            
+            if target_distance == i or target_distance > i :
+                print("target reach")
+                target_distance = 0
+                i = 0
+                level_temp = 0
+                desk_level = {measure_from_floor :[i]}
+                library_tmp.update(desk_level)
+                break
+            if target_distance == 65 or target_distance < 65:
+                print("limit reach")
+                desk_level = {measure_from_floor : [i]}
+                library_tmp.update(desk_level)
+                break
+            
+    
+    if direction == 15:
+        GP.output(relay_switch_direction, GP.LOW) #replace values
+        
+    GP.output(direction, GP.LOW)
+    wlan_devices.update_json(library_tmp)# when table has adjusted, we save the desk level to devices_library json value     
     return

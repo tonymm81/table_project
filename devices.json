@@ -1,100 +1,13 @@
 {
-    "Esp_Bedroom|7": [
-        "192.168.68.113",
-        false,
-        32000,
-        "Esp_Bedroo = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Esp_Bedroom|7', devices), bg = 'black', fg = 'white')",
-        "Esp_Bedroo.grid(row =27, column=2)"
-    ],
-    "Esp_Kitchen|7": [
-        "192.168.68.110",
-        false,
-        32000,
-        "Esp_Kitche = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Esp_Kitchen|7', devices), bg = 'black', fg = 'white')",
-        "Esp_Kitche.grid(row =24, column=2)"
-    ],
-    "Esp_livingroom|7": [
-        "192.168.68.102",
-        false,
-        32000,
-        "Esp_livingroo = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Esp_livingroom|7', devices), bg = 'black', fg = 'white')",
-        "Esp_livingroo.grid(row =30, column=2)"
-    ],
-    "Lappari_roikka_olkkari|6": [
-        "192.168.68.107",
-        true,
-        32000,
-        "Lappari_roikka_olkkar = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Lappari_roikka_olkkari|6', devices), bg = 'black', fg = 'white')",
-        "Lappari_roikka_olkkar.grid(row =18, column=2)"
-    ],
-    "Riipukksen_Olkkari_Ledi|10": [
-        "192.168.68.105",
-        true,
-        30073,
-        "Riipukksen_Olkkari_Ledi = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipukksen_Olkkari_Ledi|10', devices), bg = 'black', fg = 'white')",
-        "Riipukksen_Olkkari_Ledi.grid(row =39, column=2)"
-    ],
-    "Riipuksen_Makkari_pistorasia|8": [
-        "192.168.68.115",
-        false,
-        32000,
-        "Riipuksen_Makkari_pistorasi = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_Makkari_pistorasia|8', devices), bg = 'black', fg = 'white')",
-        "Riipuksen_Makkari_pistorasi.grid(row =63, column=2)"
-    ],
-    "Riipuksen_Olkkari_Tv|6": [
-        "192.168.68.103",
-        false,
-        32000,
-        "Riipuksen_Olkkari_T = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_Olkkari_Tv|6', devices), bg = 'black', fg = 'white')",
-        "Riipuksen_Olkkari_T.grid(row =15, column=2)"
-    ],
-    "Riipuksen_kaffinkeiti|3": [
-        "192.168.68.109",
-        true,
-        30073,
-        "Riipuksen_kaffinkeit = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_kaffinkeiti|3', devices), bg = 'black', fg = 'white')",
-        "Riipuksen_kaffinkeit.grid(row =60, column=2)"
-    ],
-    "Riipuksen_poliisivalo|14": [
-        "192.168.68.101",
-        false,
-        32000,
-        "Riipuksen_poliisivalo = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_poliisivalo|14', devices), bg = 'black', fg = 'white')",
-        "Riipuksen_poliisivalo.grid(row =33, column=2)"
-    ],
-    "Riipuksen_poytatietsikka|6": [
-        "192.168.68.106",
-        true,
-        30073,
-        "Riipuksen_poytatietsikk = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_poytatietsikka|6', devices), bg = 'black', fg = 'white')",
-        "Riipuksen_poytatietsikk.grid(row =57, column=2)"
-    ],
-    "Weatherstation_Riipus|7": [
-        "192.168.68.104",
-        false,
-        30073,
-        "Weatherstation_Riipu = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Weatherstation_Riipus|7', devices), bg = 'black', fg = 'white')",
-        "Weatherstation_Riipu.grid(row =54, column=2)"
-    ],
-    "distance_from_floor": [
-        68
-    ],
-    "Riipuksen_Olkkari_Tyopiste|1": [
-        "192.168.68.108",
-        true,
-        32000,
-        "Riipuksen_Olkkari_Tyopist = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_Olkkari_Tyopiste|1', devices), bg = 'black', fg = 'white')",
-        "Riipuksen_Olkkari_Tyopist.grid(row =21, column=2)"
-    ],
     "Riipukse_Tyopiste_val|12": [
-        "192.168.68.122",
+        "192.168.68.118",
         {
             "red": 0,
             "blue": 0,
             "green": 0,
             "pwr": 1,
-            "brightness": 59,
-            "colortemp": 3500,
+            "brightness": 100,
+            "colortemp": 2800,
             "hue": 0,
             "saturation": 0,
             "transitionduration": 255,
@@ -105,100 +18,30 @@
         },
         24686,
         "Riipukse_Tyopiste_val = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipukse_Tyopiste_val|12', devices), bg = 'black', fg = 'white')",
-        "Riipukse_Tyopiste_val.grid(row =66, column=2)"
+        "Riipukse_Tyopiste_val.grid(row =15, column=2)"
     ],
-    "Riipuksen_Olkkari_Valo3|14": [
-        "192.168.68.119",
+    "Riipukksen_Olkkari_Ledi|10": [
+        "192.168.68.102",
+        false,
+        30073,
+        "Riipukksen_Olkkari_Ledi = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipukksen_Olkkari_Ledi|10', devices), bg = 'black', fg = 'white')",
+        "Riipukksen_Olkkari_Ledi.grid(row =18, column=2)"
+    ],
+    "Weatherstation_Riipus|7": [
+        "192.168.68.106",
+        false,
+        30073,
+        "Weatherstation_Riipu = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Weatherstation_Riipus|7', devices), bg = 'black', fg = 'white')",
+        "Weatherstation_Riipu.grid(row =21, column=2)"
+    ],
+    "Riipuksen_makkari_poyt|10": [
+        "192.168.68.125",
         {
             "red": 0,
             "blue": 0,
             "green": 0,
             "pwr": 0,
-            "brightness": 17,
-            "colortemp": 2853,
-            "hue": 0,
-            "saturation": 0,
-            "transitionduration": 1000,
-            "maxworktime": 0,
-            "bulb_colormode": 0,
-            "bulb_scenes": "",
-            "bulb_scene": "3000+100,0,0,0"
-        },
-        24686,
-        "Riipuksen_Olkkari_Valo3 = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_Olkkari_Valo3|14', devices), bg = 'black', fg = 'white')",
-        "Riipuksen_Olkkari_Valo3.grid(row =36, column=2)"
-    ],
-    "Riipuksen_Olkkari_Valo|14": [
-        "192.168.68.121",
-        {
-            "red": 0,
-            "blue": 0,
-            "green": 0,
-            "pwr": 0,
-            "brightness": 40,
-            "colortemp": 3500,
-            "hue": 0,
-            "saturation": 0,
-            "transitionduration": 1000,
-            "maxworktime": 0,
-            "bulb_colormode": 1,
-            "bulb_scenes": "",
-            "bulb_scene": ""
-        },
-        24686,
-        "Riipuksen_Olkkari_Valo = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_Olkkari_Valo|14', devices), bg = 'black', fg = 'white')",
-        "Riipuksen_Olkkari_Valo.grid(row =42, column=2)"
-    ],
-    "Riipuksen_Olkkari_Valo2|14": [
-        "192.168.68.120",
-        {
-            "red": 0,
-            "blue": 0,
-            "green": 0,
-            "pwr": 0,
-            "brightness": 40,
-            "colortemp": 3500,
-            "hue": 0,
-            "saturation": 0,
-            "transitionduration": 1000,
-            "maxworktime": 0,
-            "bulb_colormode": 0,
-            "bulb_scenes": "",
-            "bulb_scene": "3000+100,0,0,0"
-        },
-        24686,
-        "Riipuksen_Olkkari_Valo2 = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_Olkkari_Valo2|14', devices), bg = 'black', fg = 'white')",
-        "Riipuksen_Olkkari_Valo2.grid(row =45, column=2)"
-    ],
-    "Riipuksen_Keitti\u00f6_Valo|11": [
-        "192.168.68.116",
-        {
-            "red": 0,
-            "blue": 0,
-            "green": 0,
-            "pwr": 0,
-            "brightness": 80,
-            "colortemp": 3333,
-            "hue": 0,
-            "saturation": 0,
-            "transitionduration": 1000,
-            "maxworktime": 0,
-            "bulb_colormode": 1,
-            "bulb_scenes": "",
-            "bulb_scene": ""
-        },
-        24686,
-        "Riipuksen_Keitti\u00f6_Valo = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_Keitti\u00f6_Valo|11', devices), bg = 'black', fg = 'white')",
-        "Riipuksen_Keitti\u00f6_Valo.grid(row =48, column=2)"
-    ],
-    "Riipuksen_makkari_valo|11": [
-        "192.168.68.118",
-        {
-            "red": 0,
-            "blue": 0,
-            "green": 0,
-            "pwr": 0,
-            "brightness": 50,
+            "brightness": 99,
             "colortemp": 2700,
             "hue": 0,
             "saturation": 0,
@@ -209,7 +52,80 @@
             "bulb_scene": ""
         },
         24686,
-        "Riipuksen_makkari_valo = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_makkari_valo|11', devices), bg = 'black', fg = 'white')",
-        "Riipuksen_makkari_valo.grid(row =51, column=2)"
+        "Riipuksen_makkari_poyt = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_makkari_poyt|10', devices), bg = 'black', fg = 'white')",
+        "Riipuksen_makkari_poyt.grid(row =24, column=2)"
+    ],
+    "Riipuksen_Olkkari_Tyopiste|1": [
+        "192.168.68.108",
+        true,
+        32000,
+        "Riipuksen_Olkkari_Tyopist = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_Olkkari_Tyopiste|1', devices), bg = 'black', fg = 'white')",
+        "Riipuksen_Olkkari_Tyopist.grid(row =27, column=2)"
+    ],
+    "Esp_Bedroom|7": [
+        "192.168.68.114",
+        false,
+        32000,
+        "Esp_Bedroo = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Esp_Bedroom|7', devices), bg = 'black', fg = 'white')",
+        "Esp_Bedroo.grid(row =30, column=2)"
+    ],
+    "Lappari_roikka_olkkari|6": [
+        "192.168.68.105",
+        false,
+        32000,
+        "Lappari_roikka_olkkar = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Lappari_roikka_olkkari|6', devices), bg = 'black', fg = 'white')",
+        "Lappari_roikka_olkkar.grid(row =33, column=2)"
+    ],
+    "Esp_Kitchen|7": [
+        "192.168.68.110",
+        false,
+        32000,
+        "Esp_Kitche = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Esp_Kitchen|7', devices), bg = 'black', fg = 'white')",
+        "Esp_Kitche.grid(row =36, column=2)"
+    ],
+    "Riipuksen_Makkari_pistorasia|8": [
+        "192.168.68.115",
+        true,
+        32000,
+        "Riipuksen_Makkari_pistorasi = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_Makkari_pistorasia|8', devices), bg = 'black', fg = 'white')",
+        "Riipuksen_Makkari_pistorasi.grid(row =39, column=2)"
+    ],
+    "Riipuksen_Olkkari_Tv|6": [
+        "192.168.68.107",
+        false,
+        32000,
+        "Riipuksen_Olkkari_T = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_Olkkari_Tv|6', devices), bg = 'black', fg = 'white')",
+        "Riipuksen_Olkkari_T.grid(row =42, column=2)"
+    ],
+    "Riipuksen_poliisivalo|14": [
+        "192.168.68.100",
+        false,
+        32000,
+        "Riipuksen_poliisivalo = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_poliisivalo|14', devices), bg = 'black', fg = 'white')",
+        "Riipuksen_poliisivalo.grid(row =45, column=2)"
+    ],
+    "Esp_livingroom|7": [
+        "192.168.68.103",
+        false,
+        32000,
+        "Esp_livingroo = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Esp_livingroom|7', devices), bg = 'black', fg = 'white')",
+        "Esp_livingroo.grid(row =48, column=2)"
+    ],
+    "Riipuksen_poytatietsikka|6": [
+        "192.168.68.109",
+        true,
+        30073,
+        "Riipuksen_poytatietsikk = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_poytatietsikka|6', devices), bg = 'black', fg = 'white')",
+        "Riipuksen_poytatietsikk.grid(row =51, column=2)"
+    ],
+    "Riipuksen_kaffinkeiti|3": [
+        "192.168.68.111",
+        false,
+        30073,
+        "Riipuksen_kaffinkeit = Button(second_frame, text = btn, command = lambda: wlan_devices.control_wlan_devices('Riipuksen_kaffinkeiti|3', devices), bg = 'black', fg = 'white')",
+        "Riipuksen_kaffinkeit.grid(row =54, column=2)"
+    ],
+    "distance_from_floor": [
+        68
     ]
 }

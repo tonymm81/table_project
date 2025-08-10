@@ -112,7 +112,7 @@ def return_wlan_devices(saveslot, devices): # here we open new and saved json an
             max_distance = saved_json["distance_from_floor"][0] - new_json_temp["distance_from_floor"][0] 
             level.set(max_distance)
             print("motor up", saved_json["distance_from_floor"][0], new_json_temp["distance_from_floor"][0], max_distance)
-            motorcontrol.motor_control(level,  15, 23, echo, trigger)
+            motorcontrol.motor_control(level,  15, 23)
             print("motor up", saved_json["distance_from_floor"][0], new_json_temp["distance_from_floor"][0], max_distance)            
             rootloading.update()
             progressbar.update()
@@ -121,7 +121,7 @@ def return_wlan_devices(saveslot, devices): # here we open new and saved json an
         if float(saved_json["distance_from_floor"][0]) < float(new_json_temp["distance_from_floor"][0]):# lets adjust table down
             max_distance = new_json_temp["distance_from_floor"][0] - saved_json["distance_from_floor"][0] 
             level.set(max_distance)
-            motorcontrol.motor_control( level, 12, 8, echo, trigger)
+            motorcontrol.motor_control( level, 12, 8)
             print("motor down", saved_json["distance_from_floor"][0], new_json_temp["distance_from_floor"][0], max_distance)
             rootloading.update()
             progressbar.update()

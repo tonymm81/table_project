@@ -8,6 +8,7 @@ import os
 import broadlink
 import re
 from motorcontrol import measure_table as MC
+from motorcontrol import motorControlFromPhone
 from pprint import pformat
 # Luo Flask-sovellus
 app = Flask(__name__)
@@ -63,6 +64,23 @@ def receive_data():
     try:
         server_data = wlandevices.load_json()
         updates = []
+        if 'distance_from_floor' in request_data:  # update to version 125
+            requested_height = request_data['distance_from_floor']
+            if isinstance(requested_height, list):
+                requested_height = requested_height[0]
+
+            current_height = wlandevices.measure_table()
+            logger.info(f"📏 Current height: {current_height} cm, Requested: {requested_height} cm")
+            difference = 0
+            if abs(current_height - requested_height) > 0.5:  # tolerance.
+                if requested_height > current_height:
+                    difference = requested_height - current_height
+                    logger.info(f"🔼 Requested height is higher → motor_control('up', {requested_height})")
+                    motorControlFromPhone(difference, 15, 23)
+                elif requested_height < current_height:
+                    difference = current_height - requested_height
+                    logger.info(f"🔽 Requested height is lower → motor_control('down', {requested_height})")
+                    motorControlFromPhone(difference, 12, 8)
 
         for key, new_arr in request_data.items():
             if key == 'distance_from_floor':
@@ -77,27 +95,27 @@ def receive_data():
             logger.info("old_conf for %s: %s", key, old_cfg)
             logger.info("new_conf for %s: %s", key, new_cfg)
 
-            # Etsi laiteolio
+            # search the broadlink library based device object
             dev = wlandevices.SearchSpecific_device(key, devicesInServer)
             if not dev:
                 logger.error("Device not found: %s", key)
                 continue
 
-            # 1) Virrankytkentä
+            # power on or off
             if isinstance(new_cfg, bool):
                 if new_cfg != old_cfg:
                     logger.info(f"Toggling power for {key} → {new_cfg}")
                     wlandevices.controlFromPhone(dev, server_data, key)
                     server_data[key][1] = new_cfg
                     updates.append(key)
-                # siirry seuraavaan avaimeseen
+                #continue to next key
                 continue
 
-            # 2) Palauta uuden konfigin objektina
+            #  return new config
             if not isinstance(new_cfg, dict):
                 continue
 
-            # 3) PWR-arvo dictissä
+            # PWR-value  in dict
             p_old = old_cfg.get('pwr')
             p_new = new_cfg.get('pwr', p_old)
             if p_new != p_old:
@@ -133,10 +151,10 @@ def receive_data():
                 server_data[key][1]['colortemp'] = ct_new
                 updates.append(key)
 
-        # Kirjoita JSON vain, jos jotain päivittyi
+        # Update json only if it has changed
         if updates:
             wlandevices.update_json(server_data)
-            logger.info("✅ Updated JSON for keys %s", updates)
+            logger.info(" Updated JSON for keys %s", updates)
 
         return jsonify({"status": "OK", "updated": updates}), 200
 

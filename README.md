@@ -281,3 +281,13 @@ protocol websockets
 
 ## version 124
 - pythonserver is working now quite good and there was some bug, what was related to save the json to file. I have to test it more, but now it seems to work.
+
+## version 125
+- upload the server next files: motorcontrol.py and save_to_file.py and pythonserver.
+- I add the logic what should control the table adjusment. next step is build it to react native
+
+- I finally manage to find that bug, what causes the old devices shown in python saved devices.json file. No it should be fixed because I find the root cause of this.
+
+- I update the table measurement funktion to little bit stabilier, so the measurement should not change so much
+
+- Now the table adjusment is working from phone react native. Next step is integrade that save and load settings to react native.
