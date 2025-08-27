@@ -291,3 +291,8 @@ protocol websockets
 - I update the table measurement funktion to little bit stabilier, so the measurement should not change so much
 
 - Now the table adjusment is working from phone react native. Next step is integrade that save and load settings to react native.
+
+
+## version 126
+- starting to build the feature save settings from phone app.
+- Building the server side funktion what is related to save settings feature. Next step is build up the react native side and lets see, how we going to build that.

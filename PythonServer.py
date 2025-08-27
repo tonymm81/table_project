@@ -10,6 +10,7 @@ import re
 from motorcontrol import measure_table as MC
 from motorcontrol import motorControlFromPhone
 from pprint import pformat
+import save_to_file as saved
 # Luo Flask-sovellus
 app = Flask(__name__)
 #CORS(app, resources={r"/*": {"origins": "*"}})
@@ -46,9 +47,44 @@ def get_data():
     except Exception as e:
         logger.error(f"Virhe käsitellessä GET-pyyntöä: {e}")
         return jsonify({"error": "Server failed to respond"}), 500
+    
+
+@app.route('/SavedSettings', methods=['GET'])  # version 126
+def get_SavedSettings():
+    try:
+        ReturnSavedSettings = saved.loadSavedSettingsFromPhone()
+        return jsonify(ReturnSavedSettings), 200
+    except Exception as e:
+        logger.error(f"Virhe käsitellessä GET-pyyntöä: {e}")
+        return jsonify({"error": "Server failed to respond"}), 500
+    
+#  post request    
+@app.route('/SaveSettingsFromPhone', methods=['POST'])  # version 126
+def saveUserSettings():
+    logger.debug("savesettings post arrived")
+    try:
+        data = request.get_json()
+        entry = data.get("entry")
+        measure = data.get("measure")
+        saved.get_user_data_from_phone(entry, measure)
+        return jsonify({"status": "Settings saved"}), 200
+    except Exception as e:
+        logger.error(f"Virhe käsitellessä POST-pyyntöä: {e}")
+        return jsonify({"error": "Server failed to respond"}), 500
 
 
-#  post request
+@app.route('/LoadSettingsFromPhone', methods=['POST'])  # version 126
+def loadUserSettings():
+    try:
+        data = request.get_json()
+        devices = data.get("devices")  # jos käytät tätä
+        result = saved.loadSavedSettingsFromPhone(devices)
+        return jsonify(result), 200
+    except Exception as e:
+        logger.error(f"Virhe käsitellessä POST-pyyntöä: {e}")
+        return jsonify({"error": "Server failed to respond"}), 500
+
+
 @app.route('/receive', methods=['POST'])
 def receive_data():
     logger.info("⏳ POST request started")
