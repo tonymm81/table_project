@@ -296,3 +296,11 @@ protocol websockets
 ## version 126
 - starting to build the feature save settings from phone app.
 - Building the server side funktion what is related to save settings feature. Next step is build up the react native side and lets see, how we going to build that.
+
+## version 127
+- Now the Pythonserver handles the apicalls from react native. It give in responce the saved user settings names and if user saves settings from react native, it save the devices state and save name to raspberry pi. If user choose to load saved settings, this save_to_file handles that also and restore the devices status based on saved json. 
+
+- Next step is do the testing and find a bugs related to this feature.
+
+### OBS
+- There was in old savename.txt file the newline problem and this problem is fixed, so check that tkinter is also working well because from return_wlan_devices function there is one spot, what deletes the new line mark from savename and this is causing the problem, because newline mark is not any more in savename.

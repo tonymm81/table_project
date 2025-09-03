@@ -52,33 +52,36 @@ def get_data():
 @app.route('/SavedSettings', methods=['GET'])  # version 126
 def get_SavedSettings():
     try:
-        ReturnSavedSettings = saved.loadSavedSettingsFromPhone()
+        ReturnSavedSettings = saved.loadSavedSettingsFromPhone(devicesInServer)
         return jsonify(ReturnSavedSettings), 200
     except Exception as e:
         logger.error(f"Virhe käsitellessä GET-pyyntöä: {e}")
         return jsonify({"error": "Server failed to respond"}), 500
     
 #  post request    
-@app.route('/SaveSettingsFromPhone', methods=['POST'])  # version 126
+@app.route('/SaveSettingsFromPhone', methods=['POST'])  # version 127 save the settings
 def saveUserSettings():
     logger.debug("savesettings post arrived")
     try:
         data = request.get_json()
         entry = data.get("entry")
         measure = data.get("measure")
-        saved.get_user_data_from_phone(entry, measure)
+        slot_index = data.get("slotIndex") 
+
+        saved.get_user_data_from_phone(entry, measure, slot_index)  
         return jsonify({"status": "Settings saved"}), 200
     except Exception as e:
         logger.error(f"Virhe käsitellessä POST-pyyntöä: {e}")
         return jsonify({"error": "Server failed to respond"}), 500
 
 
-@app.route('/LoadSettingsFromPhone', methods=['POST'])  # version 126
+@app.route('/LoadSettingsFromPhone', methods=['POST'])
 def loadUserSettings():
     try:
         data = request.get_json()
-        devices = data.get("devices")  # jos käytät tätä
-        result = saved.loadSavedSettingsFromPhone(devices)
+        name = data.get("name")
+        index = data.get("index")
+        result = saved.execute_loaded_settings(name, index, devicesInServer)
         return jsonify(result), 200
     except Exception as e:
         logger.error(f"Virhe käsitellessä POST-pyyntöä: {e}")
