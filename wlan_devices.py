@@ -12,10 +12,10 @@ import os
 
 
 logger2 = logging.getLogger("wlan_devices")
-file_handler = logging.FileHandler("/home/table/Desktop/table2/table_project/Wlandevices.log")
+file_handler = logging.FileHandler("/home/table/Desktop/table2/table_project/logs/Wlandevices.log")
 formatter = logging.Formatter("%(asctime)s - %(message)s")
 file_handler.setFormatter(formatter)
-logger2.setLevel(logging.INFO)
+logger2.setLevel(logging.WARNING)
 logger2.addHandler(file_handler)
 
 devices_library = {}
@@ -76,9 +76,9 @@ def update_json(device_library_temp):
     global devices_library
     if not device_library_temp:
         logger2.warning("update_json sai tyhjän device_library_temp!")
-    #devices_library = {} 
-    #formatted2 = json.dumps(devices_library, indent=4)#debugging
-    #logger2.info(f"Update json function: \n%s" ,formatted2)
+    devices_library = {} 
+    formatted2 = json.dumps(devices_library, indent=4)#debugging
+    logger2.info(f"Update json function: \n%s" ,formatted2)
     devices_library = device_library_temp#json.dumps(device_library_temp, indent=4)
     save_json(devices_library)
     #pprint.pprint(devices_library) # easier way to read json value
@@ -117,7 +117,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
                  
             except Exception as e:
                 print("device communication failed", e)
-                
+                logger2.warning("device communication failed %s", e)
            
                 
             bulb_library = {bulbname : [bulb_ip,  device_state1, devtype, bulb_button, bulb_pack]}#temp value to json
@@ -147,6 +147,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
                 device_state2 = devices_temp2[0].check_power()
             except Exception as e:
                 print("device communication failed", e)
+                logger2.warning("device communication failed %s", e)
             
             
             sp4_library = {sp4_name : [sp4_ip,  device_state2, devtype, sp4_button, sp4_pack]}#temp value to json
@@ -180,7 +181,7 @@ def check_wlan_device_status(devices): # check here also buttons and save device
 
             except Exception as e:
                 print("device communication failed", e)
-            
+                logger2.warning("device communication failed %s", e)
             sp3_library = {sp3_name : [sp3_ip, device_state3, devtype, sp3_button, sp3_pack]} #temp value to json
             temp_json.update(sp3_library)
             
@@ -282,7 +283,7 @@ def control_wlan_devices(device_names, devices):# here we change the wlan device
 
 
 def SearchSpecific_device(device_name_tmp, devices):
-    #logger2.info("SearchSpecific_device function: device_name_tmp %s, devices\n%s", device_name_tmp, devices)
+    logger2.info("SearchSpecific_device function: device_name_tmp %s, devices\n%s", device_name_tmp, devices)
     for dev in devices:
         print("devices name", dev.name)
         print("from function call", device_name_tmp)
@@ -291,7 +292,7 @@ def SearchSpecific_device(device_name_tmp, devices):
     return None  
 
 def controlFromPhone(WhatDevice, temp_json, device_name_tmp):
-    #logger2.info("controlFromPhone function: WhatDevice %s tempjson : %s, davicenametemp \n%s", WhatDevice, pformat(temp_json), device_name_tmp)
+    logger2.info("controlFromPhone function: WhatDevice %s tempjson : %s, davicenametemp \n%s", WhatDevice, pformat(temp_json), device_name_tmp)
     if WhatDevice.devtype == 24686:
         WhatDevice.auth()
         state = WhatDevice.get_state()

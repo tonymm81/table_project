@@ -18,16 +18,16 @@ CORS(app, supports_credentials=True)
 
 # Define the log file
 logger = logging.getLogger("pythonserver")
-file_handler = logging.FileHandler("/home/table/Desktop/table2/table_project/flaskserver_log.log")
+file_handler = logging.FileHandler("/home/table/Desktop/table2/table_project/logs/flaskserver_log.log")
 formatter = logging.Formatter("%(asctime)s - %(message)s")
 file_handler.setFormatter(formatter)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARNING)
 logger.addHandler(file_handler)
 
 
 BeforeCompare = {}
 ipv4 = os.popen('ip addr show wlan0 | grep "\<inet\>" | awk \'{ print $2 }\' | awk -F "/" \'{ print $1 }\'').read().strip() # this how we take broker ip address in beging of program-
-devicesInServer = broadlink.discover(timeout=5, local_ip_address=ipv4)# lets check devices list '192.168.68.118'
+devicesInServer = broadlink.discover(timeout=5, local_ip_address=ipv4)# lets check devices list 
 
 
 @app.after_request
@@ -38,18 +38,18 @@ def after_request(response):
 
 
 #GET request
-@app.route('/data', methods=['GET'])
+@app.route('/data', methods=['GET'])# get the wlan devices status and return it to react native
 def get_data():
     try:
         json_data = wlandevices.load_json()
-        #logger.info("GET-pyyntö vastaanotettu: \n%s", pformat(json_data))
+        logger.info("GET-pyyntö vastaanotettu: \n%s", pformat(json_data))
         return jsonify(json_data), 200
     except Exception as e:
         logger.error(f"Virhe käsitellessä GET-pyyntöä: {e}")
         return jsonify({"error": "Server failed to respond"}), 500
     
 
-@app.route('/SavedSettings', methods=['GET'])  # version 126
+@app.route('/SavedSettings', methods=['GET'])  # version 126. This returns user saved settings to react native
 def get_SavedSettings():
     try:
         ReturnSavedSettings = saved.loadSavedSettingsFromPhone(devicesInServer)
@@ -59,7 +59,7 @@ def get_SavedSettings():
         return jsonify({"error": "Server failed to respond"}), 500
     
 #  post request    
-@app.route('/SaveSettingsFromPhone', methods=['POST'])  # version 127 save the settings
+@app.route('/SaveSettingsFromPhone', methods=['POST'])  # version 127 save the settings from react native
 def saveUserSettings():
     logger.debug("savesettings post arrived")
     try:
@@ -75,7 +75,7 @@ def saveUserSettings():
         return jsonify({"error": "Server failed to respond"}), 500
 
 
-@app.route('/LoadSettingsFromPhone', methods=['POST'])
+@app.route('/LoadSettingsFromPhone', methods=['POST'])# this route will activate the loaded settings
 def loadUserSettings():
     try:
         data = request.get_json()
@@ -88,7 +88,7 @@ def loadUserSettings():
         return jsonify({"error": "Server failed to respond"}), 500
 
 
-@app.route('/receive', methods=['POST'])
+@app.route('/receive', methods=['POST'])# in this route, we handle the wlan lamps, wlan sockets and electric table level
 def receive_data():
     logger.info("⏳ POST request started")
     try:

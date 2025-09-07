@@ -304,3 +304,12 @@ protocol websockets
 
 ### OBS
 - There was in old savename.txt file the newline problem and this problem is fixed, so check that tkinter is also working well because from return_wlan_devices function there is one spot, what deletes the new line mark from savename and this is causing the problem, because newline mark is not any more in savename.
+
+- remember to do the feature, that if saved json is not in savenames.txt, then it deletes that specific json file, what dropped out from savenames.txt
+
+## version 128
+- I made the cleaning funbctions to this project, that if user given savename is not in saves.txt file, then the python will remove the old saveed json settings file. I also move the save settings json files to folder UserSettings and program generate log files goes to /logs.
+
+- I change the logging level to warning, so the files is not growing so big.
+
+- I also add some error handling to this application where is file handling. I also add the error logging there

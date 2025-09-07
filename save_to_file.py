@@ -13,10 +13,10 @@ savenumber = 0
 savename = ["save1", "save2", "save3", "save4"] # this we will save to file. This how we know what name of json file we are looking for..
 
 logger3 = logging.getLogger("Save_to_file")
-file_handler = logging.FileHandler("/home/table/Desktop/table2/table_project/Save_to_file.log")
+file_handler = logging.FileHandler("/home/table/Desktop/table2/table_project/logs/Save_to_file.log")
 formatter = logging.Formatter("%(asctime)s - %(message)s")
 file_handler.setFormatter(formatter)
-logger3.setLevel(logging.INFO)
+logger3.setLevel(logging.WARNING)
 logger3.addHandler(file_handler)
 if not logger3.hasHandlers():
     logger3.addHandler(file_handler)
@@ -24,10 +24,9 @@ if not logger3.hasHandlers():
 logger3.info("Logger käynnistetty onnistuneesti.")
 
 def get_local_path(filename):
-   
-    return os.path.join(os.getcwd(), filename)
-
-
+    user_settings_dir = os.path.join(os.getcwd(), "UserSettings")
+    os.makedirs(user_settings_dir, exist_ok=True)  # Luo kansio tarvittaessa
+    return os.path.join(user_settings_dir, filename)
 
 
 def starting():
@@ -40,33 +39,31 @@ def starting():
 
 
 def loadSavedSettingsFromPhone(devices) -> List[str]:
-    path = get_local_path("saves.txt")
-    logger3.info(f"Path, where we try to open file: {path}")
+    try:
+        path = get_local_path("saves.txt")
+        logger3.info(f"Path, where we try to open file: {path}")
 
-    with open(path, "r", encoding="utf-8") as f:
-        cleanedsamename = json.load(f)
-    logger3.info(f"What we loaded: {cleanedsamename}")
-    f.close()
-    return cleanedsamename
-
-
-
+        with open(path, "r", encoding="utf-8") as f:
+            cleanedsamename = json.load(f)
+        logger3.info(f"What we loaded: {cleanedsamename}")
+        f.close()
+        return cleanedsamename
+    except FileNotFoundError:
+         logger3.error("saves.txt did not found")
+         return
 
 
 def load_settings(devices):
-    global savename
-    path = get_local_path("saves.txt")
-    with open(path, "r", encoding="utf-8") as f:
-        cleanedsamename = json.load(f)
-
-
-
-
-    f.close()    
-    #savename = lines
-    #print("testing list", savename)
-    #file.close()
-    
+    try:
+        global savename
+        path = get_local_path("saves.txt")
+        with open(path, "r", encoding="utf-8") as f:
+            cleanedsamename = json.load(f)
+        f.close()  
+    except FileNotFoundError:
+        logger3.error("saves.txt did not found")
+        return
+      
     top4 = starting()
     label_1 = Label(top4, text= "Choose what setup we load?", font=("helvetica", 10), fg="white", bg="black")
     label_1.grid(row=1, column=1)
@@ -98,70 +95,76 @@ def save_settings():
     top4.mainloop()
     return
 
-def get_user_data_from_phone(entry, measure, slot_index):
-    measure_from_floor = "distance_from_floor"
-    save_json = wlan_devices.get_json()
-    save_json_temp = json.loads(save_json)
-
-    # Tallenna JSON tiedosto
-    json_path = get_local_path(f"{entry}.json")
-    with open(json_path, "w", encoding="utf-8") as outfile:
-        json.dump(save_json_temp, outfile, ensure_ascii=False)
-
-    # Lue vanhat tallennukset
-    saves_path = get_local_path("saves.txt")
+def get_user_data_from_phone(entry, measure, slot_index): # this funktion will saved the devices.json wiht user given name and saves user given save name to saves.txt also
     try:
-        with open(saves_path, "r", encoding="utf-8") as f:
-            savename = json.load(f)
-    except FileNotFoundError:
-        savename = ["", "", "", ""]
+        measure_from_floor = "distance_from_floor"
+        save_json = wlan_devices.get_json()
+        save_json_temp = json.loads(save_json)
 
-    # Päivitä oikea slotti
-    if isinstance(slot_index, int) and 0 <= slot_index < len(savename):
-        savename[slot_index] = entry
+        # Save the json file
+        json_path = get_local_path(f"{entry}.json")
+        with open(json_path, "w", encoding="utf-8") as outfile:
+            json.dump(save_json_temp, outfile, ensure_ascii=False)
 
-    # Tallenna takaisin
-    with open(saves_path, "w", encoding="utf-8") as file:
-        json.dump(savename, file, ensure_ascii=False, indent=2)
+        # Lue vanhat tallennukset
+        saves_path = get_local_path("saves.txt")
+        try:
+            with open(saves_path, "r", encoding="utf-8") as f:
+                savename = json.load(f)
+        except FileNotFoundError:
+            savename = ["", "", "", ""]
+            logger3.error("saves.txt did not found")
+        # Päivitä oikea slotti
+        if isinstance(slot_index, int) and 0 <= slot_index < len(savename):
+            savename[slot_index] = entry
 
-    outfile.close()
-    file.close()
+        # Tallenna takaisin
+        with open(saves_path, "w", encoding="utf-8") as file:
+            json.dump(savename, file, ensure_ascii=False, indent=2)
+        cleanUpTheOldUserSaveFiles(savename)
+        outfile.close()
+        file.close()
+        return
+    except Exception as e:
+        logger3.error("error happens in filehandling %s", e)
+
+
+
+def get_user_data(listbox, entry, measure): # this funktion will saved the devices.json wiht user given name and saves user given save name to saves.txt also
+    try:
+        global savename
+        measure_from_floor = "distance_from_floor"
+        save_json = wlan_devices.get_json()
+        save_json_temp = json.loads(save_json)
+
+        for i in listbox.curselection():
+            saveslot = listbox.index(i)
+
+        name_file = entry.get()
+        print("test", name_file, saveslot)
+        savename[saveslot] = str(name_file)
+
+        desk_level = {measure_from_floor: [measure]}
+        save_json_temp.update(desk_level)
+        wlan_devices.update_json(save_json_temp)
+
+        json_path = get_local_path(f"{name_file}.json")
+        with open(json_path, "w", encoding="utf-8") as outfile:
+            json.dump(save_json_temp, outfile, ensure_ascii=False)
+
+        saves_path = get_local_path("saves.txt")
+        with open(saves_path, "w", encoding="utf-8") as file:
+            json.dump(savename, file, ensure_ascii=False, indent=2)
+        cleanUpTheOldUserSaveFiles(savename)
+        outfile.close()
+        file.close()
+    except Exception as e:
+        logger3.error("error happens in filehandling %s", e)
+
     return
 
 
-
-def get_user_data(listbox, entry, measure):
-    global savename
-    measure_from_floor = "distance_from_floor"
-    save_json = wlan_devices.get_json()
-    save_json_temp = json.loads(save_json)
-
-    for i in listbox.curselection():
-        saveslot = listbox.index(i)
-
-    name_file = entry.get()
-    print("test", name_file, saveslot)
-    savename[saveslot] = str(name_file)
-
-    desk_level = {measure_from_floor: [measure]}
-    save_json_temp.update(desk_level)
-    wlan_devices.update_json(save_json_temp)
-
-    json_path = get_local_path(f"{name_file}.json")
-    with open(json_path, "w", encoding="utf-8") as outfile:
-        json.dump(save_json_temp, outfile, ensure_ascii=False)
-
-    saves_path = get_local_path("saves.txt")
-    with open(saves_path, "w", encoding="utf-8") as file:
-        json.dump(savename, file, ensure_ascii=False, indent=2)
-
-    outfile.close()
-    file.close()
-
-    return
-
-
-def execute_loaded_settings(name: str, index: int, devices : dict):#version 127
+def execute_loaded_settings(name: str, index: int, devices : dict):#version 127 This will load the wanted setup, and change the devices state
     path = get_local_path("saves.txt")
     try:
         with open(path, "r", encoding="utf-8") as saveNames:
@@ -266,6 +269,8 @@ def return_wlan_devices(saveslot, devices): # here we open new and saved json an
                                 #print("not changes on lights", saved_json[device_saved][1]['pwr'], new_json_temp[x][1]['pwr'])
     except Exception as e:
         print("wlan devices control fails on error : ", e)  
+        logger3.error("wlan devices control fails on error : %s", e)  
+
     progressbar.stop()
     rootloading.destroy()
     progressbar.destroy()       
@@ -314,6 +319,27 @@ def return_wlan_devices_from_phone(loaded_config, current_devices, devices): # h
         
                                 #print("not changes on lights", saved_json[device_saved][1]['pwr'], new_json_temp[x][1]['pwr'])
     except Exception as e:
-        print("wlan devices control fails on error : ", e)       
+        print("wlan devices control fails on error : ", e)  
+        logger3.error("wlan devices control fails on error : %s", e)     
     return
+
+
+def cleanUpTheOldUserSaveFiles(savename : list):
+    user_settings_dir = os.path.join(os.getcwd(), "UserSettings")
+    try:
+        # find all of the UserSettings files
+        all_files = os.listdir(user_settings_dir)
+        json_files = [f for f in all_files if f.endswith(".json")]
+
+        # List for allowed save names
+        allowed_files = [f"{name}.json" for name in savename if name]
+
+        # delete the files, what are not needed
+        for json_file in json_files:
+            if json_file not in allowed_files:
+                full_path = os.path.join(user_settings_dir, json_file)
+                os.remove(full_path)
+                logger3.info(f"Poistettiin vanha asetustiedosto: {json_file}")
+    except Exception as e:
+        logger3.error(f"Virhe poistettaessa vanhoja tiedostoja: {e}")
 
