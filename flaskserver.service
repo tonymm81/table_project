@@ -1,0 +1,14 @@
+[Unit]
+Description=Flask Server (GUI + WLAN)
+After=graphical.target network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/gunicorn -w 4 -b 0.0.0.0:5000 PythonServer:app
+WorkingDirectory=/home/table/Desktop/table2/table_project
+Restart=always
+User=table
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=graphical.target

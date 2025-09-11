@@ -19,6 +19,9 @@ wlan.devices.py
 This file keeps up the devices_library updating or loading. It also makes this device_library.json, when system is starting. Here we can adjust wlan devices examble bulps and plugs.
 when pressing button, we will start this program.
 
+### autopstart
+-sudo nano /etc/xdg/lxsession/LXDE-pi/autostart
+
 ## ver 100
 just setting upsystems.
 
@@ -312,4 +315,8 @@ protocol websockets
 
 - I change the logging level to warning, so the files is not growing so big.
 
-- I also add some error handling to this application where is file handling. I also add the error logging there
+- I also add some error handling to this application where is file handling. I also add the error logging there.
+- I made this service to etc/systemd/system/flaskserver.service what starts the pythonserver with gunicorn so this should be more stable solution than use it in develope mode.
+
+## version 129
+- I add the functionalies to shutdown this server from phone and refresh the devices.json file from phone. This new feature calls the broadlink own device search and refresh the devices.json

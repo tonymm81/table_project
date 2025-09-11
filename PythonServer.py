@@ -11,6 +11,7 @@ from motorcontrol import measure_table as MC
 from motorcontrol import motorControlFromPhone
 from pprint import pformat
 import save_to_file as saved
+from subprocess import call
 # Luo Flask-sovellus
 app = Flask(__name__)
 #CORS(app, resources={r"/*": {"origins": "*"}})
@@ -57,6 +58,27 @@ def get_SavedSettings():
     except Exception as e:
         logger.error(f"Virhe käsitellessä GET-pyyntöä: {e}")
         return jsonify({"error": "Server failed to respond"}), 500
+    
+
+@app.route('/ShutDownPythonServer', methods=['GET']) # shutdown the python server from phone
+def ShutDown():
+    try:
+        call("sudo shutdown -h now", shell=True)
+    except Exception as e:
+        logger.error(f"Error, happend when tryiong to shut down: {e}")
+        return  jsonify({"error": "Server failed to respond {e}"}), 500
+    
+
+@app.route('/UpdateTheDevicesJson', methods=['GET']) # this function will use broadlink own library and update the devices.json with that
+def UpdateTheDevicesJson():
+    try:
+        freshDeviceList = broadlink.discover(timeout=5, local_ip_address=ipv4)
+        wlandevices.check_wlan_device_status(freshDeviceList)
+        return jsonify({"status : ok"}), 200
+    except Exception as e:
+        logger.error(f"Error happening, when trying to update the devices.json: {e}")
+        return  jsonify({"error": "Server failed to respond {e}"}), 500
+    
     
 #  post request    
 @app.route('/SaveSettingsFromPhone', methods=['POST'])  # version 127 save the settings from react native
