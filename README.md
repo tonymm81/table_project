@@ -320,3 +320,7 @@ protocol websockets
 
 ## version 129
 - I add the functionalies to shutdown this server from phone and refresh the devices.json file from phone. This new feature calls the broadlink own device search and refresh the devices.json
+
+## version 130
+- Cleaning the uneccesery files from project
+- Adding the pairing new device functionalies

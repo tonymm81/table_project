@@ -7,3 +7,4 @@
 *.pyc
 *.json
 *.log
+/deleted projectFiles/*

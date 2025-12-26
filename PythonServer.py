@@ -224,6 +224,64 @@ def receive_data():
         return jsonify({"error": "Server error"}), 500
 
 
+@app.route('/PairNewDevice', methods=['POST'])
+def pair_new_device():
+    logger.info("PairNewDevice POST arrived")
+    try:
+        data = request.get_json(force=True) or {}
+        ssid = data.get("ssid")
+        password = data.get("password")
+
+        if not ssid or not password:
+            logger.error("Missing ssid or password in payload")
+            return jsonify({"error": "Missing ssid or password"}), 400
+
+        logger.info(f"Starting Broadlink setup for SSID: {ssid}")
+
+        # 1) Käynnistä Broadlink-paritus: lähetä WiFi-tiedot laitteelle
+        #   (joissain versioissa on myös argumentti 'security_mode', mutta
+        #   ssid, password on perusjuttu)
+        broadlink.setup(ssid, password)
+
+        # 2) Odota hetki, että laite liittyy verkkoon ja löydetään se
+        #    käytetään samaa ipv4-osoitetta kuin muuallakin
+        devices = broadlink.discover(timeout=10, local_ip_address=ipv4)
+
+        if not devices:
+            logger.warning("No devices found after pairing")
+            return jsonify({"status": "NO_DEVICES_FOUND"}), 200
+
+        # Muutetaan löydetyt laitteet serialisoitavaan muotoon
+        result = []
+        for dev in devices:
+            try:
+                host = None
+                if isinstance(dev.host, tuple):
+                    host = dev.host[0]
+                else:
+                    host = dev.host
+
+                result.append({
+                    "host": host,
+                    "mac": ":".join(["%02X" % b for b in dev.mac]) if getattr(dev, "mac", None) else None,
+                    "devtype": getattr(dev, "devtype", None),
+                    "type": dev.__class__.__name__
+                })
+            except Exception as e:
+                logger.error(f"Error serializing device: {e}")
+
+        logger.info("Pairing result: %s", pformat(result))
+
+        # Halutessa voisi myös päivittää devicesInServer globaalin listan:
+        # global devicesInServer
+        # devicesInServer = devices
+
+        return jsonify({"status": "OK", "devices": result}), 200
+
+    except Exception as e:
+        logger.error(f"Error in PairNewDevice: {e}")
+        return jsonify({"error": "Server failed to pair device"}), 500
+
 
 
 if __name__ == '__main__':
