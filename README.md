@@ -324,3 +324,4 @@ protocol websockets
 ## version 130
 - Cleaning the uneccesery files from project
 - Adding the pairing new device functionalies
+- Adding the automatic updates to broadlink devices list

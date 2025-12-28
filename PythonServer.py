@@ -12,6 +12,8 @@ from motorcontrol import motorControlFromPhone
 from pprint import pformat
 import save_to_file as saved
 from subprocess import call
+import threading#version 130
+import time#version 130
 # Luo Flask-sovellus
 app = Flask(__name__)
 #CORS(app, resources={r"/*": {"origins": "*"}})
@@ -69,16 +71,12 @@ def ShutDown():
         return  jsonify({"error": "Server failed to respond {e}"}), 500
     
 
-@app.route('/UpdateTheDevicesJson', methods=['GET']) # this function will use broadlink own library and update the devices.json with that
-def UpdateTheDevicesJson():
-    try:
-        freshDeviceList = broadlink.discover(timeout=5, local_ip_address=ipv4)
-        wlandevices.check_wlan_device_status(freshDeviceList)
-        return jsonify({"status : ok"}), 200
-    except Exception as e:
-        logger.error(f"Error happening, when trying to update the devices.json: {e}")
-        return  jsonify({"error": "Server failed to respond {e}"}), 500
-    
+def UpdateTheDevicesJson(): #version 130
+    try: 
+        threading.Thread(target=background_update).start() 
+        return jsonify({"status": "started"}), 200 
+    except Exception as e: 
+        return jsonify({"error": str(e)}), 500
     
 #  post request    
 @app.route('/SaveSettingsFromPhone', methods=['POST'])  # version 127 save the settings from react native
@@ -224,7 +222,7 @@ def receive_data():
         return jsonify({"error": "Server error"}), 500
 
 
-@app.route('/PairNewDevice', methods=['POST'])
+@app.route('/PairNewDevice', methods=['POST'])#version 130
 def pair_new_device():
     logger.info("PairNewDevice POST arrived")
     try:
@@ -283,8 +281,26 @@ def pair_new_device():
         return jsonify({"error": "Server failed to pair device"}), 500
 
 
+def background_update(): #version 130
+    freshDeviceList = broadlink.discover(timeout=5, local_ip_address=ipv4) 
+    wlandevices.check_wlan_device_status(freshDeviceList) 
+    print("Device list updated")
+    
+    
+def auto_update_loop(): #version 130
+    while True: 
+        try: 
+            fresh = broadlink.discover(timeout=5, local_ip_address=ipv4) 
+            wlandevices.check_wlan_device_status(fresh) 
+            print("Auto-update: devices.json refreshed") 
+        except Exception as e: 
+            print("Auto-update error:", e) 
+            
+        time.sleep(280) # 3 minutes
+
 
 if __name__ == '__main__':
+    threading.Thread(target=auto_update_loop, daemon=True).start()#version 130
     #context = ('/etc/ssl/certificate.crt', '/etc/ssl/private.key')  # HTTPS-sertifikaatti
     logger.info("Flask-palvelin käynnistyy...")
     print("Flask-palvelin käynnistyy...")
