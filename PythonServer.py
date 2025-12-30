@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 import ssl
 from flask_cors import CORS
 import wlan_devices as wlandevices
+wlandevices.JSON_FILE = "devices_server.json"#version 131
 import json 
 import os
 import broadlink

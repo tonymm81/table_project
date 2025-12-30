@@ -325,3 +325,16 @@ protocol websockets
 - Cleaning the uneccesery files from project
 - Adding the pairing new device functionalies
 - Adding the automatic updates to broadlink devices list
+
+## version 131
+- Remember to upload the wlandevices and python server to rasbian
+- I have updated now the automatic update logic. Now the rasbiantkinter app keeps its own devices.json and python server keeps this owx devices_server.json file. This how we awoid to different programs to use the same file at the same time.
+
+
+## Spells
+sudo systemctl daemon-reload
+sudo systemctl restart flaskserver.service
+sudo systemctl status flaskserver.service
+sudo systemctl stop flaskserver.service
+sudo systemctl start flaskserver.service
+journalctl -u flaskserver.service -f Log files

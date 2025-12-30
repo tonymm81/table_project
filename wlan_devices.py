@@ -18,6 +18,8 @@ file_handler.setFormatter(formatter)
 logger2.setLevel(logging.WARNING)
 logger2.addHandler(file_handler)
 
+JSON_FILE = "devices.json"
+
 devices_library = {}
 devices = []
 json.dumps(devices_library, indent=4)
@@ -33,7 +35,7 @@ def save_json(devices_library):
     try:
         table_distance = measure_table()
         devices_library.update({"distance_from_floor": [table_distance]})
-        filepath = get_local_path("devices.json")
+        filepath = get_local_path(JSON_FILE)# version 131
 
         # Poista vanha tiedosto, jos se on olemassa
         if os.path.exists(filepath):
@@ -44,14 +46,14 @@ def save_json(devices_library):
             f.flush()
             os.fsync(f.fileno())
 
-        logger2.info(" devices.json saved")
+        logger2.info(f"{JSON_FILE} saved")
     except Exception as e:
         logger2.error(" save_json failed: %s", e)
 
 
 
 def load_json():
-    filepath = get_local_path("devices.json")
+    filepath = get_local_path(JSON_FILE)# version 131
     try:
         with open(filepath, "r") as f:
             data = json.load(f)
