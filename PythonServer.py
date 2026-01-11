@@ -3,7 +3,6 @@ from flask import Flask, request, jsonify
 import ssl
 from flask_cors import CORS
 import wlan_devices as wlandevices
-wlandevices.JSON_FILE = "devices_server.json"#version 131
 import json 
 import os
 import broadlink
@@ -15,6 +14,12 @@ import save_to_file as saved
 from subprocess import call
 import threading#version 130
 import time#version 130
+from db import get_connection
+import traceback
+traceback.print_exc()
+
+logging.raiseExceptions = True
+
 # Luo Flask-sovellus
 app = Flask(__name__)
 #CORS(app, resources={r"/*": {"origins": "*"}})
@@ -28,10 +33,39 @@ file_handler.setFormatter(formatter)
 logger.setLevel(logging.WARNING)
 logger.addHandler(file_handler)
 
+print("PYTHONSERVER USING:", wlandevices.__file__) 
+print("JSON_FILE AT START:", wlandevices.JSON_FILE)
+
 
 BeforeCompare = {}
 ipv4 = os.popen('ip addr show wlan0 | grep "\<inet\>" | awk \'{ print $2 }\' | awk -F "/" \'{ print $1 }\'').read().strip() # this how we take broker ip address in beging of program-
 devicesInServer = broadlink.discover(timeout=5, local_ip_address=ipv4)# lets check devices list 
+
+def db_load_devices():
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT device_key, value_json FROM devices")
+    rows = cur.fetchall()
+    conn.close()
+
+    result = {}
+    for key, value_json in rows:
+        result[key] = json.loads(value_json)
+    return result
+
+
+def db_save_devices(data: dict):
+    conn = get_connection()
+    cur = conn.cursor()
+    for key, value in data.items():
+        cur.execute(
+            "REPLACE INTO devices (device_key, value_json) VALUES (%s, %s)",
+            (key, json.dumps(value))
+        )
+    conn.commit()
+    conn.close()
+
+
 
 
 @app.after_request
@@ -45,7 +79,7 @@ def after_request(response):
 @app.route('/data', methods=['GET'])# get the wlan devices status and return it to react native
 def get_data():
     try:
-        json_data = wlandevices.load_json()
+        json_data = wlandevices.load_json_from_db()
         logger.info("GET-pyyntö vastaanotettu: \n%s", pformat(json_data))
         return jsonify(json_data), 200
     except Exception as e:
@@ -122,8 +156,9 @@ def receive_data():
     if not request_data:
         return jsonify({"error": "Empty payload"}), 400
     try:
-        server_data = wlandevices.load_json()
+        server_data = wlandevices.load_json_from_db()
         updates = []
+
         if 'distance_from_floor' in request_data:  # update to version 125
             requested_height = request_data['distance_from_floor']
             if isinstance(requested_height, list):
@@ -156,7 +191,8 @@ def receive_data():
             logger.info("new_conf for %s: %s", key, new_cfg)
 
             # search the broadlink library based device object
-            dev = wlandevices.SearchSpecific_device(key, devicesInServer)
+            fresh_devices = broadlink.discover(timeout=5, local_ip_address=ipv4) 
+            dev = wlandevices.SearchSpecific_device(key, fresh_devices)
             if not dev:
                 logger.error("Device not found: %s", key)
                 continue
@@ -213,7 +249,7 @@ def receive_data():
 
         # Update json only if it has changed
         if updates:
-            wlandevices.update_json(server_data)
+            wlandevices.save_json_to_db(server_data)
             logger.info(" Updated JSON for keys %s", updates)
 
         return jsonify({"status": "OK", "updated": updates}), 200
@@ -288,17 +324,55 @@ def background_update(): #version 130
     print("Device list updated")
     
     
-def auto_update_loop(): #version 130
-    while True: 
-        try: 
-            fresh = broadlink.discover(timeout=5, local_ip_address=ipv4) 
-            wlandevices.check_wlan_device_status(fresh) 
-            print("Auto-update: devices.json refreshed") 
-        except Exception as e: 
-            print("Auto-update error:", e) 
-            
-        time.sleep(280) # 3 minutes
+def auto_update_loop():# version 131
+    while True:
+        try:
+            fresh = broadlink.discover(timeout=5, local_ip_address=ipv4)
 
+            temp_json = {}
+            buttons_row = 15
+
+            for dev in fresh:
+                devtype = dev.devtype
+                devname = dev.name
+
+                # IP suoraan objektista
+                ip = dev.host[0]
+
+                try:
+                    single = broadlink.discover(timeout=5, discover_ip_address=ip)
+                    single[0].auth()
+
+                    if devtype == 24686:  # bulb
+                        state = single[0].get_state()
+                    elif devtype in (30073, 42348, 32000):  # plugs
+                        state = single[0].check_power()
+                    else:
+                        state = None
+
+                except Exception as e:
+                    logger.error("Auto-update error: %s", e)
+                    print("Auto-update error:", e)
+                    traceback.print_exc()
+
+
+                temp_json[devname] = [ip, state, devtype, "", ""]
+
+
+            # Add table height
+            table_distance = MC()
+            temp_json["distance_from_floor"] = [table_distance]
+
+            # Write JSON
+            wlandevices.save_json_to_db(temp_json)
+            print("Auto-update: devices_server.json refreshed")
+
+        except Exception as e:
+            logger.error("Auto-update error: %s", e)
+            print("Auto-update error:", e)
+
+        time.sleep(280)
+        
 
 if __name__ == '__main__':
     threading.Thread(target=auto_update_loop, daemon=True).start()#version 130

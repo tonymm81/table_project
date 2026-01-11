@@ -330,6 +330,15 @@ protocol websockets
 - Remember to upload the wlandevices and python server to rasbian
 - I have updated now the automatic update logic. Now the rasbiantkinter app keeps its own devices.json and python server keeps this owx devices_server.json file. This how we awoid to different programs to use the same file at the same time.
 
+## version 132
+- I modify the program to use database. It is so pointless to figure out why the json file is not changing. Next step is to configure the whole program to use database.
+
+### bugs so far
+- Not updating the new devices automaticly
+- Json data is wrong form. There is tkinter specifig data missing
+- Delay in changing the device status
+
+
 
 ## Spells
 sudo systemctl daemon-reload
