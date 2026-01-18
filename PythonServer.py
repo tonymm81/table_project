@@ -25,12 +25,15 @@ app = Flask(__name__)
 #CORS(app, resources={r"/*": {"origins": "*"}})
 CORS(app, supports_credentials=True)
 
+cached_devices = [] 
+cached_devices_lock = threading.Lock()
+
 # Define the log file
 logger = logging.getLogger("pythonserver")
 file_handler = logging.FileHandler("/home/table/Desktop/table2/table_project/logs/flaskserver_log.log")
 formatter = logging.Formatter("%(asctime)s - %(message)s")
 file_handler.setFormatter(formatter)
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.DEBUG)
 logger.addHandler(file_handler)
 
 print("PYTHONSERVER USING:", wlandevices.__file__) 
@@ -170,11 +173,11 @@ def receive_data():
             if abs(current_height - requested_height) > 0.5:  # tolerance.
                 if requested_height > current_height:
                     difference = requested_height - current_height
-                    logger.info(f"🔼 Requested height is higher → motor_control('up', {requested_height})")
+                    logger.info(f" Requested height is higher → motor_control('up', {requested_height})")
                     motorControlFromPhone(difference, 15, 23)
                 elif requested_height < current_height:
                     difference = current_height - requested_height
-                    logger.info(f"🔽 Requested height is lower → motor_control('down', {requested_height})")
+                    logger.info(f" Requested height is lower → motor_control('down', {requested_height})")
                     motorControlFromPhone(difference, 12, 8)
 
         for key, new_arr in request_data.items():
@@ -190,8 +193,23 @@ def receive_data():
             logger.info("old_conf for %s: %s", key, old_cfg)
             logger.info("new_conf for %s: %s", key, new_cfg)
 
-            # search the broadlink library based device object
-            fresh_devices = broadlink.discover(timeout=5, local_ip_address=ipv4) 
+            # ennen: fresh_devices = broadlink.discover(timeout=5, local_ip_address=ipv4)
+            # sen sijaan:
+            try:
+                cached_devices_lock.acquire()
+                fresh_devices = list(cached_devices)  # kopioidaan käyttöä varten
+            finally:
+                cached_devices_lock.release()
+
+            # fallback jos cache tyhjä (esim. käynnistyksen aikana)
+            if not fresh_devices:
+                try:
+                    fresh_devices = broadlink.discover(timeout=3, local_ip_address=ipv4)
+                    logger.info("Fallback discover used in receive_data")
+                except Exception as e:
+                    logger.error("Fallback discover failed: %s", e)
+                    fresh_devices = []
+
             dev = wlandevices.SearchSpecific_device(key, fresh_devices)
             if not dev:
                 logger.error("Device not found: %s", key)
@@ -319,60 +337,36 @@ def pair_new_device():
 
 
 def background_update(): #version 130
-    freshDeviceList = broadlink.discover(timeout=5, local_ip_address=ipv4) 
-    wlandevices.check_wlan_device_status(freshDeviceList) 
+    fresh = broadlink.discover(timeout=5, local_ip_address=ipv4)
+    temp_json = wlandevices.check_wlan_device_status(fresh)
+    wlandevices.persist_devices(temp_json)
     print("Device list updated")
     
     
-def auto_update_loop():# version 131
+def auto_update_loop():
+    global cached_devices
     while True:
         try:
             fresh = broadlink.discover(timeout=5, local_ip_address=ipv4)
+            logger.info("Auto-update: discover returned %d devices, calling check_wlan_device_status()", len(fresh))
+            temp_json = wlandevices.check_wlan_device_status(fresh)
+            # persistataan
+            wlandevices.persist_devices(temp_json)
+            logger.info("Auto-update: check_wlan_device_status() finished in s, returned %d entries", len(temp_json))
+            # päivitetään cache thread-safe
+            try:
+                cached_devices_lock.acquire()
+                cached_devices = fresh  # tallennetaan Broadlink‑objektit
+            finally:
+                cached_devices_lock.release()
 
-            temp_json = {}
-            buttons_row = 15
-
-            for dev in fresh:
-                devtype = dev.devtype
-                devname = dev.name
-
-                # IP suoraan objektista
-                ip = dev.host[0]
-
-                try:
-                    single = broadlink.discover(timeout=5, discover_ip_address=ip)
-                    single[0].auth()
-
-                    if devtype == 24686:  # bulb
-                        state = single[0].get_state()
-                    elif devtype in (30073, 42348, 32000):  # plugs
-                        state = single[0].check_power()
-                    else:
-                        state = None
-
-                except Exception as e:
-                    logger.error("Auto-update error: %s", e)
-                    print("Auto-update error:", e)
-                    traceback.print_exc()
-
-
-                temp_json[devname] = [ip, state, devtype, "", ""]
-
-
-            # Add table height
-            table_distance = MC()
-            temp_json["distance_from_floor"] = [table_distance]
-
-            # Write JSON
-            wlandevices.save_json_to_db(temp_json)
-            print("Auto-update: devices_server.json refreshed")
-
+            logger.info("Auto-update: devices refreshed, cached_devices updated")
         except Exception as e:
             logger.error("Auto-update error: %s", e)
-            print("Auto-update error:", e)
-
+            import traceback; traceback.print_exc()
         time.sleep(280)
-        
+
+
 
 if __name__ == '__main__':
     threading.Thread(target=auto_update_loop, daemon=True).start()#version 130

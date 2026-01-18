@@ -338,6 +338,14 @@ protocol websockets
 - Json data is wrong form. There is tkinter specifig data missing
 - Delay in changing the device status
 
+### bugs 18.1.2026
+- Program cannot save the user settings for now.
+
+### report
+- Now the program founds new devices, what is paired but powered after this flaskserver startup. There was logging code, what stop the autoupdateloot to save to database the new devices list.
+
+- Next this is update the db.py and save_to_File.py use database.
+
 
 
 ## Spells
@@ -347,3 +355,8 @@ sudo systemctl status flaskserver.service
 sudo systemctl stop flaskserver.service
 sudo systemctl start flaskserver.service
 journalctl -u flaskserver.service -f Log files
+
+nohup tail -F /home/table/Desktop/table2/table_project/logs/flaskserver_log.log > /tmp/flask_tail.log 2>&1 & echo $!
+
+sudo tail -F /home/table/Desktop/table2/table_project/logs/flaskserver_log.log &
+sudo tail -F /home/table/Desktop/table2/table_project/logs/Wlandevices.log & 

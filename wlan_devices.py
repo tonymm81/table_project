@@ -10,6 +10,7 @@ import logging
 from pprint import pformat
 import os
 from db import init_db, get_connection
+import time
 
 
 JSON_FILE = "devices.json"
@@ -17,7 +18,7 @@ logger2 = logging.getLogger("wlan_devices")
 file_handler = logging.FileHandler("/home/table/Desktop/table2/table_project/logs/Wlandevices.log")
 formatter = logging.Formatter("%(asctime)s - %(message)s")
 file_handler.setFormatter(formatter)
-logger2.setLevel(logging.WARNING)
+logger2.setLevel(logging.DEBUG)
 logger2.addHandler(file_handler)
 
 
@@ -54,6 +55,8 @@ def save_json(devices_library, filename=None):
         logger2.info(f"{JSON_FILE} saved")
     except Exception as e:
         logger2.error(" save_json failed: %s", e)
+    
+    save_json_to_db(devices_library)
 
 
 
@@ -75,60 +78,92 @@ def load_json(filename=None):
 
 
 
-def get_json(filename=None): 
-    if filename is None: 
-        filename = JSON_FILE 
-    global devices_library
-    devices_library = load_json()
-    return json.dumps(devices_library, indent=4) 
+def get_json(): # version 132
+    devices_library = load_json_from_db()
+    return json.dumps(devices_library, indent=4)
 
-
-def update_json(device_library_temp, filename=None): 
-    if filename is None: 
-        filename = JSON_FILE 
-    save_json(device_library_temp, filename)
+def update_json(device_library_temp):# version 132
     global devices_library
-    if not device_library_temp:
-        logger2.warning("update_json sai tyhjän device_library_temp!")
     devices_library = device_library_temp
-    formatted2 = json.dumps(devices_library, indent=4)#debugging
-    logger2.info("Update json function:\n%s", formatted2)
-    devices_library = device_library_temp#json.dumps(device_library_temp, indent=4)
-    save_json(devices_library)
-    #pprint.pprint(devices_library) # easier way to read json value
+    persist_devices(devices_library)
     return
 
+
 def save_json_to_db(data: dict):
-    conn = get_connection()
-    cur = conn.cursor()
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        for key, value in data.items():
+            cur.execute(
+                "REPLACE INTO devices (device_key, value_json) VALUES (%s, %s)",
+                (key, json.dumps(value))
+            )
+        conn.commit()
+        conn.close()
+        logger2.info("save_json_to_db: committed %d entries", len(data))
+    except Exception as e:
+        logger2.exception("save_json_to_db failed: %s", e)
+        try:
+            conn.rollback()
+            conn.close()
+        except Exception:
+            pass
+        raise
 
-    for key, value in data.items():
-        cur.execute(
-            "REPLACE INTO devices (device_key, value_json) VALUES (%s, %s)",
-            (key, json.dumps(value))
-        )
-
-    conn.commit()
-    conn.close()
 
 
 def load_json_from_db():
+    """
+    Hakee devices-taulusta device_key ja value_json, palauttaa dictin muodossa:
+    { device_key: parsed_json_dict_or_empty_dict, ... }
+    Suojaa tyhjät/virheelliset JSON-arvot ja lokittaa virheet.
+    """
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT device_key, value_json FROM devices")
+    try:
+        cur.execute("SELECT device_key, value_json FROM devices")
+        rows = cur.fetchall()
 
-    result = {}
-    for key, value_json in cur.fetchall():
-        result[key] = json.loads(value_json)
+        result = {}
+        for key, value_json in rows:
+            # defenssi: jos arvo on None tai tyhjä merkkijono, jätä tyhjä dict
+            if not value_json:
+                logger2.warning("Empty value_json for key %s, using empty dict", key)
+                result[key] = {}
+                continue
 
-    conn.close()
-    return result
+            # jos arvo on jo dict-tyyppi (harvinainen), käytä suoraan
+            if isinstance(value_json, dict):
+                result[key] = value_json
+                continue
+
+            # yritä jäsentää JSON turvallisesti
+            try:
+                parsed = json.loads(value_json)
+                result[key] = parsed
+            except Exception as e:
+                logger2.exception("Failed to parse JSON for key %s: %s", key, e)
+                # fallback: tyhjä dict, jotta kutsujat eivät kaadu
+                result[key] = {}
+
+        return result
+    finally:
+        try:
+            cur.close()
+        except Exception:
+            pass
+        try:
+            conn.close()
+        except Exception:
+            pass
+
 
 
 
 def check_wlan_device_status(devices): # check here also buttons and save device in button command
-   
+    start = time.time()
     #devices_library_temp = {}#get_json()
+    logger2.info("check_wlan_device_status called with %d devices", len(devices))
     temp_json = {}#json.loads(devices_library_temp)
     buttons_row = 15
     for i in range (len(devices)):
@@ -235,11 +270,9 @@ def check_wlan_device_status(devices): # check here also buttons and save device
     table_distance = measure_table()
     desk_level = {"distance_from_floor" : [table_distance]}
     temp_json.update(desk_level)
-    #devices_library = json.dumps(temp_json)
-    update_json(temp_json)
-    #print(devices_library)
     
-    return 
+    logger2.info("check_wlan_device_status finished s, returning %d entries", len(temp_json))
+    return  temp_json
 
 
 def control_wlan_devices(device_names, devices):# here we change the wlan devices state   
@@ -425,4 +458,12 @@ def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):
     return 
     
 
-   
+def persist_devices(devices_dict: dict):
+    logger2.info("persist_devices called, entries=%d", len(devices_dict))
+    try:
+        save_json_to_db(devices_dict)
+        # save_json(devices_dict)  # pidä kommentoituna tuotannossa, jos haluat
+        logger2.info("persist_devices: save_json_to_db succeeded")
+    except Exception as e:
+        logger2.exception("persist_devices failed: %s", e)
+        raise
