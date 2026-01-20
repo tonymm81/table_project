@@ -13,7 +13,7 @@ from db import init_db, get_connection
 import time
 
 
-JSON_FILE = "devices.json"
+#JSON_FILE = "devices.json"
 logger2 = logging.getLogger("wlan_devices")
 file_handler = logging.FileHandler("/home/table/Desktop/table2/table_project/logs/Wlandevices.log")
 formatter = logging.Formatter("%(asctime)s - %(message)s")
@@ -35,7 +35,7 @@ def get_local_path(filename):
 
 
 def save_json(devices_library, filename=None): 
-    if filename is None: 
+    """if filename is None: 
         filename = JSON_FILE 
     filepath = get_local_path(filename)
     try:
@@ -54,14 +54,17 @@ def save_json(devices_library, filename=None):
 
         logger2.info(f"{JSON_FILE} saved")
     except Exception as e:
-        logger2.error(" save_json failed: %s", e)
-    
+        logger2.error(" save_json failed: %s", e)"""
+    logger2.info("db saved")
     save_json_to_db(devices_library)
 
 
 
 def load_json(filename=None): 
-    if filename is None: 
+    dbData = load_json_from_db()
+    logger2.info("Json file loaded: %s", dbData)
+    return dbData
+    """if filename is None: 
         filename = JSON_FILE 
     filepath = get_local_path(filename)
     try:
@@ -74,7 +77,7 @@ def load_json(filename=None):
         return {}
     except Exception as e:
         logger2.error(" JSON loading fail: %s", e)
-        return {}
+        return {}"""
 
 
 
@@ -89,26 +92,38 @@ def update_json(device_library_temp):# version 132
     return
 
 
-def save_json_to_db(data: dict):
+def save_json_to_db(data: dict):# version 133 changes
     try:
         conn = get_connection()
         cur = conn.cursor()
+
+        # Tyhjennetään koko taulu ennen uusien arvojen tallennusta
+        cur.execute("DELETE FROM devices")
+
+        # Tallennetaan uudet rivit
         for key, value in data.items():
             cur.execute(
-                "REPLACE INTO devices (device_key, value_json) VALUES (%s, %s)",
+                "INSERT INTO devices (device_key, value_json) VALUES (%s, %s)",
                 (key, json.dumps(value))
             )
+
         conn.commit()
-        conn.close()
         logger2.info("save_json_to_db: committed %d entries", len(data))
+
     except Exception as e:
         logger2.exception("save_json_to_db failed: %s", e)
         try:
             conn.rollback()
-            conn.close()
         except Exception:
             pass
         raise
+
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
 
 
 
@@ -121,41 +136,19 @@ def load_json_from_db():
     conn = get_connection()
     cur = conn.cursor()
     try:
+        conn = get_connection()
+        cur = conn.cursor()
         cur.execute("SELECT device_key, value_json FROM devices")
         rows = cur.fetchall()
+        conn.close()
 
         result = {}
         for key, value_json in rows:
-            # defenssi: jos arvo on None tai tyhjä merkkijono, jätä tyhjä dict
-            if not value_json:
-                logger2.warning("Empty value_json for key %s, using empty dict", key)
-                result[key] = {}
-                continue
-
-            # jos arvo on jo dict-tyyppi (harvinainen), käytä suoraan
-            if isinstance(value_json, dict):
-                result[key] = value_json
-                continue
-
-            # yritä jäsentää JSON turvallisesti
-            try:
-                parsed = json.loads(value_json)
-                result[key] = parsed
-            except Exception as e:
-                logger2.exception("Failed to parse JSON for key %s: %s", key, e)
-                # fallback: tyhjä dict, jotta kutsujat eivät kaadu
-                result[key] = {}
-
-        return result
-    finally:
-        try:
-            cur.close()
-        except Exception:
-            pass
-        try:
-            conn.close()
-        except Exception:
-            pass
+            result[key] = json.loads(value_json)
+    except Exception as e:        
+        logger2.warning("device load failed %s", e)
+    logger2.info("return loaded result from db %s", pformat(result))
+    return result
 
 
 

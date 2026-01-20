@@ -7,7 +7,7 @@ from tkinter import ttk
 from typing import List
 import os
 import logging
-from db import save_config, load_config, list_configs 
+from table_project.table_project.dbOldWorking import save_config, load_config, list_configs 
 
 savenumber = 0
 savename = ["save1", "save2", "save3", "save4"] # this we will save to file. This how we know what name of json file we are looking for..

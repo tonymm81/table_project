@@ -340,12 +340,20 @@ protocol websockets
 
 ### bugs 18.1.2026
 - Program cannot save the user settings for now.
+- Automatic device update is still not working
 
 ### report
 - Now the program founds new devices, what is paired but powered after this flaskserver startup. There was logging code, what stop the autoupdateloot to save to database the new devices list.
 
 - Next this is update the db.py and save_to_File.py use database.
 
+
+## version 133
+- I think that the data update issue is causing by that old save devices status to file. It did not never work like excepted so now I modify the program to save only in database.
+
+- I fix now the update error in devices table. Now if new devices appear on wlan, it will show on react native.
+- Now user can save and load the settings from react native and tkinter.
+- This program will not save anymore in the files so lets test this and then merge the branch
 
 
 ## Spells
@@ -360,3 +368,4 @@ nohup tail -F /home/table/Desktop/table2/table_project/logs/flaskserver_log.log 
 
 sudo tail -F /home/table/Desktop/table2/table_project/logs/flaskserver_log.log &
 sudo tail -F /home/table/Desktop/table2/table_project/logs/Wlandevices.log & 
+

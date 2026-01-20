@@ -14,7 +14,7 @@ import save_to_file as saved
 from subprocess import call
 import threading#version 130
 import time#version 130
-from db import get_connection
+from table_project.table_project.dbOldWorking import get_connection
 import traceback
 traceback.print_exc()
 
@@ -36,15 +36,15 @@ file_handler.setFormatter(formatter)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(file_handler)
 
-print("PYTHONSERVER USING:", wlandevices.__file__) 
-print("JSON_FILE AT START:", wlandevices.JSON_FILE)
+#print("PYTHONSERVER USING:", wlandevices.__file__) 
+#print("JSON_FILE AT START:", wlandevices.JSON_FILE)
 
 
 BeforeCompare = {}
 ipv4 = os.popen('ip addr show wlan0 | grep "\<inet\>" | awk \'{ print $2 }\' | awk -F "/" \'{ print $1 }\'').read().strip() # this how we take broker ip address in beging of program-
 devicesInServer = broadlink.discover(timeout=5, local_ip_address=ipv4)# lets check devices list 
 
-def db_load_devices():
+def db_load_devices(): # this can be deleted
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT device_key, value_json FROM devices")
@@ -57,7 +57,7 @@ def db_load_devices():
     return result
 
 
-def db_save_devices(data: dict):
+def db_save_devices(data: dict):# this can be deleted
     conn = get_connection()
     cur = conn.cursor()
     for key, value in data.items():
@@ -83,7 +83,7 @@ def after_request(response):
 def get_data():
     try:
         json_data = wlandevices.load_json_from_db()
-        logger.info("GET-pyyntö vastaanotettu: \n%s", pformat(json_data))
+        #logger.info("GET-pyyntö vastaanotettu: \n%s", pformat(json_data))
         return jsonify(json_data), 200
     except Exception as e:
         logger.error(f"Virhe käsitellessä GET-pyyntöä: {e}")
