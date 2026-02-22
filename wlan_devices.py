@@ -9,19 +9,24 @@ from motorcontrol import measure_table
 import logging
 from pprint import pformat
 import os
+from db import init_db, get_connection
+import time
 
 
+#JSON_FILE = "devices.json"
 logger2 = logging.getLogger("wlan_devices")
 file_handler = logging.FileHandler("/home/table/Desktop/table2/table_project/logs/Wlandevices.log")
 formatter = logging.Formatter("%(asctime)s - %(message)s")
 file_handler.setFormatter(formatter)
-logger2.setLevel(logging.WARNING)
+logger2.setLevel(logging.ERROR)
 logger2.addHandler(file_handler)
+
 
 devices_library = {}
 devices = []
 json.dumps(devices_library, indent=4)
 
+init_db()
 
 def get_local_path(filename):
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -29,64 +34,93 @@ def get_local_path(filename):
 
 
 
-def save_json(devices_library):
-    try:
-        table_distance = measure_table()
-        devices_library.update({"distance_from_floor": [table_distance]})
-        filepath = get_local_path("devices.json")
-
-        # Poista vanha tiedosto, jos se on olemassa
-        if os.path.exists(filepath):
-            os.remove(filepath)
-
-        with open(filepath, "w") as f:
-            json.dump(devices_library, f, indent=4)
-            f.flush()
-            os.fsync(f.fileno())
-
-        logger2.info(" devices.json saved")
-    except Exception as e:
-        logger2.error(" save_json failed: %s", e)
+def save_json(devices_library, filename=None): 
+    
+    logger2.info("db saved")
+    save_json_to_db(devices_library)
 
 
 
-def load_json():
-    filepath = get_local_path("devices.json")
-    try:
-        with open(filepath, "r") as f:
-            data = json.load(f)
-        logger2.info("Json file loaded: %s", filepath)
-        return data
-    except FileNotFoundError:
-        logger2.warning(" File not found ehhehe: %s", filepath)
-        return {}
-    except Exception as e:
-        logger2.error(" JSON loading fail: %s", e)
-        return {}
+def load_json(filename=None): 
+    dbData = load_json_from_db()
+    logger2.info("Json file loaded: %s", dbData)
+    return dbData
+   
 
 
 
-def get_json():
+def get_json(): # version 132
+    devices_library = load_json_from_db()
+    return json.dumps(devices_library, indent=4)
+
+def update_json(device_library_temp):# version 132
     global devices_library
-    devices_library = load_json()
-    return json.dumps(devices_library, indent=4) 
-
-
-def update_json(device_library_temp):
-    global devices_library
-    if not device_library_temp:
-        logger2.warning("update_json sai tyhjän device_library_temp!")
-    devices_library = {} 
-    formatted2 = json.dumps(devices_library, indent=4)#debugging
-    logger2.info(f"Update json function: \n%s" ,formatted2)
-    devices_library = device_library_temp#json.dumps(device_library_temp, indent=4)
-    save_json(devices_library)
-    #pprint.pprint(devices_library) # easier way to read json value
+    devices_library = device_library_temp
+    persist_devices(devices_library)
     return
 
-def check_wlan_device_status(devices): # check here also buttons and save device in button command
+
+def save_json_to_db(data: dict):# version 133 changes
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+
+        # Tyhjennetään koko taulu ennen uusien arvojen tallennusta
+        cur.execute("DELETE FROM devices")
+
+        # Tallennetaan uudet rivit
+        for key, value in data.items():
+            cur.execute(
+                "INSERT INTO devices (device_key, value_json) VALUES (%s, %s)",
+                (key, json.dumps(value))
+            )
+
+        conn.commit()
+        logger2.info("save_json_to_db: committed %d entries", len(data))
+
+    except Exception as e:
+        logger2.exception("save_json_to_db failed: %s", e)
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        raise
+
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+
+
+
+def load_json_from_db():
    
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT device_key, value_json FROM devices")
+        rows = cur.fetchall()
+        conn.close()
+
+        result = {}
+        for key, value_json in rows:
+            result[key] = json.loads(value_json)
+    except Exception as e:        
+        logger2.warning("device load failed %s", e)
+    logger2.info("return loaded result from db %s", pformat(result))
+    return result
+
+
+
+
+def check_wlan_device_status(devices): # check here also buttons and save device in button command
+    start = time.time()
     #devices_library_temp = {}#get_json()
+    logger2.info("check_wlan_device_status called with %d devices", len(devices))
     temp_json = {}#json.loads(devices_library_temp)
     buttons_row = 15
     for i in range (len(devices)):
@@ -193,11 +227,9 @@ def check_wlan_device_status(devices): # check here also buttons and save device
     table_distance = measure_table()
     desk_level = {"distance_from_floor" : [table_distance]}
     temp_json.update(desk_level)
-    #devices_library = json.dumps(temp_json)
-    update_json(temp_json)
-    #print(devices_library)
     
-    return 
+    logger2.info("check_wlan_device_status finished s, returning %d entries", len(temp_json))
+    return  temp_json
 
 
 def control_wlan_devices(device_names, devices):# here we change the wlan devices state   
@@ -259,12 +291,7 @@ def control_wlan_devices(device_names, devices):# here we change the wlan device
     else:
         
         print("plug!!")
-        control = SearchSpecific_device(device_name_tmp, devices)
-        """for i in range(len(devices)):
-            if device_name_tmp == devices[i].name:
-                control = devices[i]
-                break"""
-            
+        control = SearchSpecific_device(device_name_tmp, devices)  
         control.auth()
         switch_state = control.check_power()
         
@@ -283,7 +310,7 @@ def control_wlan_devices(device_names, devices):# here we change the wlan device
 
 
 def SearchSpecific_device(device_name_tmp, devices):
-    logger2.info("SearchSpecific_device function: device_name_tmp %s, devices\n%s", device_name_tmp, devices)
+    #logger2.info("SearchSpecific_device function: device_name_tmp %s, devices\n%s", device_name_tmp, devices)
     for dev in devices:
         print("devices name", dev.name)
         print("from function call", device_name_tmp)
@@ -293,34 +320,32 @@ def SearchSpecific_device(device_name_tmp, devices):
 
 def controlFromPhone(WhatDevice, temp_json, device_name_tmp):
     logger2.info("controlFromPhone function: WhatDevice %s tempjson : %s, davicenametemp \n%s", WhatDevice, pformat(temp_json), device_name_tmp)
-    if WhatDevice.devtype == 24686:
-        WhatDevice.auth()
-        state = WhatDevice.get_state()
-        if state['pwr'] == 0:
-            WhatDevice.set_state(pwr=1)
-            state_ = 1
-            #logger2.info("it was a fucking lamp")
+    try:
+        if WhatDevice.devtype == 24686:
+            WhatDevice.auth()
+            state = WhatDevice.get_state()
+            if state.get('pwr') == 0:
+                WhatDevice.set_state(pwr=1)
+            else:
+                WhatDevice.set_state(pwr=0)
+            # Lue tila uudelleen varmistaaksesi oikean arvon
+            state = WhatDevice.get_state()
+            temp_json[device_name_tmp][1]['pwr'] = state.get('pwr')
         else:
-            WhatDevice.set_state(pwr=0)
-            state_ = 0
-        temp_json[device_name_tmp][1]['pwr'] = state['pwr']
-    else:
-        WhatDevice.auth()
-        switch_state = WhatDevice.check_power()
-        
-        if switch_state == True:
-            WhatDevice.set_power(False)
-            #logger2.info("it was a fucking socket")
-            
-        elif switch_state == False:
-            WhatDevice.set_power(True)
+            WhatDevice.auth()
+            switch_state = WhatDevice.check_power()
+            if switch_state is True:
+                WhatDevice.set_power(False)
+            else:
+                WhatDevice.set_power(True)
+            # Lue tila uudelleen
             switch_state = WhatDevice.check_power()
             temp_json[device_name_tmp][1] = switch_state
-            
-    
-    #devices_library = json.dumps(temp_json, indent=4)
-    #update_json(temp_json)
+    except Exception as e:
+        logger2.warning("controlFromPhone failed for %s: %s", device_name_tmp, e)
+        import traceback; traceback.print_exc()
     return
+
 
 def SetPulpStateFromPhone(
     WhatDevice, brightness=None, colormode=None, mode=None, temp=None
@@ -378,11 +403,16 @@ def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):
     state = control.get_state()
     print("lamp case", device_name_tmp)
     temp_json[device_name_tmp][1]['pwr'] = state['pwr']
-    #print("whole json" ,temp_json[device_name_tmp])
-    #print("testing", device_name_tmp, "json", str(temp_json[device_name_tmp][1]['pwr']))
-    #devices_library = json.dumps(temp_json, indent=4)
     update_json(temp_json)
     return 
     
 
-   
+def persist_devices(devices_dict: dict):
+    logger2.info("persist_devices called, entries=%d", len(devices_dict))
+    try:
+        save_json_to_db(devices_dict)
+        # save_json(devices_dict)  # pidä kommentoituna tuotannossa, jos haluat
+        logger2.info("persist_devices: save_json_to_db succeeded")
+    except Exception as e:
+        logger2.exception("persist_devices failed: %s", e)
+        raise

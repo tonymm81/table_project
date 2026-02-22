@@ -12,23 +12,63 @@ from motorcontrol import motorControlFromPhone
 from pprint import pformat
 import save_to_file as saved
 from subprocess import call
+import threading#version 130
+import time#version 130
+#from table_project.table_project.OldFiles.dbOldWorking import get_connection
+import traceback
+traceback.print_exc()
+
+logging.raiseExceptions = True
+
 # Luo Flask-sovellus
 app = Flask(__name__)
 #CORS(app, resources={r"/*": {"origins": "*"}})
 CORS(app, supports_credentials=True)
+
+cached_devices = [] 
+cached_devices_lock = threading.Lock()
 
 # Define the log file
 logger = logging.getLogger("pythonserver")
 file_handler = logging.FileHandler("/home/table/Desktop/table2/table_project/logs/flaskserver_log.log")
 formatter = logging.Formatter("%(asctime)s - %(message)s")
 file_handler.setFormatter(formatter)
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.ERROR)
 logger.addHandler(file_handler)
+
+#print("PYTHONSERVER USING:", wlandevices.__file__) 
+#print("JSON_FILE AT START:", wlandevices.JSON_FILE)
 
 
 BeforeCompare = {}
 ipv4 = os.popen('ip addr show wlan0 | grep "\<inet\>" | awk \'{ print $2 }\' | awk -F "/" \'{ print $1 }\'').read().strip() # this how we take broker ip address in beging of program-
 devicesInServer = broadlink.discover(timeout=5, local_ip_address=ipv4)# lets check devices list 
+
+def db_load_devices(): # this can be deleted
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT device_key, value_json FROM devices")
+    rows = cur.fetchall()
+    conn.close()
+
+    result = {}
+    for key, value_json in rows:
+        result[key] = json.loads(value_json)
+    return result
+
+
+def db_save_devices(data: dict):# this can be deleted
+    conn = get_connection()
+    cur = conn.cursor()
+    for key, value in data.items():
+        cur.execute(
+            "REPLACE INTO devices (device_key, value_json) VALUES (%s, %s)",
+            (key, json.dumps(value))
+        )
+    conn.commit()
+    conn.close()
+
+
 
 
 @app.after_request
@@ -42,8 +82,8 @@ def after_request(response):
 @app.route('/data', methods=['GET'])# get the wlan devices status and return it to react native
 def get_data():
     try:
-        json_data = wlandevices.load_json()
-        logger.info("GET-pyyntö vastaanotettu: \n%s", pformat(json_data))
+        json_data = wlandevices.load_json_from_db()
+        #logger.info("GET-pyyntö vastaanotettu: \n%s", pformat(json_data))
         return jsonify(json_data), 200
     except Exception as e:
         logger.error(f"Virhe käsitellessä GET-pyyntöä: {e}")
@@ -69,16 +109,12 @@ def ShutDown():
         return  jsonify({"error": "Server failed to respond {e}"}), 500
     
 
-@app.route('/UpdateTheDevicesJson', methods=['GET']) # this function will use broadlink own library and update the devices.json with that
-def UpdateTheDevicesJson():
-    try:
-        freshDeviceList = broadlink.discover(timeout=5, local_ip_address=ipv4)
-        wlandevices.check_wlan_device_status(freshDeviceList)
-        return jsonify({"status : ok"}), 200
-    except Exception as e:
-        logger.error(f"Error happening, when trying to update the devices.json: {e}")
-        return  jsonify({"error": "Server failed to respond {e}"}), 500
-    
+def UpdateTheDevicesJson(): #version 130
+    try: 
+        threading.Thread(target=background_update).start() 
+        return jsonify({"status": "started"}), 200 
+    except Exception as e: 
+        return jsonify({"error": str(e)}), 500
     
 #  post request    
 @app.route('/SaveSettingsFromPhone', methods=['POST'])  # version 127 save the settings from react native
@@ -123,8 +159,9 @@ def receive_data():
     if not request_data:
         return jsonify({"error": "Empty payload"}), 400
     try:
-        server_data = wlandevices.load_json()
+        server_data = wlandevices.load_json_from_db()
         updates = []
+
         if 'distance_from_floor' in request_data:  # update to version 125
             requested_height = request_data['distance_from_floor']
             if isinstance(requested_height, list):
@@ -136,11 +173,11 @@ def receive_data():
             if abs(current_height - requested_height) > 0.5:  # tolerance.
                 if requested_height > current_height:
                     difference = requested_height - current_height
-                    logger.info(f"🔼 Requested height is higher → motor_control('up', {requested_height})")
+                    logger.info(f" Requested height is higher → motor_control('up', {requested_height})")
                     motorControlFromPhone(difference, 15, 23)
                 elif requested_height < current_height:
                     difference = current_height - requested_height
-                    logger.info(f"🔽 Requested height is lower → motor_control('down', {requested_height})")
+                    logger.info(f" Requested height is lower → motor_control('down', {requested_height})")
                     motorControlFromPhone(difference, 12, 8)
 
         for key, new_arr in request_data.items():
@@ -156,8 +193,24 @@ def receive_data():
             logger.info("old_conf for %s: %s", key, old_cfg)
             logger.info("new_conf for %s: %s", key, new_cfg)
 
-            # search the broadlink library based device object
-            dev = wlandevices.SearchSpecific_device(key, devicesInServer)
+            # ennen: fresh_devices = broadlink.discover(timeout=5, local_ip_address=ipv4)
+            # sen sijaan:
+            try:
+                cached_devices_lock.acquire()
+                fresh_devices = list(cached_devices)  # kopioidaan käyttöä varten
+            finally:
+                cached_devices_lock.release()
+
+            # fallback jos cache tyhjä (esim. käynnistyksen aikana)
+            if not fresh_devices:
+                try:
+                    fresh_devices = broadlink.discover(timeout=3, local_ip_address=ipv4)
+                    logger.info("Fallback discover used in receive_data")
+                except Exception as e:
+                    logger.error("Fallback discover failed: %s", e)
+                    fresh_devices = []
+
+            dev = wlandevices.SearchSpecific_device(key, fresh_devices)
             if not dev:
                 logger.error("Device not found: %s", key)
                 continue
@@ -214,7 +267,7 @@ def receive_data():
 
         # Update json only if it has changed
         if updates:
-            wlandevices.update_json(server_data)
+            wlandevices.save_json_to_db(server_data)
             logger.info(" Updated JSON for keys %s", updates)
 
         return jsonify({"status": "OK", "updated": updates}), 200
@@ -224,9 +277,99 @@ def receive_data():
         return jsonify({"error": "Server error"}), 500
 
 
+@app.route('/PairNewDevice', methods=['POST'])#version 130
+def pair_new_device():
+    logger.info("PairNewDevice POST arrived")
+    try:
+        data = request.get_json(force=True) or {}
+        ssid = data.get("ssid")
+        password = data.get("password")
+
+        if not ssid or not password:
+            logger.error("Missing ssid or password in payload")
+            return jsonify({"error": "Missing ssid or password"}), 400
+
+        logger.info(f"Starting Broadlink setup for SSID: {ssid}")
+
+        # 1) Käynnistä Broadlink-paritus: lähetä WiFi-tiedot laitteelle
+        #   (joissain versioissa on myös argumentti 'security_mode', mutta
+        #   ssid, password on perusjuttu)
+        broadlink.setup(ssid, password)
+
+        # 2) Odota hetki, että laite liittyy verkkoon ja löydetään se
+        #    käytetään samaa ipv4-osoitetta kuin muuallakin
+        devices = broadlink.discover(timeout=10, local_ip_address=ipv4)
+
+        if not devices:
+            logger.warning("No devices found after pairing")
+            return jsonify({"status": "NO_DEVICES_FOUND"}), 200
+
+        # Muutetaan löydetyt laitteet serialisoitavaan muotoon
+        result = []
+        for dev in devices:
+            try:
+                host = None
+                if isinstance(dev.host, tuple):
+                    host = dev.host[0]
+                else:
+                    host = dev.host
+
+                result.append({
+                    "host": host,
+                    "mac": ":".join(["%02X" % b for b in dev.mac]) if getattr(dev, "mac", None) else None,
+                    "devtype": getattr(dev, "devtype", None),
+                    "type": dev.__class__.__name__
+                })
+            except Exception as e:
+                logger.error(f"Error serializing device: {e}")
+
+        logger.info("Pairing result: %s", pformat(result))
+
+        # Halutessa voisi myös päivittää devicesInServer globaalin listan:
+        # global devicesInServer
+        # devicesInServer = devices
+
+        return jsonify({"status": "OK", "devices": result}), 200
+
+    except Exception as e:
+        logger.error(f"Error in PairNewDevice: {e}")
+        return jsonify({"error": "Server failed to pair device"}), 500
+
+
+def background_update(): #version 130
+    fresh = broadlink.discover(timeout=5, local_ip_address=ipv4)
+    temp_json = wlandevices.check_wlan_device_status(fresh)
+    wlandevices.persist_devices(temp_json)
+    print("Device list updated")
+    
+    
+def auto_update_loop():
+    global cached_devices
+    while True:
+        try:
+            fresh = broadlink.discover(timeout=5, local_ip_address=ipv4)
+            logger.info("Auto-update: discover returned %d devices, calling check_wlan_device_status()", len(fresh))
+            temp_json = wlandevices.check_wlan_device_status(fresh)
+            # persistataan
+            wlandevices.persist_devices(temp_json)
+            logger.info("Auto-update: check_wlan_device_status() finished in s, returned %d entries", len(temp_json))
+            # päivitetään cache thread-safe
+            try:
+                cached_devices_lock.acquire()
+                cached_devices = fresh  # tallennetaan Broadlink‑objektit
+            finally:
+                cached_devices_lock.release()
+
+            logger.info("Auto-update: devices refreshed, cached_devices updated")
+        except Exception as e:
+            logger.error("Auto-update error: %s", e)
+            import traceback; traceback.print_exc()
+        time.sleep(280)
+
 
 
 if __name__ == '__main__':
+    threading.Thread(target=auto_update_loop, daemon=True).start()#version 130
     #context = ('/etc/ssl/certificate.crt', '/etc/ssl/private.key')  # HTTPS-sertifikaatti
     logger.info("Flask-palvelin käynnistyy...")
     print("Flask-palvelin käynnistyy...")

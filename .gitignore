@@ -7,3 +7,6 @@
 *.pyc
 *.json
 *.log
+/deleted projectFiles/*
+.env
+/OldFiles/

@@ -320,3 +320,53 @@ protocol websockets
 
 ## version 129
 - I add the functionalies to shutdown this server from phone and refresh the devices.json file from phone. This new feature calls the broadlink own device search and refresh the devices.json
+
+## version 130
+- Cleaning the uneccesery files from project
+- Adding the pairing new device functionalies
+- Adding the automatic updates to broadlink devices list
+
+## version 131
+- Remember to upload the wlandevices and python server to rasbian
+- I have updated now the automatic update logic. Now the rasbiantkinter app keeps its own devices.json and python server keeps this owx devices_server.json file. This how we awoid to different programs to use the same file at the same time.
+
+## version 132
+- I modify the program to use database. It is so pointless to figure out why the json file is not changing. Next step is to configure the whole program to use database.
+
+### bugs so far
+- Not updating the new devices automaticly
+- Json data is wrong form. There is tkinter specifig data missing
+- Delay in changing the device status
+
+### bugs 18.1.2026
+- Program cannot save the user settings for now.
+- Automatic device update is still not working
+
+### report
+- Now the program founds new devices, what is paired but powered after this flaskserver startup. There was logging code, what stop the autoupdateloot to save to database the new devices list.
+
+- Next this is update the db.py and save_to_File.py use database.
+
+
+## version 133
+- I think that the data update issue is causing by that old save devices status to file. It did not never work like excepted so now I modify the program to save only in database.
+
+- I fix now the update error in devices table. Now if new devices appear on wlan, it will show on react native.
+- Now user can save and load the settings from react native and tkinter.
+- This program will not save anymore in the files so lets test this and then merge the branch
+- Add the error controlling in load settings part. Also cleaned the code littlebit.
+
+
+## Spells (removed, With iot devices it is not good idea to use systemcctl )
+sudo systemctl daemon-reload
+sudo systemctl restart flaskserver.service
+sudo systemctl status flaskserver.service
+sudo systemctl stop flaskserver.service
+sudo systemctl start flaskserver.service
+journalctl -u flaskserver.service -f Log files
+
+nohup tail -F /home/table/Desktop/table2/table_project/logs/flaskserver_log.log > /tmp/flask_tail.log 2>&1 & echo $!
+
+sudo tail -F /home/table/Desktop/table2/table_project/logs/flaskserver_log.log &
+sudo tail -F /home/table/Desktop/table2/table_project/logs/Wlandevices.log & 
+
