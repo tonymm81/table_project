@@ -354,9 +354,10 @@ protocol websockets
 - I fix now the update error in devices table. Now if new devices appear on wlan, it will show on react native.
 - Now user can save and load the settings from react native and tkinter.
 - This program will not save anymore in the files so lets test this and then merge the branch
+- Add the error controlling in load settings part. Also cleaned the code littlebit.
 
 
-## Spells
+## Spells (removed, With iot devices it is not good idea to use systemcctl )
 sudo systemctl daemon-reload
 sudo systemctl restart flaskserver.service
 sudo systemctl status flaskserver.service

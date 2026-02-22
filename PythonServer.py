@@ -14,7 +14,7 @@ import save_to_file as saved
 from subprocess import call
 import threading#version 130
 import time#version 130
-from table_project.table_project.dbOldWorking import get_connection
+#from table_project.table_project.OldFiles.dbOldWorking import get_connection
 import traceback
 traceback.print_exc()
 
@@ -33,7 +33,7 @@ logger = logging.getLogger("pythonserver")
 file_handler = logging.FileHandler("/home/table/Desktop/table2/table_project/logs/flaskserver_log.log")
 formatter = logging.Formatter("%(asctime)s - %(message)s")
 file_handler.setFormatter(formatter)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 logger.addHandler(file_handler)
 
 #print("PYTHONSERVER USING:", wlandevices.__file__) 

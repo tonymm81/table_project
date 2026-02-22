@@ -38,19 +38,6 @@ def starting():
     return top4
 
 
-"""def loadSavedSettingsFromPhone(devices) -> List[str]:
-    try:
-        path = get_local_path("saves.txt")
-        logger3.info(f"Path, where we try to open file: {path}")
-
-        with open(path, "r", encoding="utf-8") as f:
-            cleanedsamename = json.load(f)
-        logger3.info(f"What we loaded: {cleanedsamename}")
-        f.close()
-        return cleanedsamename
-    except FileNotFoundError:
-         logger3.error("saves.txt did not found")
-         return"""
 def loadSavedSettingsFromPhone(devices) -> List[str]:# version 133 changes
     try:
         rows = list_configs()  # palauttaa listan tupleja: (save_key, slot_index, updated_at)
@@ -70,27 +57,7 @@ def loadSavedSettingsFromPhone(devices) -> List[str]:# version 133 changes
 
 
 
-"""def load_settings(devices):
-    try:
-        global savename
-        path = get_local_path("saves.txt")
-        with open(path, "r", encoding="utf-8") as f:
-            cleanedsamename = json.load(f)
-        f.close()  
-    except FileNotFoundError:
-        logger3.error("saves.txt did not found")
-        return
-      
-    top4 = starting()
-    label_1 = Label(top4, text= "Choose what setup we load?", font=("helvetica", 10), fg="white", bg="black")
-    label_1.grid(row=1, column=1)
-    load_json = wlan_devices.get_json()
-    load_btn1 = Button(top4, text=str(cleanedsamename[0]),fg="white", bg="black",font=("helvetica", 15), command=lambda: return_wlan_devices(savename[0], devices)).grid(row = 3, column=1)
-    load_btn2 = Button(top4, text=str(cleanedsamename[1]),fg="white", bg="black",font=("helvetica", 15), command=lambda: return_wlan_devices(savename[1], devices)).grid(row = 5, column=1)
-    load_btn3 = Button(top4, text=str(cleanedsamename[2]),fg="white", bg="black",font=("helvetica", 15), command=lambda: return_wlan_devices(savename[2], devices)).grid(row = 7, column=1)
-    load_btn4 = Button(top4, text=str(cleanedsamename[3]),fg="white", bg="black",font=("helvetica", 15), command=lambda: return_wlan_devices(savename[3], devices)).grid(row = 9, column=1)
-    top4.mainloop()
-    return"""
+
 
 def load_settings(devices):# version 133 changes
     try:
@@ -135,24 +102,6 @@ def load_settings(devices):# version 133 changes
 
 
 
-"""def save_settings():
-    top4 = starting()
-    measure = motorcontrol.measure_table()
-    listbox = Listbox(top4, width=40, height=10, selectmode=SINGLE)
-    listbox.grid(row=15, column=1)
-    listbox.insert(1, "save1")
-    listbox.insert(2, "save2")
-    listbox.insert(3, "save3")
-    listbox.insert(4, "save4")
-    label_2 = Label(top4, text= "Give us name for the saved setup and choose a save slot", font=("helvetica", 10), fg="white", bg="black")
-    label_2.grid(row=1, column=1)
-    entry= Entry(top4, width= 40)
-    entry.focus_set()
-    entry.grid(row=3, column=1)
-    save_btn = Button(top4, text="Save changes",fg="white", bg="black",font=("helvetica", 15), command=lambda: get_user_data(listbox, entry, measure)).grid(row = 12, column=1)
-    #string= entry.get() when ok button pressed
-    top4.mainloop()
-    return"""
 def save_settings(): # version 133 changes 
     top4 = starting()
     measure = motorcontrol.measure_table()
@@ -188,38 +137,7 @@ def save_settings(): # version 133 changes
     top4.mainloop()
 
 
-"""def get_user_data_from_phone(entry, measure, slot_index): # this funktion will saved the devices.json wiht user given name and saves user given save name to saves.txt also
-    try:
-        measure_from_floor = "distance_from_floor"
-        save_json = wlan_devices.get_json()
-        save_json_temp = json.loads(save_json)
 
-        # Save the json file
-        json_path = get_local_path(f"{entry}.json")
-        with open(json_path, "w", encoding="utf-8") as outfile:
-            json.dump(save_json_temp, outfile, ensure_ascii=False)
-
-        # Lue vanhat tallennukset
-        saves_path = get_local_path("saves.txt")
-        try:
-            with open(saves_path, "r", encoding="utf-8") as f:
-                savename = json.load(f)
-        except FileNotFoundError:
-            savename = ["", "", "", ""]
-            logger3.error("saves.txt did not found")
-        # Päivitä oikea slotti
-        if isinstance(slot_index, int) and 0 <= slot_index < len(savename):
-            savename[slot_index] = entry
-
-        # Tallenna takaisin
-        with open(saves_path, "w", encoding="utf-8") as file:
-            json.dump(savename, file, ensure_ascii=False, indent=2)
-        cleanUpTheOldUserSaveFiles(savename)
-        outfile.close()
-        file.close()
-        return
-    except Exception as e:
-        logger3.error("error happens in filehandling %s", e)"""
 
 
 def get_user_data_from_phone(entry, measure, slot_index):# version 133 changes
@@ -239,38 +157,7 @@ def get_user_data_from_phone(entry, measure, slot_index):# version 133 changes
 
 
 
-"""def get_user_data(listbox, entry, measure): # this funktion will saved the devices.json wiht user given name and saves user given save name to saves.txt also
-    try:
-        global savename
-        measure_from_floor = "distance_from_floor"
-        save_json = wlan_devices.get_json()
-        save_json_temp = json.loads(save_json)
 
-        for i in listbox.curselection():
-            saveslot = listbox.index(i)
-
-        name_file = entry.get()
-        print("test", name_file, saveslot)
-        savename[saveslot] = str(name_file)
-
-        desk_level = {measure_from_floor: [measure]}
-        save_json_temp.update(desk_level)
-        wlan_devices.update_json(save_json_temp)
-
-        json_path = get_local_path(f"{name_file}.json")
-        with open(json_path, "w", encoding="utf-8") as outfile:
-            json.dump(save_json_temp, outfile, ensure_ascii=False)
-
-        saves_path = get_local_path("saves.txt")
-        with open(saves_path, "w", encoding="utf-8") as file:
-            json.dump(savename, file, ensure_ascii=False, indent=2)
-        cleanUpTheOldUserSaveFiles(savename)
-        outfile.close()
-        file.close()
-    except Exception as e:
-        logger3.error("error happens in filehandling %s", e)
-
-    return"""
 
 def save_user_settings_from_tk(listbox, entry, measure):# version 133 changes
     try:
@@ -307,38 +194,6 @@ def save_user_settings_from_tk(listbox, entry, measure):# version 133 changes
         logger3.error(f"Error saving settings from Tkinter: {e}")
 
 
-
-"""def execute_loaded_settings(name: str, index: int, devices : dict):#version 127 This will load the wanted setup, and change the devices state
-    path = get_local_path("saves.txt")
-    try:
-        with open(path, "r", encoding="utf-8") as saveNames:
-            savename = json.load(saveNames)
-    except FileNotFoundError:
-        logger3.error("saves.txt ei löytynyt")
-        return {"error": "No saved settings found"}
-
-    if not (0 <= index < len(savename)):
-        logger3.error(f"Virheellinen indeksi: {index}")
-        return {"error": "Invalid slot index"}
-
-    selected_name = savename[index]
-    logger3.info(f"Valittu asetuksen nimi: {selected_name}")
-
-    # Ladataan tallennettu JSON-tiedosto
-    json_path = get_local_path(f"{selected_name}.json")
-    try:
-        with open(json_path, "r", encoding="utf-8") as SavedSettingsJsonFile:
-            loaded_config = json.load(SavedSettingsJsonFile)
-    except FileNotFoundError:
-        logger3.error(f"Tiedostoa {selected_name}.json ei löytynyt")
-        return {"error": "Saved configuration not found"}
-
-    current_devices = json.loads(wlan_devices.get_json())
-    return_wlan_devices_from_phone(loaded_config, current_devices, devices)
-    saveNames.close()
-    SavedSettingsJsonFile.close()
-
-    return {"status": f"Settings '{selected_name}' executed"}"""
 
 
 
@@ -484,26 +339,29 @@ def return_wlan_devices_from_phone(loaded_config, current_devices, devices): # h
             time.sleep(0.2)           
             #print("what data outer loop", device_saved)
             for x in current_devices:
-                time.sleep(0.2)
-                #print("what data in inner loop", x)
-                if device_saved != "distance_from_floor":
-                    if device_saved == x:
-                        #print("Same device:", device_saved)
-                        if (loaded_config[device_saved][2] == 32000 or loaded_config[device_saved][2] == 42348  or loaded_config[device_saved][2] == 30073):
-                            if loaded_config[device_saved][1] != current_devices[x][1]:
-                                #print("Change plug state:", saved_json[device_saved][1], new_json_temp[x][1])
-                                wlan_devices.control_wlan_devices(device_saved, devices)
-                            #else:
-                                #print("same state", saved_json[device_saved][1],new_json_temp[x][1])
-                        if (loaded_config[device_saved][2] == 24686):
-                            #if saved_json[device_saved][1] == 
-                            if loaded_config[device_saved][1]['pwr'] != current_devices[x][1]['pwr']:
-                                control = wlan_devices.SearchSpecific_device(device_saved, devices)
-                                #print("Change bulb state:", saved_json[device_saved][1]['pwr'], new_json_temp[x][1]['pwr'])
-                                wlan_devices.set_state_bulp(current_devices, device_saved, control, "pwr", 0)
-                            #else:
-        
-                                #print("not changes on lights", saved_json[device_saved][1]['pwr'], new_json_temp[x][1]['pwr'])
+                try:
+                    time.sleep(0.2)
+                    #print("what data in inner loop", x)
+                    if device_saved != "distance_from_floor":
+                        if device_saved == x:
+                            #print("Same device:", device_saved)
+                            if (loaded_config[device_saved][2] == 32000 or loaded_config[device_saved][2] == 42348  or loaded_config[device_saved][2] == 30073):
+                                if loaded_config[device_saved][1] != current_devices[x][1]:
+                                    #print("Change plug state:", saved_json[device_saved][1], new_json_temp[x][1])
+                                    wlan_devices.control_wlan_devices(device_saved, devices)
+                                #else:
+                                    #print("same state", saved_json[device_saved][1],new_json_temp[x][1])
+                            if (loaded_config[device_saved][2] == 24686):
+                                #if saved_json[device_saved][1] == 
+                                if loaded_config[device_saved][1]['pwr'] != current_devices[x][1]['pwr']:
+                                    control = wlan_devices.SearchSpecific_device(device_saved, devices)
+                                    #print("Change bulb state:", saved_json[device_saved][1]['pwr'], new_json_temp[x][1]['pwr'])
+                                    wlan_devices.set_state_bulp(current_devices, device_saved, control, "pwr", 0)
+                
+                except Exception as e:
+                    logger3.error("Some devices were not found : %s", e)
+                                    #else:
+            
     except Exception as e:
         print("wlan devices control fails on error : ", e)  
         logger3.error("wlan devices control fails on error : %s", e)     

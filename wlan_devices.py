@@ -18,7 +18,7 @@ logger2 = logging.getLogger("wlan_devices")
 file_handler = logging.FileHandler("/home/table/Desktop/table2/table_project/logs/Wlandevices.log")
 formatter = logging.Formatter("%(asctime)s - %(message)s")
 file_handler.setFormatter(formatter)
-logger2.setLevel(logging.DEBUG)
+logger2.setLevel(logging.ERROR)
 logger2.addHandler(file_handler)
 
 
@@ -35,26 +35,7 @@ def get_local_path(filename):
 
 
 def save_json(devices_library, filename=None): 
-    """if filename is None: 
-        filename = JSON_FILE 
-    filepath = get_local_path(filename)
-    try:
-        table_distance = measure_table()
-        devices_library.update({"distance_from_floor": [table_distance]})
-        #filepath = get_local_path(JSON_FILE)# version 131
-
-        # Poista vanha tiedosto, jos se on olemassa
-        if os.path.exists(filepath):
-            os.remove(filepath)
-
-        with open(filepath, "w") as f:
-            json.dump(devices_library, f, indent=4)
-            f.flush()
-            os.fsync(f.fileno())
-
-        logger2.info(f"{JSON_FILE} saved")
-    except Exception as e:
-        logger2.error(" save_json failed: %s", e)"""
+    
     logger2.info("db saved")
     save_json_to_db(devices_library)
 
@@ -64,20 +45,7 @@ def load_json(filename=None):
     dbData = load_json_from_db()
     logger2.info("Json file loaded: %s", dbData)
     return dbData
-    """if filename is None: 
-        filename = JSON_FILE 
-    filepath = get_local_path(filename)
-    try:
-        with open(filepath, "r") as f:
-            data = json.load(f)
-        logger2.info("Json file loaded: %s", filepath)
-        return data
-    except FileNotFoundError:
-        logger2.warning(" File not found ehhehe: %s", filepath)
-        return {}
-    except Exception as e:
-        logger2.error(" JSON loading fail: %s", e)
-        return {}"""
+   
 
 
 
@@ -128,11 +96,7 @@ def save_json_to_db(data: dict):# version 133 changes
 
 
 def load_json_from_db():
-    """
-    Hakee devices-taulusta device_key ja value_json, palauttaa dictin muodossa:
-    { device_key: parsed_json_dict_or_empty_dict, ... }
-    Suojaa tyhjät/virheelliset JSON-arvot ja lokittaa virheet.
-    """
+   
     conn = get_connection()
     cur = conn.cursor()
     try:
@@ -327,12 +291,7 @@ def control_wlan_devices(device_names, devices):# here we change the wlan device
     else:
         
         print("plug!!")
-        control = SearchSpecific_device(device_name_tmp, devices)
-        """for i in range(len(devices)):
-            if device_name_tmp == devices[i].name:
-                control = devices[i]
-                break"""
-            
+        control = SearchSpecific_device(device_name_tmp, devices)  
         control.auth()
         switch_state = control.check_power()
         
@@ -444,9 +403,6 @@ def set_state_bulp(temp_json,device_name_tmp, control, colors, choice):
     state = control.get_state()
     print("lamp case", device_name_tmp)
     temp_json[device_name_tmp][1]['pwr'] = state['pwr']
-    #print("whole json" ,temp_json[device_name_tmp])
-    #print("testing", device_name_tmp, "json", str(temp_json[device_name_tmp][1]['pwr']))
-    #devices_library = json.dumps(temp_json, indent=4)
     update_json(temp_json)
     return 
     
